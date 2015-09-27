@@ -16,7 +16,7 @@ Pod::Spec.new do |s|
   #
 
   s.name         = "QvikNetwork"
-  s.version      = "0.0.1"
+  s.version      = "0.0.2"
   s.summary      = "QvikNetwork is a set of networking utilities for Swift."
 
   s.description  = <<-DESC
@@ -88,8 +88,8 @@ Pod::Spec.new do |s|
   #  Not including the public_header_files will make all headers public.
   #
 
-  s.exclude_files = "QvikSwift/QvikSwift.playground", "QvikNetworkTests"
-  s.source_files  = "QvikSwift/**/*.{swift}"
+  s.exclude_files = "QvikNetworkTests"
+  s.source_files  = "QvikNetwork/**/*.{swift}"
 
   #s.source_files  = "Classes", "Classes/**/*.{h,m}"
   #s.exclude_files = "Classes/Exclude"
@@ -117,7 +117,12 @@ Pod::Spec.new do |s|
   #  the lib prefix of their name.
   #
 
-  # s.framework  = "SomeFramework"
+  s.framework = "UIKit"
+  s.dependency 'Alamofire', '~> 2.0'
+  s.dependency 'QvikSwift', '~> 2.0.0'
+  s.dependency 'XCGLogger', '~> 3.0'
+  s.dependency 'CryptoSwift'
+
   # s.frameworks = "SomeFramework", "AnotherFramework"
 
   # s.library   = "iconv"

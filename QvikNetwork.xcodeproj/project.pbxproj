@@ -94,13 +94,13 @@
 		49B21C051BB7CD9D00C25FDE /* QvikNetwork */ = {
 			isa = PBXGroup;
 			children = (
+				49B21C2B1BB7DCC700C25FDE /* QvikNetwork.swift */,
 				49B21C1E1BB7CE4000C25FDE /* CachedImageView.swift */,
 				49B21C1F1BB7CE4000C25FDE /* Download.swift */,
 				49B21C201BB7CE4000C25FDE /* DownloadGroup.swift */,
 				49B21C211BB7CE4000C25FDE /* DownloadManager.swift */,
 				49B21C221BB7CE4000C25FDE /* ImageCache.swift */,
 				49B21C1D1BB7CDC000C25FDE /* Supporting files */,
-				49B21C2B1BB7DCC700C25FDE /* QvikNetwork.swift */,
 			);
 			path = QvikNetwork;
 			sourceTree = "<group>";

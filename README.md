@@ -1,6 +1,13 @@
 # Qvik's network utility collection
 
-*This library contains Swift (2.0+) utilities for use in both Qvik's internal and customer projects.*
+*This library contains Swift (2.0+) networking utilities for use in both Qvik's internal and customer projects.*
+
+
+## Changelog
+
+* 0.0.2
+	* Initial version
+
 
 ## Usage
 
@@ -19,11 +26,13 @@ And the following to your source:
 import QvikNetwork
 ```
 
-## Changelog
+## Controlling log level
 
-* 0.0.1
-	* Initial version
+The library may emit logging for errors, and if you tell it to, debug stuff. Enable debug logging as such:
 
+```swift
+QvikNetwork.debugLogging = true
+```
 
 ## Features
 

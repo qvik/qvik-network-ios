@@ -39,7 +39,7 @@ All notifications are sent on the main (UI) thread.
 
 All the methods of this class are thread safe.
 */
-public class ImageCache {
+public class ImageCache: NSObject {
     public enum FileFormat {
         case JPEG
         case PNG
@@ -300,6 +300,8 @@ public class ImageCache {
         let paths = NSSearchPathForDirectoriesInDomains(.CachesDirectory, .UserDomainMask, true)
         let cacheRootDirectory = paths[0] as NSString
         path = cacheRootDirectory.stringByAppendingPathComponent(imagePath)
+        
+        super.init()
         
         log.debug("My disk cache path is: \(path)")
         

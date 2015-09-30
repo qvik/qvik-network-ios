@@ -1,10 +1,12 @@
 # Qvik's network utility collection
 
-*This library contains Swift (2.0+) networking utilities for use in both Qvik's internal and customer projects.*
+*This library contains Swift (2.0+) networking utilities for use in both Qvik's internal and customer projects. They are released with the MIT license.*
 
 
 ## Changelog
 
+* 0.0.4 
+	* Added BaseRemoteService
 * 0.0.3
 	* Initial version
 
@@ -26,7 +28,7 @@ And the following to your source:
 import QvikNetwork
 ```
 
-## Controlling log level
+## Controlling the library's log level
 
 The library may emit logging for errors, and if you tell it to, debug stuff. Enable debug logging as such:
 
@@ -115,6 +117,44 @@ func populateView(message: Message) {
 	imageView.imageUrl = message.imageUrl
 }
 
+```
+
+### BaseRemoteService
+
+This is a superclass for a Remote API service built on top of the Alamofire HTTP library. It provides response parsing and wraps all the Alamofire APIs, reducing boiler plate from the actual implementation. For full feature set, see the code.
+
+Example implementation:
+
+```swift
+class RemoteService: BaseRemoteService {
+  private static let singletonInstance = RemoteService()
+
+  class func sharedInstance() -> RemoteService {
+    return singletonInstance
+  }
+
+  /// Attempts to verify an email address
+  func verifyEmailAddress(email: String, completionCallback: (RemoteResponse -> Void)) {
+    let url = "\(baseUrl)/api/verifyemail"
+    let params = ["email": email]
+
+    request(.POST, url, parameters: params, encoding: .JSON, headers: nil) { response in
+      completionCallback(response)
+    }
+  }
+
+  // TODO Other methods ..
+
+  init() {
+    let additionalHeaders = [
+      "X-My-API-Key": "asldasdaksdjhakdjhasdkjh",
+      "X-My-Api-Version": "1",
+      "X-My-Client": getClientId()
+    ]
+
+    super.init(backgroundSessionId: "com.example.MyApp", additionalHeaders: additionalHeaders, timeout: 5)
+  }
+}
 ```
 
 ## Contributing 

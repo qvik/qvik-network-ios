@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		49274A6B1BBBEDA70024AB80 /* RemoteResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49274A691BBBEDA70024AB80 /* RemoteResponse.swift */; settings = {ASSET_TAGS = (); }; };
+		49274A6C1BBBEDA70024AB80 /* BaseRemoteService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49274A6A1BBBEDA70024AB80 /* BaseRemoteService.swift */; settings = {ASSET_TAGS = (); }; };
 		49B21C0E1BB7CD9D00C25FDE /* QvikNetwork.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 49B21C031BB7CD9D00C25FDE /* QvikNetwork.framework */; settings = {ASSET_TAGS = (); }; };
 		49B21C131BB7CD9D00C25FDE /* QvikNetworkTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49B21C121BB7CD9D00C25FDE /* QvikNetworkTests.swift */; };
 		49B21C231BB7CE4000C25FDE /* CachedImageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49B21C1E1BB7CE4000C25FDE /* CachedImageView.swift */; settings = {ASSET_TAGS = (); }; };
@@ -30,6 +32,8 @@
 
 /* Begin PBXFileReference section */
 		0DB2951FFB5B46B6CF96C77F /* Pods.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = Pods.debug.xcconfig; path = "Pods/Target Support Files/Pods/Pods.debug.xcconfig"; sourceTree = "<group>"; };
+		49274A691BBBEDA70024AB80 /* RemoteResponse.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RemoteResponse.swift; sourceTree = "<group>"; };
+		49274A6A1BBBEDA70024AB80 /* BaseRemoteService.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BaseRemoteService.swift; sourceTree = "<group>"; };
 		49B21C031BB7CD9D00C25FDE /* QvikNetwork.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = QvikNetwork.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		49B21C081BB7CD9D00C25FDE /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		49B21C0D1BB7CD9D00C25FDE /* QvikNetworkTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = QvikNetworkTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -68,6 +72,41 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		49274A651BBBED6B0024AB80 /* Download manager */ = {
+			isa = PBXGroup;
+			children = (
+				49B21C1F1BB7CE4000C25FDE /* Download.swift */,
+				49B21C201BB7CE4000C25FDE /* DownloadGroup.swift */,
+				49B21C211BB7CE4000C25FDE /* DownloadManager.swift */,
+			);
+			name = "Download manager";
+			sourceTree = "<group>";
+		};
+		49274A661BBBED780024AB80 /* Image cache */ = {
+			isa = PBXGroup;
+			children = (
+				49B21C221BB7CE4000C25FDE /* ImageCache.swift */,
+			);
+			name = "Image cache";
+			sourceTree = "<group>";
+		};
+		49274A671BBBED820024AB80 /* Custom controls */ = {
+			isa = PBXGroup;
+			children = (
+				49B21C1E1BB7CE4000C25FDE /* CachedImageView.swift */,
+			);
+			name = "Custom controls";
+			sourceTree = "<group>";
+		};
+		49274A681BBBED930024AB80 /* Base remote service */ = {
+			isa = PBXGroup;
+			children = (
+				49274A691BBBEDA70024AB80 /* RemoteResponse.swift */,
+				49274A6A1BBBEDA70024AB80 /* BaseRemoteService.swift */,
+			);
+			name = "Base remote service";
+			sourceTree = "<group>";
+		};
 		49B21BF91BB7CD9D00C25FDE = {
 			isa = PBXGroup;
 			children = (
@@ -95,11 +134,10 @@
 			isa = PBXGroup;
 			children = (
 				49B21C2B1BB7DCC700C25FDE /* QvikNetwork.swift */,
-				49B21C1E1BB7CE4000C25FDE /* CachedImageView.swift */,
-				49B21C1F1BB7CE4000C25FDE /* Download.swift */,
-				49B21C201BB7CE4000C25FDE /* DownloadGroup.swift */,
-				49B21C211BB7CE4000C25FDE /* DownloadManager.swift */,
-				49B21C221BB7CE4000C25FDE /* ImageCache.swift */,
+				49274A681BBBED930024AB80 /* Base remote service */,
+				49274A671BBBED820024AB80 /* Custom controls */,
+				49274A661BBBED780024AB80 /* Image cache */,
+				49274A651BBBED6B0024AB80 /* Download manager */,
 				49B21C1D1BB7CDC000C25FDE /* Supporting files */,
 			);
 			path = QvikNetwork;
@@ -283,10 +321,12 @@
 			files = (
 				49B21C271BB7CE4000C25FDE /* ImageCache.swift in Sources */,
 				49B21C231BB7CE4000C25FDE /* CachedImageView.swift in Sources */,
+				49274A6C1BBBEDA70024AB80 /* BaseRemoteService.swift in Sources */,
 				49B21C241BB7CE4000C25FDE /* Download.swift in Sources */,
 				49B21C2C1BB7DCC700C25FDE /* QvikNetwork.swift in Sources */,
 				49B21C251BB7CE4000C25FDE /* DownloadGroup.swift in Sources */,
 				49B21C261BB7CE4000C25FDE /* DownloadManager.swift in Sources */,
+				49274A6B1BBBEDA70024AB80 /* RemoteResponse.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

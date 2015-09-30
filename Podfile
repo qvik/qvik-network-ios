@@ -8,5 +8,6 @@ pod 'Alamofire', '~> 2.0'
 pod 'QvikSwift', '~> 2.0.0'
 pod 'XCGLogger', '~> 3.0'
 pod 'CryptoSwift'
+pod 'SwiftKeychain'
 
 

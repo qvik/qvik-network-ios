@@ -26,6 +26,15 @@ import UIKit
 An UIImageView that retrieves the image from ImageCache (default shared instance).
 */
 public class CachedImageView: UIImageView {
+    /// Callback to be called when the image changes.
+    public var imageChangedCallback: (Void -> Void)?
+    
+    override public var image: UIImage? {
+        didSet {
+            imageChangedCallback?()
+        }
+    }
+    
     /// Image URL. Setting this will cause the view to automatically load the image
     public var imageUrl: String? = nil {
         didSet {

@@ -5,6 +5,9 @@
 
 ## Changelog
 
+* 0.0.7 
+    * Using a dedicated logger instance instead of default (shared) one
+    * 
 * 0.0.6
     * Made CachedImageView inherit from QvikImageView
 * 0.0.5
@@ -13,7 +16,6 @@
 	* Added BaseRemoteService
 * 0.0.3
 	* Initial version
-
 
 ## Usage
 

@@ -21,11 +21,12 @@
 // SOFTWARE.
 
 import UIKit
+import QvikSwift
 
 /**
 An UIImageView that retrieves the image from ImageCache (default shared instance).
 */
-public class CachedImageView: UIImageView {
+public class CachedImageView: QvikImageView {
     /// Callback to be called when the image changes.
     public var imageChangedCallback: (Void -> Void)?
     

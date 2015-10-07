@@ -6,6 +6,7 @@ source 'https://git.qvik.fi/pods/QvikPodSpecs.git'
 
 pod 'Alamofire', '~> 2.0'
 pod 'QvikSwift', '~> 2.0.0'
+#pod 'QvikSwift', :path => '../qvik-swift-ios/'
 pod 'XCGLogger', '~> 3.0'
 pod 'CryptoSwift'
 pod 'SwiftKeychain'

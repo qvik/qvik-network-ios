@@ -44,7 +44,7 @@
 		49B21C201BB7CE4000C25FDE /* DownloadGroup.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DownloadGroup.swift; sourceTree = "<group>"; };
 		49B21C211BB7CE4000C25FDE /* DownloadManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DownloadManager.swift; sourceTree = "<group>"; };
 		49B21C221BB7CE4000C25FDE /* ImageCache.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ImageCache.swift; sourceTree = "<group>"; };
-		49B21C281BB7CF0700C25FDE /* Podfile */ = {isa = PBXFileReference; lastKnownFileType = text; path = Podfile; sourceTree = "<group>"; };
+		49B21C281BB7CF0700C25FDE /* Podfile */ = {isa = PBXFileReference; lastKnownFileType = text; path = Podfile; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.ruby; };
 		49B21C291BB7CF0700C25FDE /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		49B21C2A1BB7CF9700C25FDE /* QvikNetwork.podspec */ = {isa = PBXFileReference; lastKnownFileType = text; path = QvikNetwork.podspec; sourceTree = "<group>"; };
 		49B21C2B1BB7DCC700C25FDE /* QvikNetwork.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = QvikNetwork.swift; sourceTree = "<group>"; };

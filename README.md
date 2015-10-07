@@ -5,6 +5,10 @@
 
 ## Changelog
 
+* 0.0.6
+    * Made CachedImageView inherit from QvikImageView
+* 0.0.5
+    * Added image changed -callback to CachedImageView
 * 0.0.4 
 	* Added BaseRemoteService
 * 0.0.3

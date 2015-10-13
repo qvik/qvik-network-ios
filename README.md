@@ -5,6 +5,8 @@
 
 ## Changelog
 
+* 0.0.8
+    * Added autoreleasepool {} to control memory usage with writing image data
 * 0.0.7 
     * Using a dedicated logger instance instead of default (shared) one
     * Performance increase to image cache; added data passthrough writes when applicable

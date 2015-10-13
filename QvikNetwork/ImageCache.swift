@@ -166,37 +166,39 @@ public class ImageCache: NSObject {
     
     private func writeImageToDisk(image image: UIImage, url: String, response: NSHTTPURLResponse?, data: NSData?) {
         runInBackground {
-            self.checkCacheDirExists()
-            
-            let filePath = self.path.stringByAppendingPathComponent(url.md5()!)
-
-            do {
-                try self.fileManager.removeItemAtPath(filePath) // First remove the file if it exists
-            } catch {
-                // Not found, can ignore
-            }
-            
-            let contentType = (response?.allHeaderFields["content-type"] as? String)?.lowercaseString
-            
-            // If fileFormat matches the response's content type and data is set, we can directly write the data
-            if ((self.fileFormat == nil) || (contentType == self.fileFormat!.rawValue)) && (data != nil) {
-                log.debug("Content type matches or is not set and data is set - writing as pass-through")
-                data!.writeToFile(filePath, atomically: true)
-            } else {
-                // File format does not match or image has been downscaled; we must re-compress into selected format
-                let fileFormat = self.fileFormat ?? FileFormat.PNG
-            
-                if fileFormat == .JPEG {
-                    if !UIImageJPEGRepresentation(image, 0.9)!.writeToFile(filePath, atomically: true) {
-                        log.debug("Failed to write JPEG file \(filePath)")
-                    } else {
-                        log.debug("JPEG image written to path \(filePath)")
-                    }
+            autoreleasepool {
+                self.checkCacheDirExists()
+                
+                let filePath = self.path.stringByAppendingPathComponent(url.md5()!)
+                
+                do {
+                    try self.fileManager.removeItemAtPath(filePath) // First remove the file if it exists
+                } catch {
+                    // Not found, can ignore
+                }
+                
+                let contentType = (response?.allHeaderFields["content-type"] as? String)?.lowercaseString
+                
+                // If fileFormat matches the response's content type and data is set, we can directly write the data
+                if ((self.fileFormat == nil) || (contentType == self.fileFormat!.rawValue)) && (data != nil) {
+                    log.debug("Content type matches or is not set and data is set - writing as pass-through")
+                    data!.writeToFile(filePath, atomically: true)
                 } else {
-                    if !UIImagePNGRepresentation(image)!.writeToFile(filePath, atomically: true) {
-                        log.debug("Failed to write PNG file \(filePath)")
+                    // File format does not match or image has been downscaled; we must re-compress into selected format
+                    let fileFormat = self.fileFormat ?? FileFormat.PNG
+                    
+                    if fileFormat == .JPEG {
+                        if !UIImageJPEGRepresentation(image, 0.9)!.writeToFile(filePath, atomically: true) {
+                            log.debug("Failed to write JPEG file \(filePath)")
+                        } else {
+                            log.debug("JPEG image written to path \(filePath)")
+                        }
                     } else {
-                        log.debug("PNG image written to path \(filePath)")
+                        if !UIImagePNGRepresentation(image)!.writeToFile(filePath, atomically: true) {
+                            log.debug("Failed to write PNG file \(filePath)")
+                        } else {
+                            log.debug("PNG image written to path \(filePath)")
+                        }
                     }
                 }
             }

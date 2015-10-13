@@ -27,6 +27,9 @@ import QvikSwift
 An UIImageView that retrieves the image from ImageCache (default shared instance).
 */
 public class CachedImageView: QvikImageView {
+    /// ImageCache instance to use. Default value is the shared instance.
+    public var imageCache = ImageCache.sharedInstance()
+    
     /// Callback to be called when the image changes.
     public var imageChangedCallback: (Void -> Void)?
     
@@ -52,7 +55,7 @@ public class CachedImageView: QvikImageView {
                     return
                 }
                 
-                self.image = ImageCache.sharedInstance().getImage(url: imageUrl, fetch: true)
+                self.image = imageCache.getImage(url: imageUrl, fetch: true)
             }
         }
     }

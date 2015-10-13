@@ -40,9 +40,9 @@ All notifications are sent on the main (UI) thread.
 All the methods of this class are thread safe.
 */
 public class ImageCache: NSObject {
-    public enum FileFormat {
-        case JPEG
-        case PNG
+    public enum FileFormat: String {
+        case JPEG = "image/jpeg"
+        case PNG = "image/png"
     }
     
     public static let cacheImageLoadedNotification = "cacheImageLoadedNotification"
@@ -57,9 +57,9 @@ public class ImageCache: NSObject {
     /** 
     Maximum dimensions for images to store on disk; any image with width/height
     larger than these are downscaled after downloading. Aspect ratio is retained.
-    Default value is 800 x 800.
+    By default this is not set.
     */
-    public var maximumImageDimensions: CGSize? = CGSize(width: 800, height: 800)
+    public var maximumImageDimensions: CGSize?
 
     /**
     Maximum age for unused files in the file cache, in seconds. Default is 30 days.
@@ -67,9 +67,10 @@ public class ImageCache: NSObject {
     public var maximumUnusedFileAge: NSTimeInterval = 30 * 24 * 60 * 60
     
     /**
-    Format to store the downloaded files. Default is .PNG.
+    Format to store the downloaded files. By default it is not set and images
+    of supported formats (see FileFormat enum) are written to the disk as-is.
     */
-    public var fileFormat = FileFormat.PNG
+    public var fileFormat: FileFormat?
     
     private let fileManager = NSFileManager.defaultManager()
     
@@ -163,7 +164,7 @@ public class ImageCache: NSObject {
         }
     }
     
-    private func writeImageToDisk(image image: UIImage, url: String) {
+    private func writeImageToDisk(image image: UIImage, url: String, response: NSHTTPURLResponse?, data: NSData?) {
         runInBackground {
             self.checkCacheDirExists()
             
@@ -175,17 +176,28 @@ public class ImageCache: NSObject {
                 // Not found, can ignore
             }
             
-            if self.fileFormat == .JPEG {
-                if !UIImageJPEGRepresentation(image, 0.9)!.writeToFile(filePath, atomically: true) {
-                    log.debug("Failed to write JPEG file \(filePath)")
-                } else {
-                    log.debug("JPEG image written to path \(filePath)")
-                }
+            let contentType = (response?.allHeaderFields["content-type"] as? String)?.lowercaseString
+            
+            // If fileFormat matches the response's content type and data is set, we can directly write the data
+            if ((self.fileFormat == nil) || (contentType == self.fileFormat!.rawValue)) && (data != nil) {
+                log.debug("Content type matches or is not set and data is set - writing as pass-through")
+                data!.writeToFile(filePath, atomically: true)
             } else {
-                if !UIImagePNGRepresentation(image)!.writeToFile(filePath, atomically: true) {
-                    log.debug("Failed to write PNG file \(filePath)")
+                // File format does not match or image has been downscaled; we must re-compress into selected format
+                let fileFormat = self.fileFormat ?? FileFormat.PNG
+            
+                if fileFormat == .JPEG {
+                    if !UIImageJPEGRepresentation(image, 0.9)!.writeToFile(filePath, atomically: true) {
+                        log.debug("Failed to write JPEG file \(filePath)")
+                    } else {
+                        log.debug("JPEG image written to path \(filePath)")
+                    }
                 } else {
-                    log.debug("PNG image written to path \(filePath)")
+                    if !UIImagePNGRepresentation(image)!.writeToFile(filePath, atomically: true) {
+                        log.debug("Failed to write PNG file \(filePath)")
+                    } else {
+                        log.debug("PNG image written to path \(filePath)")
+                    }
                 }
             }
         }
@@ -195,12 +207,13 @@ public class ImageCache: NSObject {
     private func fetchImage(url url: String) {
         log.debug("Fetching image from URL: \(url)")
         
-        self.downloadManager.download(url: url, additionalHeaders: nil, progressCallback: nil) { (error, data) -> () in
+        self.downloadManager.download(url: url, additionalHeaders: nil, progressCallback: nil) { (error, response, data) -> () in
             if let error = error {
                 log.warning("Image download failed for URL: \(url), error: \(error)")
                 NSNotificationCenter.defaultCenter().postNotificationName(ImageCache.cacheImageLoadFailedNotification, object: self, userInfo: [ImageCache.urlParam: url])
             } else {
                 if let data = data {
+                    log.debug("Response headers: \(response!.allHeaderFields)")
                     log.debug("Image downloaded, storing it in the cache..")
                     runInBackground {
                         var image = UIImage(data: data)
@@ -210,13 +223,19 @@ public class ImageCache: NSObject {
                             return
                         }
                         
+                        var data: NSData? = data
+                        
                         if let maximumImageDimensions = self.maximumImageDimensions {
-                            log.debug("Downscaling the downloaded image..")
+                            log.debug("Downscaling the downloaded image to max size: \(maximumImageDimensions)")
                             image = image!.scaleDown(maxSize: maximumImageDimensions)
+                            data = nil
                         }
                         
-                        self.writeImageToDisk(image: image!, url: url)
+                        // Insert the image to the in-memory cache and notify about successful load
                         self.insertToMemoryCache(image: image!, url: url)
+                        
+                        // Asynchronously write the image to the disk cache
+                        self.writeImageToDisk(image: image!, url: url, response: response, data: data)
                     }
                 } else {
                     log.error("Missing image data in response!")
@@ -228,6 +247,26 @@ public class ImageCache: NSObject {
     
     // MARK: Public methods
 
+    /// Clears the entire cache's contents. Mostly useful for debugging purposes.
+    public func clearCache() {
+        let contents: [String]?
+        do {
+            contents = try fileManager.contentsOfDirectoryAtPath(path as String)
+        } catch let error {
+            log.error("Failed to get contents of disk cache directory, error: \(error)")
+            return
+        }
+        
+        for entry in contents! {
+            let filePath = path.stringByAppendingPathComponent(entry)
+            do {
+                try fileManager.removeItemAtPath(filePath)
+            } catch let error {
+                log.error("Failed to remove file in cache, error: \(error)")
+            }
+        }
+    }
+    
     /**
     Returns an image matching the given token from the cache. If not found, returns nil.
     Only in-memory cache is accessed synchronously; if the image is loaded from disk or retrieved over the

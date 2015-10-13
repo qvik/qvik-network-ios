@@ -25,7 +25,7 @@ import Alamofire
 import QvikSwift
 
 public typealias DownloadProgressCallback = (bytesRead: UInt64, totalBytesRead: UInt64, totalBytesExpectedToRead: UInt64) -> ()
-public typealias DownloadCompletionCallback = (error: NSError?, data: NSData?) -> ()
+public typealias DownloadCompletionCallback = (error: NSError?, response: NSHTTPURLResponse?, data: NSData?) -> ()
 
 /**
 High level HTTP download manager that supports grouping several downloads
@@ -106,7 +106,7 @@ public class DownloadManager {
                 progressCallback(bytesRead: UInt64(bytesRead), totalBytesRead: UInt64(totalBytesRead), totalBytesExpectedToRead: UInt64(totalBytesExpectedToRead))
             }
         }.response { request, response, data, error in
-            log.debug("Request completed: url: \(url), error = \(error)")
+            log.debug("Request completed: url: \(url), error = \(error), response = \(response)")
             if let error = error {
                 download.state = .Failed
                 download.error = error as NSError
@@ -122,11 +122,11 @@ public class DownloadManager {
             }
             
             if let completionCallback = download.completionCallback {
-                completionCallback(error: error as? NSError, data: data)
+                completionCallback(error: error as? NSError, response: response, data: data)
             }
             
             if let completionCallback = completionCallback {
-                completionCallback(error: error as? NSError, data: data)
+                completionCallback(error: error as? NSError, response: response, data: data)
             }
         }
         

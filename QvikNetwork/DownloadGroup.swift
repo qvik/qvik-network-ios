@@ -121,7 +121,7 @@ public class DownloadGroup {
     public func download(url url: String, additionalHeaders: [String: String]? = nil) -> Download {
         let download = manager.download(url: url, additionalHeaders: additionalHeaders, progressCallback: { [weak self] (bytesRead, totalBytesRead, totalBytesExpectedToRead) -> ()  in
             self?.notifyProgress()
-        }) { [weak self] (error, data) -> () in
+        }) { [weak self] (error, response, data) -> () in
             self?.notifyProgress()
         }
         

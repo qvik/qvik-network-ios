@@ -7,7 +7,8 @@
 
 * 0.0.7 
     * Using a dedicated logger instance instead of default (shared) one
-    * 
+    * Performance increase to image cache; added data passthrough writes when applicable
+    * Made the ImageCache instance configurable for CachedImageView
 * 0.0.6
     * Made CachedImageView inherit from QvikImageView
 * 0.0.5

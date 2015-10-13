@@ -5,6 +5,8 @@
 
 ## Changelog
 
+* 0.0.9
+    * New features to CachedImageView
 * 0.0.8
     * Added autoreleasepool {} to control memory usage with writing image data
 * 0.0.7 

@@ -33,6 +33,9 @@ public class CachedImageView: QvikImageView {
     /// Callback to be called when the image changes.
     public var imageChangedCallback: (Void -> Void)?
     
+    /// Whether to automaticallty respond to image load notification
+    public var ignoreLoadNotification = false
+    
     override public var image: UIImage? {
         didSet {
             imageChangedCallback?()
@@ -60,12 +63,28 @@ public class CachedImageView: QvikImageView {
         }
     }
     
+    /**
+    The image for this image view has been loaded into the in-memory cache and is available
+    for use. The default behavior is to set the image object property from the cache for display.
+    
+    Extending classes may override this to change the default behavior.
+    */
+    public func imageLoaded() {
+        if let imageUrl = self.imageUrl {
+            self.image = ImageCache.sharedInstance().getImage(url: imageUrl, fetch: false)
+        }
+    }
+    
     func imageLoadedNotification(notification: NSNotification) {
         assert(NSThread.isMainThread(), "Must be called on main thread!")
         
+        if ignoreLoadNotification {
+            return
+        }
+        
         if let imageUrl = notification.userInfo?[ImageCache.urlParam] as? String {
             if imageUrl == self.imageUrl {
-                self.image = ImageCache.sharedInstance().getImage(url: imageUrl, fetch: false)
+                imageLoaded()
             }
         }
     }

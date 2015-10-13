@@ -107,6 +107,8 @@ public class ImageCache: NSObject {
     
     // Responds to memory warning; clears the memory cache
     func memoryWarningNotification(notification: NSNotification) {
+        log.debug("Memory warning received; dumping cache contents.")
+        
         lock.withWriteLock {
             self.inMemoryCache.removeAll(keepCapacity: false)
         }

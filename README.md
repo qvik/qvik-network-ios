@@ -5,6 +5,8 @@
 
 ## Changelog
 
+* 0.0.10
+    * Changes for changed CryptoSwift API compliance
 * 0.0.9
     * New features to CachedImageView
 * 0.0.8

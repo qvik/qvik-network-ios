@@ -171,7 +171,7 @@ public class ImageCache: NSObject {
             autoreleasepool {
                 self.checkCacheDirExists()
                 
-                let filePath = self.path.stringByAppendingPathComponent(url.md5()!)
+                let filePath = self.path.stringByAppendingPathComponent(url.md5())
                 
                 do {
                     try self.fileManager.removeItemAtPath(filePath) // First remove the file if it exists
@@ -295,7 +295,7 @@ public class ImageCache: NSObject {
         }
         
         runInBackground {
-            let filePath = self.path.stringByAppendingPathComponent(url.md5()!)
+            let filePath = self.path.stringByAppendingPathComponent(url.md5())
             
             if let image = UIImage(contentsOfFile: filePath) {
                 // Image found in disk cache; 'touch' the file to update its timestamp

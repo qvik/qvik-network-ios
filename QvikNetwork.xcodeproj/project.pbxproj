@@ -17,7 +17,7 @@
 		49B21C261BB7CE4000C25FDE /* DownloadManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49B21C211BB7CE4000C25FDE /* DownloadManager.swift */; settings = {ASSET_TAGS = (); }; };
 		49B21C271BB7CE4000C25FDE /* ImageCache.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49B21C221BB7CE4000C25FDE /* ImageCache.swift */; settings = {ASSET_TAGS = (); }; };
 		49B21C2C1BB7DCC700C25FDE /* QvikNetwork.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49B21C2B1BB7DCC700C25FDE /* QvikNetwork.swift */; settings = {ASSET_TAGS = (); }; };
-		5B39879705C49AA2C65D7201 /* Pods.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7BA235D0FD554244194F2361 /* Pods.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
+		5B39879705C49AA2C65D7201 /* Pods.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7BA235D0FD554244194F2361 /* Pods.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */

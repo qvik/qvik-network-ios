@@ -55,9 +55,10 @@ public class RemoteResponse {
         self.parsedJson = json
     }
     
-    public init(nsError: NSError, remoteError: RemoteError) {
+    public init(nsError: NSError, remoteError: RemoteError, json: NSDictionary?) {
         self.nsError = nsError
         self.remoteError = remoteError
+        self.parsedJson = json
     }
 }
 

@@ -137,7 +137,7 @@ public class BaseRemoteService {
     private func createResponse(response: NSHTTPURLResponse?, _ error: ErrorType?, _ result: Result<AnyObject>) -> RemoteResponse {
         if let error = error as? NSError {
             log.debug("Network error occurred, error: \(error)")
-            return RemoteResponse(nsError: error, remoteError: .NetworkError)
+            return RemoteResponse(nsError: error, remoteError: .NetworkError, json: nil)
         }
         
         let jsonResponse = result.value as? NSDictionary
@@ -150,11 +150,11 @@ public class BaseRemoteService {
             let nsError = NSError(domain: remoteServiceErrorDomain, code: code, userInfo: nil)
             switch code {
             case 401:
-                remoteResponse = RemoteResponse(nsError: nsError, remoteError: .BadCredentials)
+                remoteResponse = RemoteResponse(nsError: nsError, remoteError: .BadCredentials, json: jsonResponse)
             case 404:
-                remoteResponse = RemoteResponse(nsError: nsError, remoteError: .NotFound)
+                remoteResponse = RemoteResponse(nsError: nsError, remoteError: .NotFound, json: jsonResponse)
             default:
-                remoteResponse = RemoteResponse(nsError: nsError, remoteError: .ServerError)
+                remoteResponse = RemoteResponse(nsError: nsError, remoteError: .ServerError, json: jsonResponse)
             }
             
             return remoteResponse
@@ -165,7 +165,7 @@ public class BaseRemoteService {
         } else {
             log.debug("Received invalid or empty JSON response: \(result.value)")
             let nsError = NSError(domain: remoteServiceErrorDomain, code: 0, userInfo: nil)
-            return RemoteResponse(nsError: nsError, remoteError: .ServerError)
+            return RemoteResponse(nsError: nsError, remoteError: .ServerError, json: nil)
         }
     }
     

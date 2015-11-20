@@ -5,6 +5,10 @@
 
 ## Changelog
 
+* 0.0.12 
+    * Added .NetworkTimeout support
+* 0.0.11
+    * Added missing response parsing for non-200 responses
 * 0.0.10
     * Changes for changed CryptoSwift API compliance
 * 0.0.9

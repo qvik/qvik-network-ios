@@ -28,6 +28,7 @@ Represents a response from the server.
 public class RemoteResponse {
     public enum RemoteError {
         case NetworkError
+        case NetworkTimeout
         case BadCredentials
         case ServerError
         case NotFound

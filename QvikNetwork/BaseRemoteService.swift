@@ -137,7 +137,17 @@ public class BaseRemoteService {
     private func createResponse(response: NSHTTPURLResponse?, _ error: ErrorType?, _ result: Result<AnyObject>) -> RemoteResponse {
         if let error = error as? NSError {
             log.debug("Network error occurred, error: \(error)")
-            return RemoteResponse(nsError: error, remoteError: .NetworkError, json: nil)
+            
+            let remoteError: RemoteResponse.RemoteError
+            
+            switch error.code {
+            case NSURLErrorTimedOut:
+                remoteError = .NetworkTimeout
+            default:
+                remoteError = .NetworkError
+            }
+            
+            return RemoteResponse(nsError: error, remoteError: remoteError, json: nil)
         }
         
         let jsonResponse = result.value as? NSDictionary
@@ -148,6 +158,7 @@ public class BaseRemoteService {
             var remoteResponse: RemoteResponse!
             
             let nsError = NSError(domain: remoteServiceErrorDomain, code: code, userInfo: nil)
+            
             switch code {
             case 401:
                 remoteResponse = RemoteResponse(nsError: nsError, remoteError: .BadCredentials, json: jsonResponse)

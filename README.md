@@ -5,6 +5,9 @@
 
 ## Changelog
 
+* 0.0.13
+    * Some rework to further boost robustness of ImageCache
+    * Added put/remove image functionality to ImageCache
 * 0.0.12 
     * Added .NetworkTimeout support
 * 0.0.11

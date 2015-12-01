@@ -72,17 +72,32 @@ public class ImageCache: NSObject {
     */
     public var fileFormat: FileFormat?
     
-    private let fileManager = NSFileManager.defaultManager()
+    /// Quality of JPEG compression; must be in range [0, 1]. Default value is 0.9.
+    public var jpegQuality: CGFloat = 0.9 {
+        didSet {
+            assert(jpegQuality >= 0.0, "Allowed value range is 0..1")
+            assert(jpegQuality <= 1.0, "Allowed value range is 0..1")
+        }
+    }
     
-    // The memory cache dictionary
+    /// The memory cache dictionary
     private var inMemoryCache = [String: UIImage]()
     
-    // Lock for synchronizing access to the memory cache
+    /// Lock for synchronizing access to the in-memory cache
     private let lock = ReadWriteLock()
     
+    /// GCD queue for performing all disk operations
+    private let diskOperationQueue: dispatch_queue_t
+    
+    private let fileManager = NSFileManager.defaultManager()
     private let downloadManager = DownloadManager.sharedInstance()
     
     // MARK: Private methods
+    
+    /// Creates a file path for a given URL. 
+    private func getFilePath(url url: String) -> String {
+        return path.stringByAppendingPathComponent(url.md5())
+    }
     
     /// Makes sure the image cache directory exists
     private func checkCacheDirExists() {
@@ -105,54 +120,58 @@ public class ImageCache: NSObject {
         }
     }
     
-    // Responds to memory warning; clears the memory cache
+    /// Responds to memory warning; clears the memory cache
     func memoryWarningNotification(notification: NSNotification) {
-        log.debug("Memory warning received; dumping cache contents.")
+        log.info("Memory warning received; dumping cache contents.")
         
         lock.withWriteLock {
             self.inMemoryCache.removeAll(keepCapacity: false)
         }
     }
 
-    // Checks disk cache and removes entries older than fileMaxAge.
+    /// Checks disk cache and removes entries older than fileMaxAge.
     private func reapDiskCache() {
-        let error: NSError? = nil
-        let contents: [String]?
-        do {
-            contents = try fileManager.contentsOfDirectoryAtPath(path as String)
-        } catch let error as NSError {
-            log.error("Failed to get contents of disk cache directory, error: \(error)")
-            return
-        }
-
-        for entry in contents! {
-            let filePath = path.stringByAppendingPathComponent(entry)
-            
-            let attributes: NSDictionary?
+        dispatch_async(diskOperationQueue) {
+            let error: NSError? = nil
+            let contents: [String]?
             
             do {
-                attributes = try fileManager.attributesOfItemAtPath(filePath)
+                contents = try self.fileManager.contentsOfDirectoryAtPath(self.path as String)
             } catch let error as NSError {
-                log.error("Failed to get attributes of file at path: \(filePath), error: \(error)")
-                attributes = nil
+                log.error("Failed to get contents of disk cache directory, error: \(error)")
+                return
             }
-            if let attributes = attributes {
-                if let modified = attributes.fileModificationDate() {
-                    if -modified.timeIntervalSinceNow > maximumUnusedFileAge {
-                        log.debug("Removing old unusued file at path: \(filePath)")
-                        do {
-                            try fileManager.removeItemAtPath(filePath)
-                        } catch let error as NSError {
-                            log.error("Failed to remove file at path: \(filePath), error: \(error)")
+            
+            for entry in contents! {
+                let filePath = self.path.stringByAppendingPathComponent(entry)
+                
+                let attributes: NSDictionary?
+                
+                do {
+                    attributes = try self.fileManager.attributesOfItemAtPath(filePath)
+                } catch let error as NSError {
+                    log.error("Failed to get attributes of file at path: \(filePath), error: \(error)")
+                    attributes = nil
+                }
+                if let attributes = attributes {
+                    if let modified = attributes.fileModificationDate() {
+                        if -modified.timeIntervalSinceNow > self.maximumUnusedFileAge {
+                            log.debug("Removing old unused file at path: \(filePath)")
+                            do {
+                                try self.fileManager.removeItemAtPath(filePath)
+                            } catch let error as NSError {
+                                log.error("Failed to remove file at path: \(filePath), error: \(error)")
+                            }
                         }
                     }
+                } else {
+                    log.error("Failed to read attributes of file at path \(filePath), error: \(error)")
                 }
-            } else {
-                log.error("Failed to read attributes of file at path \(filePath), error: \(error)")
             }
         }
     }
     
+    /// Inserts the image synchronously to the in-memory cache in a thread safe manner and sends a loading notification
     private func insertToMemoryCache(image image: UIImage, url: String) {
         lock.withWriteLock {
             self.inMemoryCache[url] = image
@@ -166,43 +185,53 @@ public class ImageCache: NSObject {
         }
     }
     
-    private func writeImageToDisk(image image: UIImage, url: String, response: NSHTTPURLResponse?, data: NSData?) {
-        runInBackground {
+    /// Encodes image data to the format specified by ´´´self.fileFormat´´´ and writes it to the disk 
+    /// to a given path.
+    private func encodeAndWriteImageToDisk(image image: UIImage, filePath: String) {
+        dispatch_async(diskOperationQueue) {
             autoreleasepool {
-                self.checkCacheDirExists()
+                let fileFormat = self.fileFormat ?? FileFormat.PNG
                 
-                let filePath = self.path.stringByAppendingPathComponent(url.md5())
-                
-                do {
-                    try self.fileManager.removeItemAtPath(filePath) // First remove the file if it exists
-                } catch {
-                    // Not found, can ignore
-                }
-                
-                let contentType = (response?.allHeaderFields["content-type"] as? String)?.lowercaseString
-                
-                // If fileFormat matches the response's content type and data is set, we can directly write the data
-                if ((self.fileFormat == nil) || (contentType == self.fileFormat!.rawValue)) && (data != nil) {
-                    log.debug("Content type matches or is not set and data is set - writing as pass-through")
-                    data!.writeToFile(filePath, atomically: true)
-                } else {
-                    // File format does not match or image has been downscaled; we must re-compress into selected format
-                    let fileFormat = self.fileFormat ?? FileFormat.PNG
-                    
-                    if fileFormat == .JPEG {
-                        if !UIImageJPEGRepresentation(image, 0.9)!.writeToFile(filePath, atomically: true) {
-                            log.debug("Failed to write JPEG file \(filePath)")
-                        } else {
-                            log.debug("JPEG image written to path \(filePath)")
-                        }
+                if fileFormat == .JPEG {
+                    if !UIImageJPEGRepresentation(image, self.jpegQuality)!.writeToFile(filePath, atomically: true) {
+                        log.debug("Failed to write JPEG file \(filePath)")
                     } else {
-                        if !UIImagePNGRepresentation(image)!.writeToFile(filePath, atomically: true) {
-                            log.debug("Failed to write PNG file \(filePath)")
-                        } else {
-                            log.debug("PNG image written to path \(filePath)")
-                        }
+                        log.debug("JPEG image written to path \(filePath)")
+                    }
+                } else {
+                    if !UIImagePNGRepresentation(image)!.writeToFile(filePath, atomically: true) {
+                        log.debug("Failed to write PNG file \(filePath)")
+                    } else {
+                        log.debug("PNG image written to path \(filePath)")
                     }
                 }
+            }
+        }
+    }
+    
+    /// Figure out the type of the file in the response and write to the disk, possibly avoiding the
+    /// re-encoding in case the cache was configured to use the file format in the response
+    private func writeResponseImageToDisk(image image: UIImage, url: String, response: NSHTTPURLResponse?, data: NSData?) {
+        dispatch_async(diskOperationQueue) {
+            self.checkCacheDirExists()
+            
+            let filePath = self.getFilePath(url: url)
+            
+            do {
+                try self.fileManager.removeItemAtPath(filePath) // First remove the file if it exists
+            } catch {
+                // Not found, can ignore
+            }
+            
+            let contentType = (response?.allHeaderFields["content-type"] as? String)?.lowercaseString
+            
+            // If fileFormat matches the response's content type and data is set, we can directly write the data
+            if ((self.fileFormat == nil) || (contentType == self.fileFormat!.rawValue)) && (data != nil) {
+                log.debug("Content type matches or is not set and data is set - writing as pass-through")
+                data!.writeToFile(filePath, atomically: true)
+            } else {
+                // File format does not match or image has been downscaled; we must re-compress into selected format
+                self.encodeAndWriteImageToDisk(image: image, filePath: filePath)
             }
         }
     }
@@ -239,7 +268,7 @@ public class ImageCache: NSObject {
                         self.insertToMemoryCache(image: image!, url: url)
                         
                         // Asynchronously write the image to the disk cache
-                        self.writeImageToDisk(image: image!, url: url, response: response, data: data)
+                        self.writeResponseImageToDisk(image: image!, url: url, response: response, data: data)
                     }
                 } else {
                     log.error("Missing image data in response!")
@@ -251,23 +280,80 @@ public class ImageCache: NSObject {
     
     // MARK: Public methods
 
-    /// Clears the entire cache's contents. Mostly useful for debugging purposes.
+    /// Clears the entire cache's contents - on disk and in memory. This is a drastic 
+    // measure and mostly useful for special conditions such as debugging purposes.
     public func clearCache() {
-        let contents: [String]?
-        do {
-            contents = try fileManager.contentsOfDirectoryAtPath(path as String)
-        } catch let error {
-            log.error("Failed to get contents of disk cache directory, error: \(error)")
-            return
+        lock.withWriteLock {
+            self.inMemoryCache.removeAll(keepCapacity: false)
+        }
+
+        dispatch_async(diskOperationQueue) {
+            let contents: [String]?
+            do {
+                contents = try self.fileManager.contentsOfDirectoryAtPath(self.path as String)
+            } catch let error {
+                log.error("Failed to get contents of disk cache directory, error: \(error)")
+                return
+            }
+            
+            for entry in contents! {
+                let filePath = self.path.stringByAppendingPathComponent(entry)
+                do {
+                    try self.fileManager.removeItemAtPath(filePath)
+                } catch let error {
+                    log.error("Failed to remove file on disk, error: \(error)")
+                }
+            }            
+        }
+    }
+    
+    /**
+     Removes an image by given url from the in-memory cache and optionally from the disk also.
+     
+     Can be useful for reducing memory/disk used runtime.
+     
+     The in-memory cache deletion is synchronous and the image is removed immediately.
+     
+     The possible disk file deletion operation will be asynchronous and it will be performed when possible.
+     
+     - parameter url: url for the image to remove
+     - parameter removeFromDisk: whether to remove from disk also.
+     */
+    public func removeImage(url url: String, removeFromDisk: Bool) {
+        lock.withWriteLock {
+            self.inMemoryCache.removeValueForKey(url)
         }
         
-        for entry in contents! {
-            let filePath = path.stringByAppendingPathComponent(entry)
-            do {
-                try fileManager.removeItemAtPath(filePath)
-            } catch let error {
-                log.error("Failed to remove file in cache, error: \(error)")
+        if removeFromDisk {
+            dispatch_async(diskOperationQueue) {
+                do {
+                    try self.fileManager.removeItemAtPath(self.getFilePath(url: url))
+                } catch let error {
+                    log.error("Failed to remove file on disk, error: \(error)")
+                }
             }
+        }
+    }
+    
+    /**
+     Inserts a new image into the cache, either only to the in-memory cache or on disk as well.
+     
+     This can be useful for pre-loaded images, images scaled on-the-fly (in which case you could use a 
+     randomized UUID string as the 'url') or local-only images (in which case you could use the asset url
+     or a randomized UUID string as the 'url').
+
+     The in-memory cache insertion is synchronous and the image is available immediately.
+     
+     The possible disk write operation will be asynchronous and it will be available when possible.
+     
+     - parameter image: image to place to the cache
+     - parameter storeOnDisk: whether to store the image to the disk cache also.
+     */
+    public func putImage(image image: UIImage, url: String, storeOnDisk: Bool) {
+        insertToMemoryCache(image: image, url: url)
+        
+        if storeOnDisk {
+            encodeAndWriteImageToDisk(image: image, filePath: getFilePath(url: url))
         }
     }
     
@@ -293,9 +379,9 @@ public class ImageCache: NSObject {
             log.debug("Image found in in-memory cache.")
             return image
         }
-        
-        runInBackground {
-            let filePath = self.path.stringByAppendingPathComponent(url.md5())
+
+        dispatch_async(diskOperationQueue) {
+            let filePath = self.getFilePath(url: url)
             
             if let image = UIImage(contentsOfFile: filePath) {
                 // Image found in disk cache; 'touch' the file to update its timestamp
@@ -343,7 +429,8 @@ public class ImageCache: NSObject {
         let paths = NSSearchPathForDirectoriesInDomains(.CachesDirectory, .UserDomainMask, true)
         let cacheRootDirectory = paths[0] as NSString
         path = cacheRootDirectory.stringByAppendingPathComponent(imagePath)
-        
+        diskOperationQueue = dispatch_queue_create("fi.qvik.ImageCache-\(imagePath ?? "default")", DISPATCH_QUEUE_SERIAL)
+            
         super.init()
         
         log.debug("My disk cache path is: \(path)")

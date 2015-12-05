@@ -135,38 +135,28 @@ public class BaseRemoteService {
     Returns either a valid JSON response or an error.
     */
     private func createResponse(response: NSHTTPURLResponse?, _ error: ErrorType?, _ result: Result<AnyObject>) -> RemoteResponse {
-        if let error = error as? NSError {
-            log.debug("Network error occurred, error: \(error)")
-            
-            let remoteError: RemoteResponse.RemoteError
-            
-            switch error.code {
-            case NSURLErrorTimedOut:
-                remoteError = .NetworkTimeout
-            default:
-                remoteError = .NetworkError
-            }
-            
-            return RemoteResponse(nsError: error, remoteError: remoteError, json: nil)
-        }
-        
         let jsonResponse = result.value as? NSDictionary
         
         if let code = response?.statusCode where code != 200 {
             log.debug("Got non-200 HTTP response: \(code)")
             
-            var remoteResponse: RemoteResponse!
-            
-            let nsError = NSError(domain: remoteServiceErrorDomain, code: code, userInfo: nil)
+            var remoteError = RemoteResponse.RemoteError.ServerError
             
             switch code {
             case 401:
-                remoteResponse = RemoteResponse(nsError: nsError, remoteError: .BadCredentials, json: jsonResponse)
+                remoteError = .BadCredentials
             case 404:
-                remoteResponse = RemoteResponse(nsError: nsError, remoteError: .NotFound, json: jsonResponse)
+                remoteError = .NotFound
             default:
-                remoteResponse = RemoteResponse(nsError: nsError, remoteError: .ServerError, json: jsonResponse)
+                remoteError = .ServerError
             }
+
+            if let error = error as? NSError where error.code == NSURLErrorTimedOut {
+                remoteError = .NetworkTimeout
+            }
+            
+            let nsError = NSError(domain: remoteServiceErrorDomain, code: code, userInfo: nil)
+            let remoteResponse = RemoteResponse(nsError: nsError, remoteError: remoteError, json: jsonResponse)
             
             return remoteResponse
         }

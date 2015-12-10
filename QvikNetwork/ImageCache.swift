@@ -24,12 +24,16 @@ import UIKit
 import QvikSwift
 import CryptoSwift
 
+/// GIF mime type; GIFs are only stored as passthrough, never encoded to.
+private let gifMimeType = "image/gif"
+private let gifExtension = ".gif"
+
 /**
 Disk-backed image cache with functionality to retrieve the requested
 image over the internet if not found.
 
 The images are accessed by their original URLs. The
-images are stored on disk as JPEGs, filenames are MD5 hashes of the tokens.
+images are stored on disk as PNG/JPEGs (with GIF passthrough suoported), filenames are MD5 hashes of the tokens.
 
 Whenever an image is loaded into the memory cache (and is thus available for use),
 cacheImageLoadedNotification is sent with imageParam user info key specifying the image
@@ -177,7 +181,7 @@ public class ImageCache: NSObject {
             self.inMemoryCache[url] = image
         }
         
-        log.debug("Inserted image to the in-memory cache with the URL key \(url), image: \(image)")
+        log.debug("Inserted image to the in-memory cache with the URL key \(url)")
         
         runOnMainThread {
             log.debug("Sending notification \(ImageCache.cacheImageLoadedNotification), object: \(self), param: \(ImageCache.urlParam), url: \(url)")
@@ -226,8 +230,8 @@ public class ImageCache: NSObject {
             let contentType = (response?.allHeaderFields["content-type"] as? String)?.lowercaseString
             
             // If fileFormat matches the response's content type and data is set, we can directly write the data
-            if ((self.fileFormat == nil) || (contentType == self.fileFormat!.rawValue)) && (data != nil) {
-                log.debug("Content type matches or is not set and data is set - writing as pass-through")
+            if ((contentType == gifMimeType) || (self.fileFormat == nil) || (contentType == self.fileFormat!.rawValue)) && (data != nil) {
+                log.debug("Content type matches (or is GIF) or is not set and data is set - writing as pass-through")
                 data!.writeToFile(filePath, atomically: true)
             } else {
                 // File format does not match or image has been downscaled; we must re-compress into selected format
@@ -249,7 +253,17 @@ public class ImageCache: NSObject {
                     log.debug("Response headers: \(response!.allHeaderFields)")
                     log.debug("Image downloaded, storing it in the cache..")
                     runInBackground {
-                        var image = UIImage(data: data)
+                        let isGif = ((response?.allHeaderFields["content-type"] as? String)?.lowercaseString == gifMimeType)
+
+                        var image: UIImage?
+                        
+                        if isGif {
+                            log.debug("Creating a GIF image from response data")
+                            image = UIImage.gifWithData(data)
+                        } else {
+                            image = UIImage(data: data)
+                        }
+                        
                         if image == nil {
                             log.error("Failed to parse the image data into an image")
                             NSNotificationCenter.defaultCenter().postNotificationName(ImageCache.cacheImageLoadFailedNotification, object: self, userInfo: [ImageCache.urlParam: url])
@@ -258,7 +272,7 @@ public class ImageCache: NSObject {
                         
                         var data: NSData? = data
                         
-                        if let maximumImageDimensions = self.maximumImageDimensions {
+                        if let maximumImageDimensions = self.maximumImageDimensions where !isGif {
                             log.debug("Downscaling the downloaded image to max size: \(maximumImageDimensions)")
                             image = image!.scaleDown(maxSize: maximumImageDimensions)
                             data = nil
@@ -336,24 +350,60 @@ public class ImageCache: NSObject {
     }
     
     /**
-     Inserts a new image into the cache, either only to the in-memory cache or on disk as well.
+     Inserts a new image into the cache, either only to the in-memory cache or on disk as well. 
      
      This can be useful for pre-loaded images, images scaled on-the-fly (in which case you could use a 
      randomized UUID string as the 'url') or local-only images (in which case you could use the asset url
      or a randomized UUID string as the 'url').
 
+     NOTE that this overload cannot be used to stored GIF images properly. Use the NSData overload instead.
+     
      The in-memory cache insertion is synchronous and the image is available immediately.
      
      The possible disk write operation will be asynchronous and it will be available when possible.
      
      - parameter image: image to place to the cache
+     - parameter url: URL of the image
      - parameter storeOnDisk: whether to store the image to the disk cache also.
      */
-    public func putImage(image image: UIImage, url: String, storeOnDisk: Bool) {
-        insertToMemoryCache(image: image, url: url)
+    public func putImage(image originalImage: UIImage, url: String, storeOnDisk: Bool) {
+        if url.lowercaseString.hasSuffix(gifExtension) {
+            log.warning("putImage() called with .gif extension; this method cannot be used to properly store gifs.")
+        }
+        
+        var imageToStore = originalImage
+        
+        if let maximumImageDimensions = self.maximumImageDimensions {
+            log.debug("Downscaling the downloaded image to max size: \(maximumImageDimensions)")
+            imageToStore = originalImage.scaleDown(maxSize: maximumImageDimensions)
+        }
+
+        insertToMemoryCache(image: imageToStore, url: url)
         
         if storeOnDisk {
-            encodeAndWriteImageToDisk(image: image, filePath: getFilePath(url: url))
+            encodeAndWriteImageToDisk(image: imageToStore, filePath: getFilePath(url: url))
+        }
+    }
+    
+    /**
+     Stores image data to the disk cache without re-encoding. Also, no downscaling is applied.
+     
+     The disk write operation will be asynchronous and it will be available when possible.
+     
+     - parameter imageData: image bytes to store
+     - parameter url: URL of the image
+     */
+    public func storeImage(imageData data: NSData, url: String) {
+        dispatch_async(diskOperationQueue) {
+            let filePath = self.getFilePath(url: url)
+            
+            do {
+                try self.fileManager.removeItemAtPath(filePath) // First remove the file if it exists
+            } catch {
+                // Not found, can ignore
+            }
+            
+            data.writeToFile(filePath, atomically: true)
         }
     }
     
@@ -382,8 +432,21 @@ public class ImageCache: NSObject {
 
         dispatch_async(diskOperationQueue) {
             let filePath = self.getFilePath(url: url)
+
+            var image: UIImage?
             
-            if let image = UIImage(contentsOfFile: filePath) {
+            if url.lowercaseString.hasSuffix(gifExtension) {
+                // GIFs are handled differently
+                log.debug("Loading a GIF image")
+                if let gifData = NSData(contentsOfFile: filePath) {
+                    image = UIImage.gifWithData(gifData)
+                }
+            } else {
+                log.debug("Loading a standard (JPEG/PNG) image")
+                image = UIImage(contentsOfFile: filePath)
+            }
+            
+            if let image = image {
                 // Image found in disk cache; 'touch' the file to update its timestamp
                 log.debug("Image found on disk in path \(filePath)")
                 do {
@@ -394,8 +457,8 @@ public class ImageCache: NSObject {
                 
                 self.insertToMemoryCache(image: image, url: url) // Will send loaded -notification
             } else {
+                log.debug("Image not found on disk.")
                 if fetch {
-                    log.debug("Image not found on disk.")
                     if self.downloadManager.hasPendingDownload(url: url) {
                         log.debug("Already fetching image from url \(url)")
                     } else {

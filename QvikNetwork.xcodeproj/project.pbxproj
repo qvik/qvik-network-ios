@@ -7,16 +7,17 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		49274A6B1BBBEDA70024AB80 /* RemoteResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49274A691BBBEDA70024AB80 /* RemoteResponse.swift */; settings = {ASSET_TAGS = (); }; };
-		49274A6C1BBBEDA70024AB80 /* BaseRemoteService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49274A6A1BBBEDA70024AB80 /* BaseRemoteService.swift */; settings = {ASSET_TAGS = (); }; };
-		49B21C0E1BB7CD9D00C25FDE /* QvikNetwork.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 49B21C031BB7CD9D00C25FDE /* QvikNetwork.framework */; settings = {ASSET_TAGS = (); }; };
+		49274A6B1BBBEDA70024AB80 /* RemoteResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49274A691BBBEDA70024AB80 /* RemoteResponse.swift */; };
+		49274A6C1BBBEDA70024AB80 /* BaseRemoteService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49274A6A1BBBEDA70024AB80 /* BaseRemoteService.swift */; };
+		49B21C0E1BB7CD9D00C25FDE /* QvikNetwork.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 49B21C031BB7CD9D00C25FDE /* QvikNetwork.framework */; };
 		49B21C131BB7CD9D00C25FDE /* QvikNetworkTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49B21C121BB7CD9D00C25FDE /* QvikNetworkTests.swift */; };
-		49B21C231BB7CE4000C25FDE /* CachedImageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49B21C1E1BB7CE4000C25FDE /* CachedImageView.swift */; settings = {ASSET_TAGS = (); }; };
-		49B21C241BB7CE4000C25FDE /* Download.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49B21C1F1BB7CE4000C25FDE /* Download.swift */; settings = {ASSET_TAGS = (); }; };
-		49B21C251BB7CE4000C25FDE /* DownloadGroup.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49B21C201BB7CE4000C25FDE /* DownloadGroup.swift */; settings = {ASSET_TAGS = (); }; };
-		49B21C261BB7CE4000C25FDE /* DownloadManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49B21C211BB7CE4000C25FDE /* DownloadManager.swift */; settings = {ASSET_TAGS = (); }; };
-		49B21C271BB7CE4000C25FDE /* ImageCache.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49B21C221BB7CE4000C25FDE /* ImageCache.swift */; settings = {ASSET_TAGS = (); }; };
-		49B21C2C1BB7DCC700C25FDE /* QvikNetwork.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49B21C2B1BB7DCC700C25FDE /* QvikNetwork.swift */; settings = {ASSET_TAGS = (); }; };
+		49B21C231BB7CE4000C25FDE /* CachedImageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49B21C1E1BB7CE4000C25FDE /* CachedImageView.swift */; };
+		49B21C241BB7CE4000C25FDE /* Download.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49B21C1F1BB7CE4000C25FDE /* Download.swift */; };
+		49B21C251BB7CE4000C25FDE /* DownloadGroup.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49B21C201BB7CE4000C25FDE /* DownloadGroup.swift */; };
+		49B21C261BB7CE4000C25FDE /* DownloadManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49B21C211BB7CE4000C25FDE /* DownloadManager.swift */; };
+		49B21C271BB7CE4000C25FDE /* ImageCache.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49B21C221BB7CE4000C25FDE /* ImageCache.swift */; };
+		49B21C2C1BB7DCC700C25FDE /* QvikNetwork.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49B21C2B1BB7DCC700C25FDE /* QvikNetwork.swift */; };
+		49F98A971C18658D002498A2 /* UIImage+Gif.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49F98A961C18658D002498A2 /* UIImage+Gif.swift */; };
 		5B39879705C49AA2C65D7201 /* Pods.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7BA235D0FD554244194F2361 /* Pods.framework */; };
 /* End PBXBuildFile section */
 
@@ -48,6 +49,7 @@
 		49B21C291BB7CF0700C25FDE /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		49B21C2A1BB7CF9700C25FDE /* QvikNetwork.podspec */ = {isa = PBXFileReference; lastKnownFileType = text; path = QvikNetwork.podspec; sourceTree = "<group>"; };
 		49B21C2B1BB7DCC700C25FDE /* QvikNetwork.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = QvikNetwork.swift; sourceTree = "<group>"; };
+		49F98A961C18658D002498A2 /* UIImage+Gif.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "UIImage+Gif.swift"; sourceTree = "<group>"; };
 		7BA235D0FD554244194F2361 /* Pods.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		8BE5742F579D0C7590BD3D14 /* Pods.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = Pods.release.xcconfig; path = "Pods/Target Support Files/Pods/Pods.release.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -133,6 +135,7 @@
 		49B21C051BB7CD9D00C25FDE /* QvikNetwork */ = {
 			isa = PBXGroup;
 			children = (
+				49F98A961C18658D002498A2 /* UIImage+Gif.swift */,
 				49B21C2B1BB7DCC700C25FDE /* QvikNetwork.swift */,
 				49274A681BBBED930024AB80 /* Base remote service */,
 				49274A671BBBED820024AB80 /* Custom controls */,
@@ -322,6 +325,7 @@
 				49B21C271BB7CE4000C25FDE /* ImageCache.swift in Sources */,
 				49B21C231BB7CE4000C25FDE /* CachedImageView.swift in Sources */,
 				49274A6C1BBBEDA70024AB80 /* BaseRemoteService.swift in Sources */,
+				49F98A971C18658D002498A2 /* UIImage+Gif.swift in Sources */,
 				49B21C241BB7CE4000C25FDE /* Download.swift in Sources */,
 				49B21C2C1BB7DCC700C25FDE /* QvikNetwork.swift in Sources */,
 				49B21C251BB7CE4000C25FDE /* DownloadGroup.swift in Sources */,

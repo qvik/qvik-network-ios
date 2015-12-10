@@ -5,6 +5,8 @@
 
 ## Changelog
 
+* 0.0.14
+    * ImageCache: GIF passthrough support.
 * 0.0.13
     * Some rework to further boost robustness of ImageCache
     * Added put/remove image functionality to ImageCache

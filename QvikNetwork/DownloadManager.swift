@@ -36,6 +36,8 @@ Internally the implementation uses AlamoFire the de facto HTTP library.
 All the methods in this class are thread safe.
 */
 public class DownloadManager {
+    public static let errorDomain = "DownloadManager"
+    
     private static let staticInstance = DownloadManager()
     
     private let manager: Alamofire.Manager
@@ -107,11 +109,22 @@ public class DownloadManager {
             }
         }.response { request, response, data, error in
             log.debug("Request completed: url: \(url), error = \(error), response = \(response)")
-            if let error = error {
+
+            var nsError = error as? NSError
+            
+            if let nsError = nsError {
                 download.state = .Failed
-                download.error = error as NSError
+                download.error = nsError
             } else {
-                download.state = .Completed
+                if let statusCode = response?.statusCode {
+                    if statusCode >= 200 && statusCode < 300 {
+                        // Success
+                        download.state = .Completed
+                    } else {
+                        download.state = .Failed
+                        nsError = NSError(domain: DownloadManager.errorDomain, code: statusCode, userInfo: nil)
+                    }
+                }
             }
             
             // Download completed, remove it from the pending -array
@@ -122,11 +135,11 @@ public class DownloadManager {
             }
             
             if let completionCallback = download.completionCallback {
-                completionCallback(error: error as? NSError, response: response, data: data)
+                completionCallback(error: nsError, response: response, data: data)
             }
             
             if let completionCallback = completionCallback {
-                completionCallback(error: error as? NSError, response: response, data: data)
+                completionCallback(error: nsError, response: response, data: data)
             }
         }
         

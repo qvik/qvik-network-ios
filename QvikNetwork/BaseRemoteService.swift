@@ -136,9 +136,10 @@ public class BaseRemoteService {
     */
     private func createResponse(response: NSHTTPURLResponse?, _ error: ErrorType?, _ result: Result<AnyObject>) -> RemoteResponse {
         let jsonResponse = result.value as? NSDictionary
+        log.debug("Status code: \(response?.statusCode)")
         
-        if let code = response?.statusCode where code != 200 {
-            log.debug("Got non-200 HTTP response: \(code)")
+        if let code = response?.statusCode where code < 200 || code >= 300 {
+            log.debug("Got non-success HTTP response: \(code)")
             
             var remoteError = RemoteResponse.RemoteError.ServerError
             
@@ -162,6 +163,7 @@ public class BaseRemoteService {
         }
         
         if let jsonResponse = jsonResponse {
+            log.debug("Received a valid response.")
             return RemoteResponse(json: jsonResponse)
         } else {
             log.debug("Received invalid or empty JSON response: \(result.value)")

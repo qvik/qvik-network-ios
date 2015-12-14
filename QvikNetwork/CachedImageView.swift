@@ -27,6 +27,14 @@ import QvikSwift
 An UIImageView that retrieves the image from ImageCache (default shared instance).
 */
 public class CachedImageView: QvikImageView {
+    private var thumbnailImageView: UIImageView? = nil
+    
+    /// Thumbnail image fadeout time in seconds
+    public var thumbnailFadeOutDuration: NSTimeInterval = 0.3
+    
+    /// JPEG thumbnail data for the image. Should set this before layout cycle.
+    public var thumbnailData: NSData? = nil
+    
     /// ImageCache instance to use. Default value is the shared instance.
     public var imageCache = ImageCache.sharedInstance()
     
@@ -62,16 +70,27 @@ public class CachedImageView: QvikImageView {
             }
         }
     }
-    
+
     /**
-    The image for this image view has been loaded into the in-memory cache and is available
-    for use. The default behavior is to set the image object property from the cache for display.
-    
-    Extending classes may override this to change the default behavior.
-    */
+     The image for this image view has been loaded into the in-memory cache and is available
+     for use. The default behavior is to set the image object property from the cache for display.
+     
+     Extending classes may override this to change the default behavior.
+     */
     public func imageLoaded() {
         if let imageUrl = self.imageUrl {
-            self.image = ImageCache.sharedInstance().getImage(url: imageUrl, fetch: false)
+            if let image = ImageCache.sharedInstance().getImage(url: imageUrl, fetch: false) {
+                // Image loaded & found
+                self.image = image
+                
+                // Fade out the thumbnail view
+                UIView.animateWithDuration(thumbnailFadeOutDuration, animations: {
+                    self.thumbnailImageView?.alpha = 0.0
+                    }, completion: { finished in
+                        self.thumbnailImageView?.removeFromSuperview()
+                        self.thumbnailImageView = nil
+                })
+            }
         }
     }
     
@@ -91,6 +110,25 @@ public class CachedImageView: QvikImageView {
     
     deinit {
         NSNotificationCenter.defaultCenter().removeObserver(self)
+    }
+    
+    override public func layoutSubviews() {
+        super.layoutSubviews()
+        
+        if let thumbnailData = thumbnailData where image != nil {
+            // Only create thumbnail image if the main image has not yet been loaded
+            if thumbnailImageView == nil {
+                thumbnailImageView = UIImageView(frame: self.frame)
+                thumbnailImageView!.contentMode = self.contentMode
+                thumbnailImageView!.image = jpegThumbnailDataToImage(data: thumbnailData, maxSize: self.frame.size)
+                insertSubview(thumbnailImageView!, atIndex: 0)
+                
+                // Discard thumbnail data to save memory
+                self.thumbnailData = nil
+            } else {
+                thumbnailImageView!.frame = self.frame
+            }
+        }
     }
     
     private func commonInit() {

@@ -9,6 +9,15 @@
 import UIKit
 import QvikSwift
 
+// Helpful links for parsing JPEG/JFIF:s
+// - http://sqlanywhere.blogspot.fi/2008/12/jpeg-width-and-height.html
+// - https://en.wikipedia.org/wiki/JPEG
+// - https://en.wikipedia.org/wiki/JPEG_File_Interchange_Format
+//
+// Also check out facebook's post about the very same thing
+// - https://code.facebook.com/posts/991252547593574
+
+
 // The following format is used for the thumbnail data: 
 //
 //  Offset | Length (bytes) | Content
@@ -155,10 +164,10 @@ public func imageToJpegThumbnailData(sourceImage image: UIImage, pixelBudget: In
     log.debug("JPEG total data length: \(jpegData.length)")
     
     //TODO remove : write thumbnail file to disk
-    let docDir = NSSearchPathForDirectoriesInDomains(.DocumentDirectory, .UserDomainMask, true).first!
-    let thumbPath = (docDir as NSString).stringByAppendingPathComponent("thumbnail.jpg")
-    jpegData.writeToFile(thumbPath, atomically: true)
-    log.debug("JPEG data written to file: \(thumbPath)")
+//    let docDir = NSSearchPathForDirectoriesInDomains(.DocumentDirectory, .UserDomainMask, true).first!
+//    let thumbPath = (docDir as NSString).stringByAppendingPathComponent("thumbnail.jpg")
+//    jpegData.writeToFile(thumbPath, atomically: true)
+//    log.debug("JPEG data written to file: \(thumbPath)")
 
     // Try to extract the JPEG image data
     guard let jpegImageData = extractJpegImageData(jpegData) else {
@@ -168,9 +177,9 @@ public func imageToJpegThumbnailData(sourceImage image: UIImage, pixelBudget: In
     log.debug("JPEG image data length: \(jpegImageData.length)")
 
     //TODO remove: write thumbnail data file to disk
-    let thumbDataPath = (docDir as NSString).stringByAppendingPathComponent("thumbnail.data")
-    jpegImageData.writeToFile(thumbDataPath, atomically: true)
-    log.debug("JPEG data written to file: \(thumbDataPath)")
+//    let thumbDataPath = (docDir as NSString).stringByAppendingPathComponent("thumbnail.data")
+//    jpegImageData.writeToFile(thumbDataPath, atomically: true)
+//    log.debug("JPEG data written to file: \(thumbDataPath)")
 
     // Create the thumbnail data packet; for format, see the start of this file.
     // Packet length is our header length (3) + image data length
@@ -243,19 +252,29 @@ public func jpegThumbnailDataToImage(data data: NSData, maxSize: CGSize, imageSc
     log.debug("Thumbnail image constructed with size: \(thumbnailImage.size)")
 
     //TODO remove: write jpeg image file
-    let docDir = NSSearchPathForDirectoriesInDomains(.DocumentDirectory, .UserDomainMask, true).first!
-    let thumbPath = (docDir as NSString).stringByAppendingPathComponent("constructed-thumbnail.jpg")
-    jpegData.writeToFile(thumbPath, atomically: true)
-    log.debug("Constructed JPEG data written to file: \(thumbPath)")
+//    let docDir = NSSearchPathForDirectoriesInDomains(.DocumentDirectory, .UserDomainMask, true).first!
+//    let thumbPath = (docDir as NSString).stringByAppendingPathComponent("constructed-thumbnail.jpg")
+//    jpegData.writeToFile(thumbPath, atomically: true)
+//    log.debug("Constructed JPEG data written to file: \(thumbPath)")
 
     // Scale the image up to match the requested max size
     let scaledThumbnail = thumbnailImage.scaleToFit(sizeToFit: maxSize, imageScale: imageScale)
+
+    //TODO remove
+//    let scaledPath = (docDir as NSString).stringByAppendingPathComponent("scaled-thumbnail.jpg")
+//    let scaledData = UIImageJPEGRepresentation(scaledThumbnail, 0.9)!
+//    scaledData.writeToFile(scaledPath, atomically: true)
     
     // Blur the image
-    let blurredImage = scaledThumbnail.blur(radius: 1)
+    let blurredThumbnail = scaledThumbnail.blur(radius: 3, algorithm: .BoxConvolve)
     
-    log.debug("returning blurredImage: \(blurredImage)")
+    //TODO remove
+//    let blurredPath = (docDir as NSString).stringByAppendingPathComponent("blurred-thumbnail.jpg")
+//    let blurredData = UIImageJPEGRepresentation(blurredThumbnail, 0.9)!
+//    blurredData.writeToFile(blurredPath, atomically: true)    
+
+    log.debug("returning blurredThumbnail: \(blurredThumbnail)")
     
-    return blurredImage
+    return blurredThumbnail
 }
 

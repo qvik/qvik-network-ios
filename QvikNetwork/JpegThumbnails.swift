@@ -14,9 +14,10 @@ import QvikSwift
 //  Offset | Length (bytes) | Content
 // --------+----------------+------------------------------------------------
 //    0    |        1       | Version of dataformat; currently, 1
-//    1    |        1       | Width of the thumbnail
-//    2    |        1       | Height of the thumbnail
-//    3    |        n       | JPEG image data without header (contents of SOS marker)
+//    1    |        1       | Type of the image data; 1 = iOS-encoded JPEG
+//    2    |        1       | Width of the thumbnail
+//    3    |        1       | Height of the thumbnail
+//    4    |        n       | image data
 
 // JPEG header constants
 private let jpegMarkerByte: UInt8 = 0xFF
@@ -24,8 +25,10 @@ private let jpegEOIMarker: UInt8 = 0xD9 // End of image
 private let jpegSOSMarker: UInt8 = 0xDA // Start of Scan
 private let jpegSOF0Marker: UInt8 = 0xC0 // Start of Frame (baseline DCT-based JPEG)
 
-// Current thumbnail packet header version
-private let headerPacketVersion: UInt8 = 0x01
+// Thumbnail packet constants
+private let thumbHeaderLength: Int = 4
+private let thumbHeaderPacketVersion: UInt8 = 0x01
+private let thumbHeaderDataTypeIOSJPEG: UInt8 = 0x01
 
 /// Returns the JPEG header data, reading it from bundle if not already in memory
 private func getJpegHeader() -> NSData {
@@ -176,8 +179,8 @@ public func imageToJpegThumbnailData(sourceImage image: UIImage, pixelBudget: In
         return nil
     }
     
-    let thumbHeader = [headerPacketVersion, UInt8(thumbWidth), UInt8(thumbHeight)]
-    packetData.appendBytes(UnsafePointer<Void>(thumbHeader), length: 3)
+    let thumbHeader = [thumbHeaderPacketVersion, thumbHeaderDataTypeIOSJPEG, UInt8(thumbWidth), UInt8(thumbHeight)]
+    packetData.appendBytes(UnsafePointer<Void>(thumbHeader), length: thumbHeader.count)
     packetData.appendData(jpegImageData)
     log.debug("packetData.length = \(packetData.length)")
     
@@ -187,22 +190,29 @@ public func imageToJpegThumbnailData(sourceImage image: UIImage, pixelBudget: In
 /**
  Creates an image out of given thumbnail image data packet (for format, see the start of this source file).
  
+ This method could be somewhat CPU intense so you might consider running it in a non-UI thread.
+ 
  - parameter data: thumbnail packet data
  - parameter maxSize: Max dimensions to scale the image to, retaining aspect ratio.
+ - parameter imageScale: value for result image's UIImage.scale. Specify 0.0 to match the scale of the device's screen.
  - returns: Scaled-up and blurred version of the thumbnail, if successful
 */
-public func jpegThumbnailDataToImage(data data: NSData, maxSize: CGSize) -> UIImage? {
+public func jpegThumbnailDataToImage(data data: NSData, maxSize: CGSize, imageScale: CGFloat = 0.0) -> UIImage? {
     log.debug("** creating image from thumbnail **")
     
     let ptr = UnsafeMutablePointer<UInt8>(data.bytes)
-    if ptr[0] != headerPacketVersion {
+    if ptr[0] != thumbHeaderPacketVersion {
         log.error("Version mismatch!")
         return nil
     }
     
-    let thumbWidth = ptr[1]
-    let thumbHeight = ptr[2]
-    let jpegDataPtr = UnsafePointer<UInt8>(data.bytes)
+    if ptr[1] != thumbHeaderDataTypeIOSJPEG {
+        log.error("Invalid data type value in packet: \(ptr[1])")
+        return nil
+    }
+    
+    let thumbWidth = ptr[2]
+    let thumbHeight = ptr[3]
     log.debug("Read thumb size from packet: \(thumbWidth) x \(thumbHeight)")
     
     // Construct a whole JPEG from a predefined header block, the jpeg data and EOI marker (2 bytes)
@@ -212,11 +222,11 @@ public func jpegThumbnailDataToImage(data data: NSData, maxSize: CGSize) -> UIIm
         log.error("Failed to allocate memory for JPEG data!")
         return nil
     }
-    
+
     let eoiMarker = [jpegMarkerByte, jpegEOIMarker]
     jpegData.appendData(jpegHeaderData)
-    jpegData.appendBytes(jpegDataPtr.advancedBy(3), length: (data.length - 3))
-    jpegData.appendBytes(UnsafePointer<Void>(eoiMarker), length: 2)
+    jpegData.appendBytes(UnsafePointer<UInt8>(data.bytes).advancedBy(thumbHeaderLength), length: (data.length - thumbHeaderLength))
+    jpegData.appendBytes(UnsafePointer<Void>(eoiMarker), length: eoiMarker.count)
     log.debug("jpegData.length = \(jpegData.length)")
     
     // Patch in the thumbnail size into the copied header to get an result image of the correct size
@@ -238,8 +248,13 @@ public func jpegThumbnailDataToImage(data data: NSData, maxSize: CGSize) -> UIIm
     jpegData.writeToFile(thumbPath, atomically: true)
     log.debug("Constructed JPEG data written to file: \(thumbPath)")
 
-    //TODO
-    let blurredImage = thumbnailImage
+    // Scale the image up to match the requested max size
+    let scaledThumbnail = thumbnailImage.scaleToFit(sizeToFit: maxSize, imageScale: imageScale)
+    
+    // Blur the image
+    let blurredImage = scaledThumbnail.blur(radius: 1)
+    
+    log.debug("returning blurredImage: \(blurredImage)")
     
     return blurredImage
 }

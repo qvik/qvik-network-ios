@@ -26,14 +26,21 @@ import QvikSwift
 /**
 An UIImageView that retrieves the image from ImageCache (default shared instance).
 */
+@IBDesignable
 public class CachedImageView: QvikImageView {
     private var thumbnailImageView: UIImageView? = nil
+    private var fadeInView: UIView? = nil
     
-    /// Thumbnail image fadeout time in seconds
-    public var thumbnailFadeOutDuration: NSTimeInterval = 0.3
+    /// Duration for fading in the loaded image, in case it is asynchronously loaded.
+    @IBInspectable
+    public var imageFadeInDuration: NSTimeInterval = 0.5
     
     /// JPEG thumbnail data for the image. Should set this before layout cycle.
     public var thumbnailData: NSData? = nil
+    
+    /// Color for a fade-in view; used in case ```thumbnailData``` is not set
+    @IBInspectable
+    public var fadeInColor: UIColor? = nil
     
     /// ImageCache instance to use. Default value is the shared instance.
     public var imageCache = ImageCache.sharedInstance()
@@ -42,6 +49,7 @@ public class CachedImageView: QvikImageView {
     public var imageChangedCallback: (Void -> Void)?
     
     /// Whether to automaticallty respond to image load notification
+    @IBInspectable
     public var ignoreLoadNotification = false
     
     override public var image: UIImage? {
@@ -84,11 +92,14 @@ public class CachedImageView: QvikImageView {
                 self.image = image
                 
                 // Fade out the thumbnail view
-                UIView.animateWithDuration(thumbnailFadeOutDuration, animations: {
+                UIView.animateWithDuration(imageFadeInDuration, animations: {
                     self.thumbnailImageView?.alpha = 0.0
+                    self.fadeInView?.alpha = 0.0
                     }, completion: { finished in
                         self.thumbnailImageView?.removeFromSuperview()
                         self.thumbnailImageView = nil
+                        self.fadeInView?.removeFromSuperview()
+                        self.fadeInView = nil
                 })
             }
         }
@@ -115,18 +126,29 @@ public class CachedImageView: QvikImageView {
     override public func layoutSubviews() {
         super.layoutSubviews()
         
-        if let thumbnailData = thumbnailData where image != nil {
-            // Only create thumbnail image if the main image has not yet been loaded
-            if thumbnailImageView == nil {
-                thumbnailImageView = UIImageView(frame: self.frame)
-                thumbnailImageView!.contentMode = self.contentMode
-                thumbnailImageView!.image = jpegThumbnailDataToImage(data: thumbnailData, maxSize: self.frame.size)
-                insertSubview(thumbnailImageView!, atIndex: 0)
-                
-                // Discard thumbnail data to save memory
-                self.thumbnailData = nil
-            } else {
-                thumbnailImageView!.frame = self.frame
+        if image == nil {
+            // No image yet; show a thumbnail image if present
+            if let thumbnailData = thumbnailData {
+                if thumbnailImageView == nil {
+                    thumbnailImageView = UIImageView(frame: self.frame)
+                    thumbnailImageView!.contentMode = self.contentMode
+                    thumbnailImageView!.image = jpegThumbnailDataToImage(data: thumbnailData, maxSize: self.frame.size)
+                    insertSubview(thumbnailImageView!, atIndex: 0)
+                    
+                    // Discard thumbnail data to save memory
+                    self.thumbnailData = nil
+                } else {
+                    thumbnailImageView!.frame = self.frame
+                }
+            } else if let fadeInColor = fadeInColor where thumbnailImageView == nil {
+                if fadeInView == nil {
+                    // No thumbnail data set; show a colored fade-in view
+                    fadeInView = UIView(frame: self.frame)
+                    fadeInView!.backgroundColor = fadeInColor
+                    insertSubview(fadeInView!, atIndex: 0)
+                } else {
+                    fadeInView!.frame = self.frame
+                }
             }
         }
     }

@@ -183,7 +183,7 @@ public func imageToJpegThumbnailData(sourceImage image: UIImage, pixelBudget: In
     }
     
     // Create a scaled-down thumbnail image and encode it into a baseline DCT-based JPEG
-    let thumbnail = image.scale(scaledSize: CGSize(width: thumbWidth, height: thumbHeight))
+    let thumbnail = image.scaleTo(size: CGSize(width: thumbWidth, height: thumbHeight))
     guard let jpegData = UIImageJPEGRepresentation(thumbnail, 0.2) else {
         log.error("Failed to encode thumbnail JPEG")
         return nil

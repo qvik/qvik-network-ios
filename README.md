@@ -5,6 +5,8 @@
 
 ## Changelog
 
+* 0.1.0
+    * Added JPEG Thumbnails support.
 * 0.0.14
     * ImageCache: GIF passthrough support.
 * 0.0.13
@@ -127,7 +129,7 @@ guard let image = imageCache.getImage(url: imageUrl) else {
 
 ### CachedImageView
 
-A UIImageView that is backed up by *ImageCache*; features automatic image retrieval from the cache (and hence from the network if not found locally).
+A UIImageView that is backed up by *ImageCache*; features automatic image retrieval from the cache (and hence from the network if not found locally). Also supports JPEG Thumbnails (see below) as well as a fade-in effect.
 
 Sample usage:
 
@@ -177,6 +179,21 @@ class RemoteService: BaseRemoteService {
     super.init(backgroundSessionId: "com.example.MyApp", additionalHeaders: additionalHeaders, timeout: 5)
   }
 }
+```
+
+### JPEG Thumbnails
+
+JPEG thumbnails can be used for fast image previews. To understand the concept, read the links mentioned in the ```JpegThumbnails.swift``` source file.
+
+```swift
+/// Generate a thumbnail:
+if let thumbnailData = imageToJpegThumbnailData(sourceImage: image) {
+  // TODO submit the data to server etc.
+}
+
+/// Use a thumbnail:
+thumbnailImageView.image = jpegThumbnailDataToImage(data: thumbnailData, maxSize: self.frame.size)
+
 ```
 
 ## Contributing 

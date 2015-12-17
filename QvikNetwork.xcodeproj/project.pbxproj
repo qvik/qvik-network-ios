@@ -123,8 +123,8 @@
 			isa = PBXGroup;
 			children = (
 				49B21C2A1BB7CF9700C25FDE /* QvikNetwork.podspec */,
-				49B21C281BB7CF0700C25FDE /* Podfile */,
 				49B21C291BB7CF0700C25FDE /* README.md */,
+				49B21C281BB7CF0700C25FDE /* Podfile */,
 				49B21C051BB7CD9D00C25FDE /* QvikNetwork */,
 				49B21C111BB7CD9D00C25FDE /* QvikNetworkTests */,
 				49B21C041BB7CD9D00C25FDE /* Products */,

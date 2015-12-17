@@ -62,7 +62,9 @@ public class CachedImageView: QvikImageView {
     public var imageUrl: String? = nil {
         didSet {
             assert(NSThread.isMainThread(), "Must be called on main thread!")
-                
+
+            reset()
+            
             if imageUrl?.length <= 0 {
                 self.image = nil
                 return
@@ -77,6 +79,14 @@ public class CachedImageView: QvikImageView {
                 self.image = imageCache.getImage(url: imageUrl, fetch: true)
             }
         }
+    }
+
+    /// Resets all the properties (extra views etc) to the original state
+    private func reset() {
+        thumbnailImageView?.removeFromSuperview()
+        thumbnailImageView = nil
+        fadeInView?.removeFromSuperview()
+        fadeInView = nil
     }
 
     /**
@@ -96,10 +106,7 @@ public class CachedImageView: QvikImageView {
                     self.thumbnailImageView?.alpha = 0.0
                     self.fadeInView?.alpha = 0.0
                     }, completion: { finished in
-                        self.thumbnailImageView?.removeFromSuperview()
-                        self.thumbnailImageView = nil
-                        self.fadeInView?.removeFromSuperview()
-                        self.fadeInView = nil
+                        self.reset()
                 })
             }
         }

@@ -38,23 +38,54 @@ private let jpegSOF0Marker: UInt8 = 0xC0 // Start of Frame (baseline DCT-based J
 private let thumbHeaderLength: Int = 4
 private let thumbHeaderPacketVersion: UInt8 = 0x01
 private let thumbHeaderDataTypeIOSJPEG: UInt8 = 0x01
+private let thumbHeaderDataTypeCanvasJPEG: UInt8 = 0x02
 
-/// Returns the JPEG header data, reading it from bundle if not already in memory
-private func getJpegHeader() -> NSData {
+/// Returns the iOS JPEG generated header data, reading it from bundle if not already in memory
+private func getIOSJpegHeader() -> NSData? {
     struct Static {
         static var jpegHeaderData: NSData? = nil // Constant, predefined JPEG header data
         static var onceToken: dispatch_once_t = 0
     }
     
     dispatch_once(&Static.onceToken) {
-        guard let filePath = NSBundle.mainBundle().pathForResource("jpegheader", ofType: "data") else {
-            log.error("Missing 'jpegheader.data' in bundle!")
+        guard let filePath = NSBundle.mainBundle().pathForResource("ios-jpegheader", ofType: "data") else {
+            log.error("Missing 'ios-jpegheader.data' in bundle!")
             return
         }
         Static.jpegHeaderData = NSData(contentsOfFile: filePath)
     }
-
+    
     return Static.jpegHeaderData!
+}
+
+/// Returns the Canvas generated JPEG header data, reading it from bundle if not already in memory
+private func getCanvasJpegHeader() -> NSData? {
+    struct Static {
+        static var jpegHeaderData: NSData? = nil // Constant, predefined JPEG header data
+        static var onceToken: dispatch_once_t = 0
+    }
+    
+    dispatch_once(&Static.onceToken) {
+        guard let filePath = NSBundle.mainBundle().pathForResource("canvas-jpegheader", ofType: "data") else {
+            log.error("Missing 'canvas-jpegheader.data' in bundle!")
+            return
+        }
+        Static.jpegHeaderData = NSData(contentsOfFile: filePath)
+    }
+    
+    return Static.jpegHeaderData!
+}
+
+/// Returns a proper JPEG header for data type
+private func getJpegHeader(dataType: UInt8) -> NSData? {
+    switch dataType {
+    case thumbHeaderDataTypeIOSJPEG:
+        return getIOSJpegHeader()
+    case thumbHeaderDataTypeCanvasJPEG:
+        return getCanvasJpegHeader()
+    default:
+        return nil
+    }
 }
 
 /// Finds the (next) index of a give marker; returns index of the FF marker byte; the actual
@@ -207,7 +238,7 @@ public func imageToJpegThumbnailData(sourceImage image: UIImage, pixelBudget: In
  - returns: Scaled-up and blurred version of the thumbnail, if successful
 */
 public func jpegThumbnailDataToImage(data data: NSData, maxSize: CGSize, imageScale: CGFloat = 0.0) -> UIImage? {
-    log.debug("** creating image from thumbnail **")
+    let startTime = NSDate()
     
     let ptr = UnsafeMutablePointer<UInt8>(data.bytes)
     if ptr[0] != thumbHeaderPacketVersion {
@@ -215,17 +246,16 @@ public func jpegThumbnailDataToImage(data data: NSData, maxSize: CGSize, imageSc
         return nil
     }
     
-    if ptr[1] != thumbHeaderDataTypeIOSJPEG {
-        log.error("Invalid data type value in packet: \(ptr[1])")
-        return nil
-    }
-    
+    log.debug("JPEG payload data type: \(ptr[1])")
     let thumbWidth = ptr[2]
     let thumbHeight = ptr[3]
     log.debug("Read thumb size from packet: \(thumbWidth) x \(thumbHeight)")
     
     // Construct a whole JPEG from a predefined header block, the jpeg data and EOI marker (2 bytes)
-    let jpegHeaderData = getJpegHeader()
+    guard let jpegHeaderData = getJpegHeader(ptr[1]) else {
+        log.error("Failed to get JPEG header!")
+        return nil
+    }
     log.debug("Read \(jpegHeaderData.length) bytes of JPEG header")
     guard let jpegData = NSMutableData(capacity: (jpegHeaderData.length + (data.length - 3) + 2)) else {
         log.error("Failed to allocate memory for JPEG data!")
@@ -274,6 +304,8 @@ public func jpegThumbnailDataToImage(data data: NSData, maxSize: CGSize, imageSc
 //    blurredData.writeToFile(blurredPath, atomically: true)    
 
     log.debug("returning blurredThumbnail: \(blurredThumbnail)")
+    
+    log.debug("JPEG reconstruction took \(-startTime.timeIntervalSinceNow) seconds")
     
     return blurredThumbnail
 }

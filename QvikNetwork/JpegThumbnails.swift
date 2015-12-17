@@ -37,8 +37,12 @@ private let jpegSOF0Marker: UInt8 = 0xC0 // Start of Frame (baseline DCT-based J
 // Thumbnail packet constants
 private let thumbHeaderLength: Int = 4
 private let thumbHeaderPacketVersion: UInt8 = 0x01
-private let thumbHeaderDataTypeIOSJPEG: UInt8 = 0x01
-private let thumbHeaderDataTypeCanvasJPEG: UInt8 = 0x02
+
+// Public constants
+public let thumbHeaderDataTypeIOSJPEG: UInt8 = 0x01
+
+/// Map of registered custom data type -> JPEG header pairs.
+private var headerMap = [UInt8: NSData]()
 
 /// Returns the iOS JPEG generated header data, reading it from bundle if not already in memory
 private func getIOSJpegHeader() -> NSData? {
@@ -58,32 +62,16 @@ private func getIOSJpegHeader() -> NSData? {
     return Static.jpegHeaderData!
 }
 
-/// Returns the Canvas generated JPEG header data, reading it from bundle if not already in memory
-private func getCanvasJpegHeader() -> NSData? {
-    struct Static {
-        static var jpegHeaderData: NSData? = nil // Constant, predefined JPEG header data
-        static var onceToken: dispatch_once_t = 0
-    }
-    
-    dispatch_once(&Static.onceToken) {
-        guard let filePath = NSBundle.mainBundle().pathForResource("canvas-jpegheader", ofType: "data") else {
-            log.error("Missing 'canvas-jpegheader.data' in bundle!")
-            return
-        }
-        Static.jpegHeaderData = NSData(contentsOfFile: filePath)
-    }
-    
-    return Static.jpegHeaderData!
-}
-
 /// Returns a proper JPEG header for data type
 private func getJpegHeader(dataType: UInt8) -> NSData? {
-    switch dataType {
-    case thumbHeaderDataTypeIOSJPEG:
+    if let jpegHeader = headerMap[dataType] {
+        return jpegHeader
+    }
+    
+    if dataType == thumbHeaderDataTypeIOSJPEG {
         return getIOSJpegHeader()
-    case thumbHeaderDataTypeCanvasJPEG:
-        return getCanvasJpegHeader()
-    default:
+    } else {
+        log.error("Unknown data type: \(dataType) - could not find a JPEG header!")
         return nil
     }
 }
@@ -139,22 +127,31 @@ private func extractJpegImageData(jpegData: NSData) -> NSData? {
         log.error("Failed to find SOS marker in JPEG data!")
         return nil
     }
-    log.debug("sosIndex = \(sosIndex)")
     
     // Locate the End of Image marker
     guard let eoiIndex = findMarker(jpegEOIMarker, startIndex: sosIndex, data: bytes, dataLength: jpegData.length) else {
         log.error("Failed to find EOI marker in JPEG data!")
         return nil
     }
-    log.debug("eoiIndex = \(eoiIndex)")
     
     // JPEG data exists between end of SOS marker and the beginning of EOI marker
     let imageDataStartIndex = sosIndex + 2
     let imageDataLength = eoiIndex - imageDataStartIndex
     let imageDataPointer = UnsafeMutablePointer<Void>(bytes.advancedBy(imageDataStartIndex))
-    log.debug("imageDataStartIndex = \(imageDataStartIndex), imageDataLength = \(imageDataLength)")
     
     return NSData(bytesNoCopy: imageDataPointer, length: imageDataLength, freeWhenDone: false)
+}
+
+/**
+ Registers a new data type -> JPEG header mapping. This will be cached in-memory.
+ 
+ If needed, this can also be used to override the standard iOS header (data type: thumbHeaderDataTypeIOSJPEG).
+ 
+ - parameter dataType: data type value corresponding to the thumbnail data packets
+ - parameter headerData: JPEG header to use for this data type value
+*/
+public func registerJpegThumbnailHeader(dataType dataType: UInt8, headerData: NSData) {
+    headerMap[dataType] = headerData
 }
 
 /**
@@ -179,7 +176,6 @@ public func imageToJpegThumbnailData(sourceImage image: UIImage, pixelBudget: In
     let ratio = sqrt(CGFloat(pixelBudget) / numPixels)
     let thumbWidth = round(ratio * imageWidth)
     let thumbHeight = round(ratio * imageHeight)
-    log.debug("image size: \(Int(imageWidth)) x \(Int(imageHeight)), thumb size: \(Int(thumbWidth)) x \(Int(thumbHeight))")
     
     if (thumbWidth > 255) || (thumbHeight > 255) {
         log.error("Thumbnail resulted dimensions larger than 255x255!")
@@ -192,25 +188,12 @@ public func imageToJpegThumbnailData(sourceImage image: UIImage, pixelBudget: In
         log.error("Failed to encode thumbnail JPEG")
         return nil
     }
-    log.debug("JPEG total data length: \(jpegData.length)")
-    
-    //TODO remove : write thumbnail file to disk
-//    let docDir = NSSearchPathForDirectoriesInDomains(.DocumentDirectory, .UserDomainMask, true).first!
-//    let thumbPath = (docDir as NSString).stringByAppendingPathComponent("thumbnail.jpg")
-//    jpegData.writeToFile(thumbPath, atomically: true)
-//    log.debug("JPEG data written to file: \(thumbPath)")
 
     // Try to extract the JPEG image data
     guard let jpegImageData = extractJpegImageData(jpegData) else {
         log.error("Failed to extract image data from the JPEG data")
         return nil
     }
-    log.debug("JPEG image data length: \(jpegImageData.length)")
-
-    //TODO remove: write thumbnail data file to disk
-//    let thumbDataPath = (docDir as NSString).stringByAppendingPathComponent("thumbnail.data")
-//    jpegImageData.writeToFile(thumbDataPath, atomically: true)
-//    log.debug("JPEG data written to file: \(thumbDataPath)")
 
     // Create the thumbnail data packet; for format, see the start of this file.
     // Packet length is our header length (3) + image data length
@@ -222,7 +205,6 @@ public func imageToJpegThumbnailData(sourceImage image: UIImage, pixelBudget: In
     let thumbHeader = [thumbHeaderPacketVersion, thumbHeaderDataTypeIOSJPEG, UInt8(thumbWidth), UInt8(thumbHeight)]
     packetData.appendBytes(UnsafePointer<Void>(thumbHeader), length: thumbHeader.count)
     packetData.appendData(jpegImageData)
-    log.debug("packetData.length = \(packetData.length)")
     
     return packetData
 }
@@ -238,18 +220,14 @@ public func imageToJpegThumbnailData(sourceImage image: UIImage, pixelBudget: In
  - returns: Scaled-up and blurred version of the thumbnail, if successful
 */
 public func jpegThumbnailDataToImage(data data: NSData, maxSize: CGSize, imageScale: CGFloat = 0.0) -> UIImage? {
-    let startTime = NSDate()
-    
     let ptr = UnsafeMutablePointer<UInt8>(data.bytes)
     if ptr[0] != thumbHeaderPacketVersion {
         log.error("Version mismatch!")
         return nil
     }
     
-    log.debug("JPEG payload data type: \(ptr[1])")
     let thumbWidth = ptr[2]
     let thumbHeight = ptr[3]
-    log.debug("Read thumb size from packet: \(thumbWidth) x \(thumbHeight)")
     
     // Construct a whole JPEG from a predefined header block, the jpeg data and EOI marker (2 bytes)
     guard let jpegHeaderData = getJpegHeader(ptr[1]) else {
@@ -266,7 +244,6 @@ public func jpegThumbnailDataToImage(data data: NSData, maxSize: CGSize, imageSc
     jpegData.appendData(jpegHeaderData)
     jpegData.appendBytes(UnsafePointer<UInt8>(data.bytes).advancedBy(thumbHeaderLength), length: (data.length - thumbHeaderLength))
     jpegData.appendBytes(UnsafePointer<Void>(eoiMarker), length: eoiMarker.count)
-    log.debug("jpegData.length = \(jpegData.length)")
     
     // Patch in the thumbnail size into the copied header to get an result image of the correct size
     if !writeImageSize(jpegData: jpegData, imageWidth: thumbWidth, imageHeight: thumbHeight) {
@@ -279,33 +256,12 @@ public func jpegThumbnailDataToImage(data data: NSData, maxSize: CGSize, imageSc
         log.error("Failed to create UIImage from JPEG data!")
         return nil
     }
-    log.debug("Thumbnail image constructed with size: \(thumbnailImage.size)")
-
-    //TODO remove: write jpeg image file
-//    let docDir = NSSearchPathForDirectoriesInDomains(.DocumentDirectory, .UserDomainMask, true).first!
-//    let thumbPath = (docDir as NSString).stringByAppendingPathComponent("constructed-thumbnail.jpg")
-//    jpegData.writeToFile(thumbPath, atomically: true)
-//    log.debug("Constructed JPEG data written to file: \(thumbPath)")
 
     // Scale the image up to match the requested max size
     let scaledThumbnail = thumbnailImage.scaleToFit(sizeToFit: maxSize, imageScale: imageScale)
 
-    //TODO remove
-//    let scaledPath = (docDir as NSString).stringByAppendingPathComponent("scaled-thumbnail.jpg")
-//    let scaledData = UIImageJPEGRepresentation(scaledThumbnail, 0.9)!
-//    scaledData.writeToFile(scaledPath, atomically: true)
-    
     // Blur the image
     let blurredThumbnail = scaledThumbnail.blur(radius: 3, algorithm: .BoxConvolve)
-    
-    //TODO remove
-//    let blurredPath = (docDir as NSString).stringByAppendingPathComponent("blurred-thumbnail.jpg")
-//    let blurredData = UIImageJPEGRepresentation(blurredThumbnail, 0.9)!
-//    blurredData.writeToFile(blurredPath, atomically: true)    
-
-    log.debug("returning blurredThumbnail: \(blurredThumbnail)")
-    
-    log.debug("JPEG reconstruction took \(-startTime.timeIntervalSinceNow) seconds")
     
     return blurredThumbnail
 }

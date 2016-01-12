@@ -140,6 +140,7 @@ public class CachedImageView: QvikImageView {
                     thumbnailImageView = UIImageView(frame: self.frame)
                     thumbnailImageView!.contentMode = self.contentMode
                     thumbnailImageView!.image = jpegThumbnailDataToImage(data: thumbnailData, maxSize: self.frame.size)
+                    image = thumbnailImageView!.image
                     insertSubview(thumbnailImageView!, atIndex: 0)
                     
                     // Discard thumbnail data to save memory

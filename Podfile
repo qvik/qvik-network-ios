@@ -9,6 +9,6 @@ pod 'QvikSwift', '~> 2.0.0'
 #pod 'QvikSwift', :path => '../qvik-swift-ios/'
 pod 'XCGLogger', '~> 3.0'
 pod 'CryptoSwift'
-pod 'SwiftKeychain'
+pod 'SwiftKeychain', '~> 0.1'
 
 

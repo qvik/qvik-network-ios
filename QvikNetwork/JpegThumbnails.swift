@@ -35,8 +35,15 @@ private let jpegSOSMarker: UInt8 = 0xDA // Start of Scan
 private let jpegSOF0Marker: UInt8 = 0xC0 // Start of Frame (baseline DCT-based JPEG)
 
 // Thumbnail packet constants
-private let thumbHeaderLength: Int = 4
 private let thumbHeaderPacketVersion: UInt8 = 0x01
+private let thumbHeaderLength: Int = 4
+private let thumbHeaderIndexVersion = 0
+private let thumbHeaderIndexDataType = 1
+private let thumbHeaderIndexImageWidth = 2
+private let thumbHeaderIndexImageHeight = 3
+
+// Misc constants
+private let thumbnailBlurRadius = 3.0
 
 // Public constants
 public let thumbHeaderDataTypeIOSJPEG: UInt8 = 0x01
@@ -158,14 +165,14 @@ public func registerJpegThumbnailHeader(dataType dataType: UInt8, headerData: NS
  Creates a base64 string representing the JPEG data (excluding the header and EOI - end of image - marker). 
 
  As this method internally uses UIImageJPEGRepresentation(), you might want to consider wrapping the function call
- inside autorelease pool: ```autoreleasepool { createJpegThumbnailData( .. ) }```.
+ inside autorelease pool: ```autoreleasepool { imageToJpegThumbnailData( .. ) }```.
  
  Max dimensions for the thumbnail are 256x256, although you should aim for something like 
  42x42 (see ```pixelBudget``` param.)
  
  - parameter sourceImage: source UIImage
  - parameter pixelBudget: approximate amount of pixels in the thumbnail.
- - returns: the data representing the thumbnail (JPEG data + 3 bytes of our custom header) if successful
+ - returns: the data representing the thumbnail (our custom header + JPEG data) if successful
 */
 public func imageToJpegThumbnailData(sourceImage image: UIImage, pixelBudget: Int = (42 * 42)) -> NSData? {
     // Calculate the thumbnail size by comparing amount of pixels in original image to the 
@@ -196,8 +203,8 @@ public func imageToJpegThumbnailData(sourceImage image: UIImage, pixelBudget: In
     }
 
     // Create the thumbnail data packet; for format, see the start of this file.
-    // Packet length is our header length (3) + image data length
-    guard let packetData = NSMutableData(capacity: 3 + jpegImageData.length) else {
+    // Packet length is our header length + image data length
+    guard let packetData = NSMutableData(capacity: thumbHeaderLength + jpegImageData.length) else {
         log.error("Failed to allocate memory for the packet")
         return nil
     }
@@ -221,21 +228,21 @@ public func imageToJpegThumbnailData(sourceImage image: UIImage, pixelBudget: In
 */
 public func jpegThumbnailDataToImage(data data: NSData, maxSize: CGSize, imageScale: CGFloat = 0.0) -> UIImage? {
     let ptr = UnsafeMutablePointer<UInt8>(data.bytes)
-    if ptr[0] != thumbHeaderPacketVersion {
+    if ptr[thumbHeaderIndexVersion] != thumbHeaderPacketVersion {
         log.error("Version mismatch!")
         return nil
     }
     
-    let thumbWidth = ptr[2]
-    let thumbHeight = ptr[3]
+    let thumbWidth = ptr[thumbHeaderIndexImageWidth]
+    let thumbHeight = ptr[thumbHeaderIndexImageHeight]
     
     // Construct a whole JPEG from a predefined header block, the jpeg data and EOI marker (2 bytes)
-    guard let jpegHeaderData = getJpegHeader(ptr[1]) else {
+    guard let jpegHeaderData = getJpegHeader(ptr[thumbHeaderIndexDataType]) else {
         log.error("Failed to get JPEG header!")
         return nil
     }
     log.debug("Read \(jpegHeaderData.length) bytes of JPEG header")
-    guard let jpegData = NSMutableData(capacity: (jpegHeaderData.length + (data.length - 3) + 2)) else {
+    guard let jpegData = NSMutableData(capacity: (jpegHeaderData.length + (data.length - thumbHeaderLength) + 2)) else {
         log.error("Failed to allocate memory for JPEG data!")
         return nil
     }
@@ -261,7 +268,7 @@ public func jpegThumbnailDataToImage(data data: NSData, maxSize: CGSize, imageSc
     let scaledThumbnail = thumbnailImage.scaleToFit(sizeToFit: maxSize, imageScale: imageScale)
 
     // Blur the image
-    let blurredThumbnail = scaledThumbnail.blur(radius: 3, algorithm: .BoxConvolve)
+    let blurredThumbnail = scaledThumbnail.blur(radius: thumbnailBlurRadius, algorithm: .BoxConvolve)
     
     return blurredThumbnail
 }

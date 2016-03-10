@@ -43,7 +43,7 @@ To use the library in your projects, add the following (or what ever suits your 
 
 ```ruby
 use_frameworks!
-source 'https://git.qvik.fi/pods/QvikPodSpecs.git'
+source 'https://github.com/qvik/qvik-podspecs.git'
 
 pod 'QvikNetwork'
 ```

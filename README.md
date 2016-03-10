@@ -5,6 +5,8 @@
 
 ## Changelog
 
+* 0.1.4
+* 	* Moved the podspec to point to Github
 * 0.1.0
     * Added JPEG Thumbnails support.
 * 0.0.14
@@ -198,12 +200,12 @@ thumbnailImageView.image = jpegThumbnailDataToImage(data: thumbnailData, maxSize
 
 ## Contributing 
 
-Any Swift developer in the company may - and is encouraged to - contribute to this library. Any contributions have to meet the following criteria:
+Contributions to this library are welcomed. Any contributions have to meet the following criteria:
 
 * Meaningfulness. Discuss whether what you are about to contribute indeed belongs to this library in the first place before submitting a pull request.
 * Code style. Follow our [Swift style guide](https://github.com/qvik/swift) 100%.
 * Stability. No code in the library must ever crash; never place *assert()*s or implicit optional unwrapping in library methods.
-* Testing. Create a test app for testing the functionality of your classes.
+* Testing. Create a test app for testing the functionality of your classes and/or provide unit tests if appropriate.
 * Logging. All code in the library must use the common logging handle (see QvikNetwork.swift) and sensible log levels. 
 
 ### License
@@ -213,7 +215,7 @@ The library is distributed with the MIT License. Make sure all your source files
 ```
 // The MIT License (MIT)
 //
-// Copyright (c) 2015 Qvik (www.qvik.fi)
+// Copyright (c) 2015-2016 Qvik (www.qvik.fi)
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -236,7 +238,7 @@ The library is distributed with the MIT License. Make sure all your source files
 
 ### Submit your code
 
-All merges to the **master** branch go through a *Pull Request* and MUST meet the above criteria.
+All merges to the **master** branch go through a *Merge ('pull') Request* and MUST meet the above criteria.
 
 In other words, follow the following procedure to submit your code into the library:
 
@@ -245,22 +247,22 @@ In other words, follow the following procedure to submit your code into the libr
 * Code it, clean it up, test it thoroughly
 * Make sure all your methods meant to be public are defined as public
 * Push your branch
-* Create a pull request
+* Create a merge request
 
 ## Updating the pod
 
 As a contributor you do not need to do this; we'll update the pod whenever needed by projects.
 
 * Update QvikNetwork.podspec and set s.version to match the upcoming tag
-* Commit all your changes, merge all pending accepted *Pull Requests*
+* Commit all your changes, merge all pending accepted *Merge ('pull') Requests*
 * Create a new tag following [Semantic Versioning](http://semver.org/); eg. `git tag -a 1.2.0 -m "Your tag comment"`
 * `git push --tags`
-* `pod repo push QvikPodSpecs QvikNetwork.podspec`
+* `pod repo push qvik-podspecs QvikNetwork.podspec`
 
 Unless already set up, you might do the following steps to set up the pod repo:
 
-* ```pod repo add QvikPodSpecs https://git.qvik.fi/pods/QvikPodSpecs.git```
+* ```pod repo add qvik-podspecs https://github.com/qvik/qvik-podspecs.git```
 
 ## Contact
 
-Any questions? Contact Matti.
+Any questions? Contact matti@qvik.fi.

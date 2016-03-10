@@ -2,7 +2,7 @@ platform :ios, '8.0'
 use_frameworks!
 
 source 'https://github.com/CocoaPods/Specs.git'
-source 'https://git.qvik.fi/pods/QvikPodSpecs.git'
+source 'https://github.com/qvik/qvik-podspecs.git'
 
 pod 'Alamofire', '~> 2.0'
 pod 'QvikSwift', '~> 2.0.0'

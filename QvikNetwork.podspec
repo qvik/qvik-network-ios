@@ -1,3 +1,4 @@
+# coding: utf-8
 #
 #  Be sure to run `pod spec lint QvikNetwork.podspec' to ensure this is a
 #  valid spec and to remove all comments including this before submitting the spec.
@@ -16,14 +17,14 @@ Pod::Spec.new do |s|
   #
 
   s.name         = "QvikNetwork"
-  s.version      = "0.1.3"
+  s.version      = "0.1.4"
   s.summary      = "QvikNetwork is a set of networking utilities for Swift."
 
   s.description  = <<-DESC
                    QvikNetwork depends on the Alamofire library for any HTTP traffic.
                    DESC
 
-  s.homepage     = "https://git.qvik.fi/pods/qvik-network-ios"
+  s.homepage     = "https://github.com/qvik/qvik-network-ios"
   # s.screenshots  = "www.example.com/screenshots_1.gif", "www.example.com/screenshots_2.gif"
 
 
@@ -34,7 +35,7 @@ Pod::Spec.new do |s|
   #  Popular ones are 'MIT', 'BSD' and 'Apache License, Version 2.0'.
   #
 
-  s.license      = { :type => "MIT", :file => "LICENSE" }
+  s.license      = { :type => "MIT", :file => "LICENSE.md" }
 
 
   # ――― Author Metadata  ――――――――――――――――――――――――――――――――――――――――――――――――――――――――― #
@@ -77,7 +78,7 @@ Pod::Spec.new do |s|
   #  Supports git, hg, bzr, svn and HTTP.
   #
 
-  s.source       = { :git => "https://git.qvik.fi/pods/qvik-network-ios.git", :tag => "#{s.version}" }
+  s.source       = { :git => "https://github.com/qvik/qvik-network-ios.git", :tag => "#{s.version}" }
 
 
   # ――― Source Code ―――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― #

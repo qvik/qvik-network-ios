@@ -19,14 +19,7 @@ Pod::Spec.new do |s|
   s.name         = "QvikNetwork"
   s.version      = "0.1.4"
   s.summary      = "QvikNetwork is a set of networking utilities for Swift."
-
-  s.description  = <<-DESC
-                   QvikNetwork depends on the Alamofire library for any HTTP traffic.
-                   DESC
-
   s.homepage     = "https://github.com/qvik/qvik-network-ios"
-  # s.screenshots  = "www.example.com/screenshots_1.gif", "www.example.com/screenshots_2.gif"
-
 
   # ―――  Spec License  ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― #
   #

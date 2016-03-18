@@ -9,7 +9,12 @@
 import UIKit
 import ImageIO
 
-//TODO yeah use this from the pod once he fixes it ..
+//TODO Note from Matti: this code is from SwiftGifOrigin pod. however, it is broken 
+// and until he fixes it (see: https://github.com/bahlo/SwiftGif/issues/18) we're including
+// the (fixed) functionality here as a source.
+// 
+// NOTE that this file is not actually a part of QvikNetwork module nor have we at Qvik 
+// authored it, but simply using a fixed version instead of the original one from a pod.
 
 extension UIImage {
     

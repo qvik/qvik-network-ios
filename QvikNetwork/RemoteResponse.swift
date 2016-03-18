@@ -41,8 +41,7 @@ public class RemoteResponse {
     private(set) public var nsError: NSError?
     
     /// Response JSON parsed into a dictionary, or nil if no JSON in response
-    private(set) public var parsedJson: NSDictionary?
-
+    private(set) public var parsedJson: [String: AnyObject]?
     
     /// Whether the request was successful or not
     public var success: Bool {
@@ -52,11 +51,11 @@ public class RemoteResponse {
     public init() {
     }
     
-    public init(json: NSDictionary) {
+    public init(json: [String: AnyObject]) {
         self.parsedJson = json
     }
     
-    public init(nsError: NSError, remoteError: RemoteError, json: NSDictionary?) {
+    public init(nsError: NSError, remoteError: RemoteError, json: [String: AnyObject]?) {
         self.nsError = nsError
         self.remoteError = remoteError
         self.parsedJson = json

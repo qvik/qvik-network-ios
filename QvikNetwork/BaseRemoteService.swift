@@ -132,13 +132,14 @@ public class BaseRemoteService {
     public typealias AuthenticationMapping = (headerName: String, authToken: String)
     
     /**
-    Returns either a valid JSON response or an error.
+     Returns either a valid JSON response or an error.
     */
-    private func createResponse(response: NSHTTPURLResponse?, _ error: ErrorType?, _ result: Result<AnyObject>) -> RemoteResponse {
-        let jsonResponse = result.value as? NSDictionary
-        log.debug("Status code: \(response?.statusCode)")
+    private func createRemoteResponse(afResponse: Response<AnyObject, NSError>) -> RemoteResponse {
+        let jsonResponse = afResponse.result.value as? [String: AnyObject]
+        let statusCode = afResponse.response?.statusCode
+        log.debug("HTTP Status code: \(statusCode)")
         
-        if let code = response?.statusCode where code < 200 || code >= 300 {
+        if let code = statusCode where code < 200 || code >= 300 {
             log.debug("Got non-success HTTP response: \(code)")
             
             var remoteError = RemoteResponse.RemoteError.ServerError
@@ -152,7 +153,7 @@ public class BaseRemoteService {
                 remoteError = .ServerError
             }
 
-            if let error = error as? NSError where error.code == NSURLErrorTimedOut {
+            if let error = afResponse.result.error where error.code == NSURLErrorTimedOut {
                 remoteError = .NetworkTimeout
             }
             
@@ -166,9 +167,8 @@ public class BaseRemoteService {
             log.debug("Received a valid response.")
             return RemoteResponse(json: jsonResponse)
         } else {
-            log.debug("Received invalid or empty JSON response: \(result.value)")
-            let nsError = NSError(domain: remoteServiceErrorDomain, code: 0, userInfo: nil)
-            return RemoteResponse(nsError: nsError, remoteError: .ServerError, json: nil)
+            log.debug("Received invalid or empty JSON response: \(afResponse.result.value)")
+            return RemoteResponse()
         }
     }
     
@@ -204,10 +204,9 @@ public class BaseRemoteService {
             request.setValue(authMapping.authToken, forHTTPHeaderField: authMapping.headerName)
         }
         
-        manager.request(request).responseJSON { (request, response, result) in
-            //debugPrint("Request completed, result: \(result)")
-            log.debug("Request completed, URL: \(request?.URL), response: \(response), result = \(result), status code = \(response?.statusCode)")
-            callback(self.createResponse(response, result.error, result))
+        manager.request(request).responseJSON { response in
+            log.debug("Request completed, URL: \(response.request?.URL), response: \(response), status code = \(response.response?.statusCode)")
+            callback(self.createRemoteResponse(response))
         }
     }
     

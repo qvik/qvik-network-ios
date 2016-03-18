@@ -110,7 +110,7 @@ public class DownloadManager {
         }.response { request, response, data, error in
             log.debug("Request completed: url: \(url), error = \(error), response = \(response)")
 
-            var nsError = error as? NSError
+            var nsError = error
             
             if let nsError = nsError {
                 download.state = .Failed

@@ -26,19 +26,35 @@ import XCGLogger
 let log = QvikNetwork.createLogger()
 
 public class QvikNetwork {
+    public enum LogLevel {
+        case Info
+        case Debug
+        case Verbose
+    }
+    
     private static func createLogger() -> XCGLogger {
         let logger = XCGLogger(identifier: "QvikNetwork")
         logger.setup(.Info, showLogLevel: true, showFileNames: true, showLineNumbers: true, writeToFile: nil, fileLogLevel: nil)
         
         return logger
     }
-    
+
+    @available(*, deprecated, message="use .logLevel instead")
     public static var debugLogging = false {
         didSet {
-            if debugLogging {
-                log.setup(.Debug, showLogLevel: true, showFileNames: true, showLineNumbers: true, writeToFile: nil, fileLogLevel: nil)
-            } else {
+            QvikNetwork.logLevel = debugLogging ? .Debug : .Info
+        }
+    }
+    
+    public static var logLevel = QvikNetwork.LogLevel.Info {
+        didSet {
+            switch logLevel {
+            case .Info:
                 log.setup(.Info, showLogLevel: true, showFileNames: true, showLineNumbers: true, writeToFile: nil, fileLogLevel: nil)
+            case .Debug:
+                log.setup(.Debug, showLogLevel: true, showFileNames: true, showLineNumbers: true, writeToFile: nil, fileLogLevel: nil)
+            case .Verbose:
+                log.setup(.Verbose, showLogLevel: true, showFileNames: true, showLineNumbers: true, writeToFile: nil, fileLogLevel: nil)
             }
         }
     }

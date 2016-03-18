@@ -21,6 +21,7 @@
 // SOFTWARE.
 
 import UIKit
+
 import QvikSwift
 
 /**
@@ -28,12 +29,15 @@ An UIImageView that retrieves the image from ImageCache (default shared instance
 */
 @IBDesignable
 public class CachedImageView: QvikImageView {
-    private var thumbnailImageView: UIImageView? = nil
+    /// Placeholder image view; used to display a temporary image (smaller or thumbnail) while actual image loads
+    private var placeholderImageView: UIImageView? = nil
+    
+    /// Single-color placeholder view in case there is no placeholder image
     private var fadeInView: UIView? = nil
     
     /// Duration for fading in the loaded image, in case it is asynchronously loaded.
     @IBInspectable
-    public var imageFadeInDuration: NSTimeInterval = 0.5
+    public var imageFadeInDuration: NSTimeInterval = 0.3
     
     /// JPEG thumbnail data for the image. Should set this before layout cycle.
     public var thumbnailData: NSData? = nil
@@ -41,6 +45,9 @@ public class CachedImageView: QvikImageView {
     /// Color for a fade-in view; used in case ```thumbnailData``` is not set
     @IBInspectable
     public var fadeInColor: UIColor? = nil
+    
+    /// Placeholder image; displayed while actual image loads.
+    public var placeholderImage: UIImage? = nil
     
     /// ImageCache instance to use. Default value is the shared instance.
     public var imageCache = ImageCache.sharedInstance()
@@ -76,15 +83,15 @@ public class CachedImageView: QvikImageView {
                     return
                 }
                 
-                self.image = imageCache.getImage(url: imageUrl, fetch: true)
+                self.image = imageCache.getImage(url: imageUrl, loadPolicy: .Network)
             }
         }
     }
 
     /// Resets all the properties (extra views etc) to the original state
     private func reset() {
-        thumbnailImageView?.removeFromSuperview()
-        thumbnailImageView = nil
+        placeholderImageView?.removeFromSuperview()
+        placeholderImageView = nil
         fadeInView?.removeFromSuperview()
         fadeInView = nil
     }
@@ -97,13 +104,13 @@ public class CachedImageView: QvikImageView {
      */
     public func imageLoaded() {
         if let imageUrl = self.imageUrl {
-            if let image = ImageCache.sharedInstance().getImage(url: imageUrl, fetch: false) {
+            if let image = ImageCache.sharedInstance().getImage(url: imageUrl, loadPolicy: .Memory) {
                 // Image loaded & found
                 self.image = image
                 
                 // Fade out the thumbnail view
                 UIView.animateWithDuration(imageFadeInDuration, animations: {
-                    self.thumbnailImageView?.alpha = 0.0
+                    self.placeholderImageView?.alpha = 0.0
                     self.fadeInView?.alpha = 0.0
                     }, completion: { finished in
                         self.reset()
@@ -134,24 +141,37 @@ public class CachedImageView: QvikImageView {
         super.layoutSubviews()
         
         if image == nil {
-            // No image yet; show a thumbnail image if present
-            if let thumbnailData = thumbnailData {
-                if thumbnailImageView == nil {
-                    thumbnailImageView = UIImageView(frame: self.frame)
-                    thumbnailImageView!.contentMode = self.contentMode
-                    thumbnailImageView!.image = jpegThumbnailDataToImage(data: thumbnailData, maxSize: self.frame.size)
-                    image = thumbnailImageView!.image
-                    insertSubview(thumbnailImageView!, atIndex: 0)
+            // No image yet; show a placeholder / thumbnail image if present
+            if let placeholderImage = placeholderImage {
+                if placeholderImageView == nil {
+                    placeholderImageView = UIImageView(frame: self.bounds)
+                    placeholderImageView!.contentMode = self.contentMode
+                    placeholderImageView!.image = placeholderImage
+                    image = placeholderImageView!.image
+                    insertSubview(placeholderImageView!, atIndex: 0)
                     
-                    // Discard thumbnail data to save memory
+                    // Discard reference to the placeholder image to deallocate it when actual image has loaded
+                    self.placeholderImage = nil
+                } else {
+                    placeholderImageView!.frame = self.frame
+                }
+            } else if let thumbnailData = thumbnailData {
+                if placeholderImageView == nil {
+                    placeholderImageView = UIImageView(frame: self.bounds)
+                    placeholderImageView!.contentMode = self.contentMode
+                    placeholderImageView!.image = jpegThumbnailDataToImage(data: thumbnailData, maxSize: self.frame.size)
+                    image = placeholderImageView!.image
+                    insertSubview(placeholderImageView!, atIndex: 0)
+                    
+                    // Discard reference to thumbnail data to to deallocate it when actual image has loaded
                     self.thumbnailData = nil
                 } else {
-                    thumbnailImageView!.frame = self.frame
+                    placeholderImageView!.frame = self.frame
                 }
-            } else if let fadeInColor = fadeInColor where thumbnailImageView == nil {
+            } else if let fadeInColor = fadeInColor where placeholderImageView == nil {
                 if fadeInView == nil {
                     // No thumbnail data set; show a colored fade-in view
-                    fadeInView = UIView(frame: self.frame)
+                    fadeInView = UIView(frame: self.bounds)
                     fadeInView!.backgroundColor = fadeInColor
                     insertSubview(fadeInView!, atIndex: 0)
                 } else {

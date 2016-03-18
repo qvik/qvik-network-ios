@@ -1,6 +1,6 @@
 // The MIT License (MIT)
 //
-// Copyright (c) 2015 Qvik (www.qvik.fi)
+// Copyright (c) 2015-2016 Qvik (www.qvik.fi)
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -21,8 +21,9 @@
 // SOFTWARE.
 
 import UIKit
-import QvikSwift
 import CryptoSwift
+
+import QvikSwift
 
 /// GIF mime type; GIFs are only stored as passthrough, never encoded to.
 private let gifMimeType = "image/gif"
@@ -160,7 +161,7 @@ public class ImageCache: NSObject {
                 if let attributes = attributes {
                     if let modified = attributes.fileModificationDate() {
                         if -modified.timeIntervalSinceNow > self.maximumUnusedFileAge {
-                            log.debug("Removing old unused file at path: \(filePath)")
+                            log.verbose("Removing old unused file at path: \(filePath)")
                             do {
                                 try self.fileManager.removeItemAtPath(filePath)
                             } catch let error as NSError {
@@ -181,10 +182,10 @@ public class ImageCache: NSObject {
             self.inMemoryCache[url] = image
         }
         
-        log.debug("Inserted image to the in-memory cache with the URL key \(url)")
+        log.verbose("Inserted image to the in-memory cache with the URL key \(url)")
         
         runOnMainThread {
-            log.debug("Sending notification \(ImageCache.cacheImageLoadedNotification), object: \(self), param: \(ImageCache.urlParam), url: \(url)")
+            log.verbose("Sending notification \(ImageCache.cacheImageLoadedNotification), object: \(self), param: \(ImageCache.urlParam), url: \(url)")
             NSNotificationCenter.defaultCenter().postNotificationName(ImageCache.cacheImageLoadedNotification, object: self, userInfo: [ImageCache.urlParam: url])
         }
     }
@@ -198,15 +199,15 @@ public class ImageCache: NSObject {
                 
                 if fileFormat == .JPEG {
                     if !UIImageJPEGRepresentation(image, self.jpegQuality)!.writeToFile(filePath, atomically: true) {
-                        log.debug("Failed to write JPEG file \(filePath)")
+                        log.verbose("Failed to write JPEG file \(filePath)")
                     } else {
-                        log.debug("JPEG image written to path \(filePath)")
+                        log.verbose("JPEG image written to path \(filePath)")
                     }
                 } else {
                     if !UIImagePNGRepresentation(image)!.writeToFile(filePath, atomically: true) {
-                        log.debug("Failed to write PNG file \(filePath)")
+                        log.verbose("Failed to write PNG file \(filePath)")
                     } else {
-                        log.debug("PNG image written to path \(filePath)")
+                        log.verbose("PNG image written to path \(filePath)")
                     }
                 }
             }
@@ -231,7 +232,7 @@ public class ImageCache: NSObject {
             
             // If fileFormat matches the response's content type and data is set, we can directly write the data
             if ((contentType == gifMimeType) || (self.fileFormat == nil) || (contentType == self.fileFormat!.rawValue)) && (data != nil) {
-                log.debug("Content type matches (or is GIF) or is not set and data is set - writing as pass-through")
+                log.verbose("Content type matches (or is GIF) or is not set and data is set - writing as pass-through")
                 data!.writeToFile(filePath, atomically: true)
             } else {
                 // File format does not match or image has been downscaled; we must re-compress into selected format
@@ -242,7 +243,7 @@ public class ImageCache: NSObject {
     
     // Fetches an image from an URL, storing it to disk/in-memory caches if successful and notifying on completion
     private func fetchImage(url url: String) {
-        log.debug("Fetching image from URL: \(url)")
+        log.verbose("Fetching image from URL: \(url)")
         
         self.downloadManager.download(url: url, additionalHeaders: nil, progressCallback: nil) { (error, response, data) -> () in
             if let error = error {
@@ -250,15 +251,15 @@ public class ImageCache: NSObject {
                 NSNotificationCenter.defaultCenter().postNotificationName(ImageCache.cacheImageLoadFailedNotification, object: self, userInfo: [ImageCache.urlParam: url])
             } else {
                 if let data = data {
-                    log.debug("Response headers: \(response!.allHeaderFields)")
-                    log.debug("Image downloaded, storing it in the cache..")
+                    log.verbose("Response headers: \(response!.allHeaderFields)")
+                    log.verbose("Image downloaded, storing it in the cache..")
                     runInBackground {
                         let isGif = ((response?.allHeaderFields["content-type"] as? String)?.lowercaseString == gifMimeType)
 
                         var image: UIImage?
                         
                         if isGif {
-                            log.debug("Creating a GIF image from response data")
+                            log.verbose("Creating a GIF image from response data")
                             image = UIImage.gifWithData(data)
                         } else {
                             image = UIImage(data: data)
@@ -273,7 +274,7 @@ public class ImageCache: NSObject {
                         var data: NSData? = data
                         
                         if let maximumImageDimensions = self.maximumImageDimensions where !isGif {
-                            log.debug("Downscaling the downloaded image to max size: \(maximumImageDimensions)")
+                            log.verbose("Downscaling the downloaded image to max size: \(maximumImageDimensions)")
                             image = image!.scaleDown(maxSize: maximumImageDimensions)
                             data = nil
                         }
@@ -374,7 +375,7 @@ public class ImageCache: NSObject {
         var imageToStore = originalImage
         
         if let maximumImageDimensions = self.maximumImageDimensions {
-            log.debug("Downscaling the downloaded image to max size: \(maximumImageDimensions)")
+            log.verbose("Downscaling the downloaded image to max size: \(maximumImageDimensions)")
             imageToStore = originalImage.scaleDown(maxSize: maximumImageDimensions)
         }
 
@@ -408,17 +409,43 @@ public class ImageCache: NSObject {
     }
     
     /**
-    Returns an image matching the given token from the cache. If not found, returns nil.
-    Only in-memory cache is accessed synchronously; if the image is loaded from disk or retrieved over the
-    internet, this is done asynchronously. When asynchronous load succeeds, 
-    cacheImageLoadedNotification is sent with urlParam set.
-    
-    If asynchronous load fails, cacheImageLoadFailedNotification is sent, with urlParam set.
-    
-    - parameter fetch: if YES, treats the token as an URL and attempts to fetch the image over the internet.
-    */
+     Returns an image matching the given token from the cache. If not found, returns nil.
+     Only in-memory cache is accessed synchronously; if the image is loaded from disk or retrieved over the
+     internet, this is done asynchronously. When asynchronous load succeeds,
+     cacheImageLoadedNotification is sent with urlParam set.
+     
+     If asynchronous load fails, cacheImageLoadFailedNotification is sent, with urlParam set.
+     
+     - parameter fetch: if YES, treats the token as an URL and attempts to fetch the image over the internet.
+     */
+    @available(*, deprecated, message="use the other overload instead. this will be removed in a (near) future release.")
     public func getImage(url url: String, fetch: Bool = true) -> UIImage? {
-        log.debug("getting image for url: \(url)")
+        return getImage(url: url, loadPolicy: fetch ? .Network : .Disk)
+    }
+
+    /// Where to look for an image being loaded from the cache.
+    public enum CacheLoadPolicy {
+        /// Look for the image only in the in-memory cache
+        case Memory
+        /// Look for the image in in-memory cache and if not found, on the disk
+        case Disk
+        /// Look for the image over the network if not found in in-memory cache or on the disk
+        case Network
+    }
+    
+    /**
+     Returns an image matching the given token from the cache. If not found, returns nil.
+     Only in-memory cache is accessed synchronously; if the image is loaded from disk or retrieved over the
+     internet, this is done asynchronously. When asynchronous load succeeds,
+     cacheImageLoadedNotification is sent with urlParam set.
+     
+     If asynchronous load fails, cacheImageLoadFailedNotification is sent, with urlParam set.
+
+     - parameter url: image URL to request
+     - parameter loadPolicy: whether to look for the image only in in-memory cache, or also on disk and/or over network.
+    */
+    public func getImage(url url: String, loadPolicy: CacheLoadPolicy) -> UIImage? {
+        log.verbose("getting image for url: \(url)")
         
         // Check if the image is found in the in-memory cache
         let image = lock.withReadLock {
@@ -426,10 +453,15 @@ public class ImageCache: NSObject {
         }
         
         if image != nil {
-            log.debug("Image found in in-memory cache.")
+            log.verbose("Image found in in-memory cache.")
             return image
         }
 
+        if loadPolicy == .Memory {
+            // Image not found in in-memory cache and we won't be looking any further!
+            return nil
+        }
+        
         dispatch_async(diskOperationQueue) {
             let filePath = self.getFilePath(url: url)
 
@@ -437,18 +469,18 @@ public class ImageCache: NSObject {
             
             if url.lowercaseString.hasSuffix(gifExtension) {
                 // GIFs are handled differently
-                log.debug("Loading a GIF image")
+                log.verbose("Loading a GIF image")
                 if let gifData = NSData(contentsOfFile: filePath) {
                     image = UIImage.gifWithData(gifData)
                 }
             } else {
-                log.debug("Loading a standard (JPEG/PNG) image")
+                log.verbose("Loading a standard (JPEG/PNG) image")
                 image = UIImage(contentsOfFile: filePath)
             }
             
             if let image = image {
                 // Image found in disk cache; 'touch' the file to update its timestamp
-                log.debug("Image found on disk in path \(filePath)")
+                log.verbose("Image found on disk in path \(filePath)")
                 do {
                     try self.fileManager.setAttributes([NSFileModificationDate: NSDate()], ofItemAtPath: filePath)
                 } catch let error {
@@ -457,10 +489,10 @@ public class ImageCache: NSObject {
                 
                 self.insertToMemoryCache(image: image, url: url) // Will send loaded -notification
             } else {
-                log.debug("Image not found on disk.")
-                if fetch {
+                log.verbose("Image not found on disk.")
+                if loadPolicy == .Network {
                     if self.downloadManager.hasPendingDownload(url: url) {
-                        log.debug("Already fetching image from url \(url)")
+                        log.verbose("Already fetching image from url \(url)")
                     } else {
                         self.fetchImage(url: url)
                     }
@@ -469,6 +501,15 @@ public class ImageCache: NSObject {
         }
         
         return nil
+    }
+    
+    /// Whether an image for a given URL is present in the in-memory cache
+    public func availableInMemory(url url: String) -> Bool {
+        let image = lock.withReadLock {
+            return self.inMemoryCache[url]
+        }
+        
+        return image != nil
     }
 
     /// Returns a shared, singleton instance
@@ -496,7 +537,7 @@ public class ImageCache: NSObject {
             
         super.init()
         
-        log.debug("My disk cache path is: \(path)")
+        log.verbose("My disk cache path is: \(path)")
         
         checkCacheDirExists()
         

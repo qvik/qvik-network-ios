@@ -24,6 +24,8 @@ import Foundation
 import Alamofire
 import SwiftKeychain
 
+import QvikSwift
+
 // Error domain for errors emitted by this class
 let remoteServiceErrorDomain = "RemoteServiceErrorDomain"
 

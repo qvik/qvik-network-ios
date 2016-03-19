@@ -17,7 +17,7 @@ Pod::Spec.new do |s|
   #
 
   s.name         = "QvikNetwork"
-  s.version      = "0.1.4"
+  s.version      = "0.9.0"
   s.summary      = "QvikNetwork is a set of networking utilities for Swift."
   s.homepage     = "https://github.com/qvik/qvik-network-ios"
 
@@ -58,12 +58,6 @@ Pod::Spec.new do |s|
 
   # s.platform     = :ios
   # s.platform     = :ios, "5.0"
-
-  #  When using multiple platforms
-  # s.ios.deployment_target = "5.0"
-  # s.osx.deployment_target = "10.7"
-  # s.watchos.deployment_target = "2.0"
-
 
   # ――― Source Location ―――――――――――――――――――――――――――――――――――――――――――――――――――――――――― #
   #
@@ -112,10 +106,10 @@ Pod::Spec.new do |s|
   #
 
   s.framework = "UIKit"
-  s.dependency 'Alamofire', '~> 2.0'
+  s.dependency 'Alamofire', '~> 3.0'
   s.dependency 'QvikSwift', '~> 2.0.0'
   s.dependency 'XCGLogger', '~> 3.0'
-  s.dependency 'CryptoSwift'
+  s.dependency 'CryptoSwift', '~> 0.2'
   s.dependency 'SwiftKeychain', '~> 0.1'
 
   # s.frameworks = "SomeFramework", "AnotherFramework"

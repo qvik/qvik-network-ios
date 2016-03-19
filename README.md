@@ -5,8 +5,10 @@
 
 ## Changelog
 
+* 0.9.0
+    * Adopted AlamoFire 3; getting ready for 1.0
 * 0.1.4
-* 	* Moved the podspec to point to Github
+ 	* Moved the podspec to point to Github
 * 0.1.0
     * Added JPEG Thumbnails support.
 * 0.0.14
@@ -54,12 +56,22 @@ And the following to your source:
 import QvikNetwork
 ```
 
+## Dependencies
+
+The library has dependencies to the following external modules:
+
+* [QvikSwift](https://github.com/qvik/qvik-swift-ios)
+* [AlamoFire 3](https://cocoapods.org/?q=alamofire)
+* [XCGLogger](https://cocoapods.org/?q=XCGLogger)
+* [CryptoSwift](https://cocoapods.org/?q=CryptoSwift)
+* [SwiftKeychain](https://cocoapods.org/?q=SwiftKeychain)
+
 ## Controlling the library's log level
 
 The library may emit logging for errors, and if you tell it to, debug stuff. Enable debug logging as such:
 
 ```swift
-QvikNetwork.debugLogging = true
+QvikNetwork.logLevel = .Debug // Or .Info, .Verbose
 ```
 
 ## Features
@@ -109,7 +121,7 @@ func imageLoaded(notification: NSNotification) {
     	// Check if it is my image
 		if imageUrl == self.imageUrl {
   	      // Now the image is in the cache - get it 
-			let image = ImageCache.sharedInstance().getImage(url: imageUrl, fetch: false)
+			let image = ImageCache.sharedInstance().getImage(url: imageUrl, loadPolicy: .Memory)
             // TODO use the image for something
         }
     }
@@ -122,7 +134,7 @@ let imageCache = ImageCache.sharedInstance()
 NSNotificationCenter.defaultCenter().addObserver(self, selector: "imageLoaded:", name: ImageCache.cacheImageLoadedNotification, object: nil)
         
 // This will trigger a fetch over the network if not found in cache
-guard let image = imageCache.getImage(url: imageUrl) else {
+guard let image = imageCache.getImage(url: imageUrl, loadPolicy: .Network) else {
 	log.debug("Requested image not found in in-memory cache; waiting for a load from disk or network")
     // .. wait for imageLoaded() to get called
 }
@@ -141,6 +153,9 @@ Sample usage:
 func populateView(message: Message) {
 	// Will automatically trigger load from cache/network and populate the image when done
 	imageView.imageUrl = message.imageUrl
+    
+    // Will display this image while the other one loads
+    imageView.placeholderImage = smallerImage
 }
 
 ```

@@ -48,14 +48,18 @@ public class QvikNetwork {
     
     public static var logLevel = QvikNetwork.LogLevel.Info {
         didSet {
+            let level: XCGLogger.LogLevel
+            
             switch logLevel {
             case .Info:
-                log.setup(.Info, showLogLevel: true, showFileNames: true, showLineNumbers: true, writeToFile: nil, fileLogLevel: nil)
+                level = .Info
             case .Debug:
-                log.setup(.Debug, showLogLevel: true, showFileNames: true, showLineNumbers: true, writeToFile: nil, fileLogLevel: nil)
+                level = .Debug
             case .Verbose:
-                log.setup(.Verbose, showLogLevel: true, showFileNames: true, showLineNumbers: true, writeToFile: nil, fileLogLevel: nil)
+                level = .Verbose
             }
+            
+            log.setup(level, showLogLevel: true, showFileNames: true, showLineNumbers: true, writeToFile: nil, fileLogLevel: nil)
         }
     }
 }

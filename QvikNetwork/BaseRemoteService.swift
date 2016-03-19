@@ -1,6 +1,6 @@
 // The MIT License (MIT)
 //
-// Copyright (c) 2015 Qvik (www.qvik.fi)
+// Copyright (c) 2015-2016 Qvik (www.qvik.fi)
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -30,7 +30,7 @@ let remoteServiceErrorDomain = "RemoteServiceErrorDomain"
 // MARK: Util functions
 
 /**
-Returns a unique device identifier (UUID) that does not change for the same keychainServiceName 
+Returns a unique device identifier (UUID) that does not change for the same keychainServiceName
 until the device is factory reset.
 
 - parameter keychainServiceName: name for keychain entry for storing the device id, eg. "MyApp"
@@ -40,11 +40,11 @@ public func getDeviceId(keychainServiceName: String) -> String {
     let keychain = Keychain(serviceName: keychainServiceName, accessMode: kSecAttrAccessibleAlways, group: nil)
     
     if let deviceId = keychain.get(key).item?.value {
-        log.debug("deviceId found in keychain: \(deviceId)")
+        log.verbose("deviceId found in keychain: \(deviceId)")
         return deviceId as String
     } else {
         let deviceId = NSUUID().UUIDString
-        log.debug("Created new deviceId: \(deviceId)")
+        log.verbose("Created new deviceId: \(deviceId)")
         let deviceIdKey = GenericKey(keyName: "deviceId", value: deviceId)
         
         if let error = keychain.add(deviceIdKey) {
@@ -57,14 +57,14 @@ public func getDeviceId(keychainServiceName: String) -> String {
 }
 
 /**
-Returns the client id string, which is of format:
+ Returns the client id string, which is of format:
 
-```
-platform/manufacturer;deviceType;model;osversionmajor.osversionminor.osversionpatch/deviceId/languageCode
-```
+ ```
+ platform/manufacturer;deviceType;model;osversionmajor.osversionminor.osversionpatch/deviceId/languageCode
+ ```
 
-- parameter keychainServiceName: name for keychain entry for storing the device id, eg. "MyApp"
-*/
+ - parameter keychainServiceName: name for keychain entry for storing the device id, eg. "MyApp"
+ */
 public func getClientId(keychainServiceName: String) -> String {
     let key = "hw.machine".cStringUsingEncoding(NSUTF8StringEncoding)
     var size: Int = 0
@@ -80,7 +80,7 @@ public func getClientId(keychainServiceName: String) -> String {
     let clientId = String(format: "IOS/Apple;%@;%@;%d.%d.%d/%@/%@", deviceType, model, osVersion.majorVersion,
         osVersion.minorVersion, osVersion.patchVersion, deviceId, NSLocale.preferredLanguages().first!)
     
-    log.debug("Using clientId = \(clientId)")
+    log.verbose("Using clientId = \(clientId)")
     
     return clientId
 }
@@ -126,7 +126,7 @@ class RemoteService: BaseRemoteService {
 
 */
 public class BaseRemoteService {
-    // Alamofire facade
+    /// Alamofire facade
     private let manager: Alamofire.Manager
     
     public typealias AuthenticationMapping = (headerName: String, authToken: String)
@@ -137,7 +137,7 @@ public class BaseRemoteService {
     private func createRemoteResponse(afResponse: Response<AnyObject, NSError>) -> RemoteResponse {
         let jsonResponse = afResponse.result.value as? [String: AnyObject]
         let statusCode = afResponse.response?.statusCode
-        log.debug("HTTP Status code: \(statusCode)")
+        log.verbose("HTTP Status code: \(statusCode)")
         
         if let code = statusCode where code < 200 || code >= 300 {
             log.debug("Got non-success HTTP response: \(code)")
@@ -164,7 +164,7 @@ public class BaseRemoteService {
         }
         
         if let jsonResponse = jsonResponse {
-            log.debug("Received a valid response.")
+            log.verbose("Received a valid response.")
             return RemoteResponse(json: jsonResponse)
         } else {
             log.debug("Received invalid or empty JSON response: \(afResponse.result.value)")
@@ -183,7 +183,7 @@ public class BaseRemoteService {
     */
     public func request(method: Alamofire.Method, _ URLString: URLStringConvertible, parameters: [String : AnyObject]?, encoding: ParameterEncoding = .URL, headers: [String: String]? = nil, callback: ((RemoteResponse) -> Void)) {
         
-        log.debug("Making a request to url: \(URLString)")
+        log.verbose("Making a request to url: \(URLString)")
         
         let (request, error) = encoding.encode(NSMutableURLRequest(URL: NSURL(string: URLString.URLString)!), parameters: parameters)
         if let error = error {
@@ -200,12 +200,12 @@ public class BaseRemoteService {
         }
         
         if let authMapping = getAuthentication() {
-            log.debug("Using access token: \(authMapping.authToken)")
+            log.verbose("Using access token: \(authMapping.authToken)")
             request.setValue(authMapping.authToken, forHTTPHeaderField: authMapping.headerName)
         }
         
         manager.request(request).responseJSON { response in
-            log.debug("Request completed, URL: \(response.request?.URL), response: \(response), status code = \(response.response?.statusCode)")
+            log.verbose("Request completed, URL: \(response.request?.URL), response: \(response), status code = \(response.response?.statusCode)")
             callback(self.createRemoteResponse(response))
         }
     }
@@ -250,7 +250,7 @@ public class BaseRemoteService {
         let configuration = NSURLSessionConfiguration.backgroundSessionConfigurationWithIdentifier(backgroundSessionId)
         configuration.HTTPAdditionalHeaders = defaultHeaders
         configuration.timeoutIntervalForResource = timeout
-        log.debug("Using default headers: \(defaultHeaders)");
+        log.verbose("Using default headers: \(defaultHeaders)");
         
         manager = Alamofire.Manager(configuration: configuration)
     }

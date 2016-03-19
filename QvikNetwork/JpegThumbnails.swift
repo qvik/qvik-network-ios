@@ -1,12 +1,27 @@
+// The MIT License (MIT)
 //
-//  JpegThumbnails.swift
-//  QvikNetwork
+// Copyright (c) 2015-2016 Qvik (www.qvik.fi)
 //
-//  Created by Matti Dahlbom on 13/12/15.
-//  Copyright © 2015 Qvik. All rights reserved.
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
 //
+// The above copyright notice and this permission notice shall be included in all
+// copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+// SOFTWARE.
 
 import UIKit
+
 import QvikSwift
 
 // Helpful links for parsing JPEG/JFIF:s
@@ -23,7 +38,7 @@ import QvikSwift
 //  Offset | Length (bytes) | Content
 // --------+----------------+------------------------------------------------
 //    0    |        1       | Version of dataformat; currently, 1
-//    1    |        1       | Type of the image data; 1 = iOS-encoded JPEG
+//    1    |        1       | Type of the image data
 //    2    |        1       | Width of the thumbnail
 //    3    |        1       | Height of the thumbnail
 //    4    |        n       | image data
@@ -33,6 +48,7 @@ private let jpegMarkerByte: UInt8 = 0xFF
 private let jpegEOIMarker: UInt8 = 0xD9 // End of image
 private let jpegSOSMarker: UInt8 = 0xDA // Start of Scan
 private let jpegSOF0Marker: UInt8 = 0xC0 // Start of Frame (baseline DCT-based JPEG)
+private let jpegEOI = [jpegMarkerByte, jpegEOIMarker]
 
 // Thumbnail packet constants
 private let thumbHeaderPacketVersion: UInt8 = 0x01
@@ -45,43 +61,8 @@ private let thumbHeaderIndexImageHeight = 3
 // Misc constants
 private let thumbnailBlurRadius = 3.0
 
-// Public constants
-public let thumbHeaderDataTypeIOSJPEG: UInt8 = 0x01
-
 /// Map of registered custom data type -> JPEG header pairs.
 private var headerMap = [UInt8: NSData]()
-
-/// Returns the iOS JPEG generated header data, reading it from bundle if not already in memory
-private func getIOSJpegHeader() -> NSData? {
-    struct Static {
-        static var jpegHeaderData: NSData? = nil // Constant, predefined JPEG header data
-        static var onceToken: dispatch_once_t = 0
-    }
-    
-    dispatch_once(&Static.onceToken) {
-        guard let filePath = NSBundle.mainBundle().pathForResource("ios-jpegheader", ofType: "data") else {
-            log.error("Missing 'ios-jpegheader.data' in bundle!")
-            return
-        }
-        Static.jpegHeaderData = NSData(contentsOfFile: filePath)
-    }
-    
-    return Static.jpegHeaderData!
-}
-
-/// Returns a proper JPEG header for data type
-private func getJpegHeader(dataType: UInt8) -> NSData? {
-    if let jpegHeader = headerMap[dataType] {
-        return jpegHeader
-    }
-    
-    if dataType == thumbHeaderDataTypeIOSJPEG {
-        return getIOSJpegHeader()
-    } else {
-        log.error("Unknown data type: \(dataType) - could not find a JPEG header!")
-        return nil
-    }
-}
 
 /// Finds the (next) index of a give marker; returns index of the FF marker byte; the actual
 /// marker content (if any) begins at this index + 2 bytes.
@@ -144,7 +125,8 @@ private func extractJpegImageData(jpegData: NSData) -> NSData? {
     // JPEG data exists between end of SOS marker and the beginning of EOI marker
     let imageDataStartIndex = sosIndex + 2
     let imageDataLength = eoiIndex - imageDataStartIndex
-    let imageDataPointer = UnsafeMutablePointer<Void>(bytes.advancedBy(imageDataStartIndex))
+    log.debug("imageDataStartIndex = \(imageDataStartIndex), imageDataLength: \(imageDataLength)")
+    let imageDataPointer = UnsafeMutablePointer<UInt8>(bytes.advancedBy(imageDataStartIndex))
     
     return NSData(bytesNoCopy: imageDataPointer, length: imageDataLength, freeWhenDone: false)
 }
@@ -171,10 +153,12 @@ public func registerJpegThumbnailHeader(dataType dataType: UInt8, headerData: NS
  42x42 (see ```pixelBudget``` param.)
  
  - parameter sourceImage: source UIImage
+ - parameter dataType: data type value for this data; should be the constant indicating iOS JPEG encoder.
+ - parameter compressionQuality: compression quality [0..1] to use for the JPEG. Should be around 0.2 - 0.3.
  - parameter pixelBudget: approximate amount of pixels in the thumbnail.
  - returns: the data representing the thumbnail (our custom header + JPEG data) if successful
 */
-public func imageToJpegThumbnailData(sourceImage image: UIImage, pixelBudget: Int = (42 * 42)) -> NSData? {
+public func imageToJpegThumbnailData(sourceImage image: UIImage, dataType: UInt8, compressionQuality: CGFloat, pixelBudget: Int = (42 * 42)) -> NSData? {
     // Calculate the thumbnail size by comparing amount of pixels in original image to the 
     // 'pixel budget' while retaining the aspect ratio
     let imageWidth = floor(image.width * image.scale)
@@ -184,6 +168,8 @@ public func imageToJpegThumbnailData(sourceImage image: UIImage, pixelBudget: In
     let thumbWidth = round(ratio * imageWidth)
     let thumbHeight = round(ratio * imageHeight)
     
+    log.verbose("Creating JPEG thumbnail with dimensions \(thumbWidth) x \(thumbHeight)")
+    
     if (thumbWidth > 255) || (thumbHeight > 255) {
         log.error("Thumbnail resulted dimensions larger than 255x255!")
         return nil
@@ -191,11 +177,20 @@ public func imageToJpegThumbnailData(sourceImage image: UIImage, pixelBudget: In
     
     // Create a scaled-down thumbnail image and encode it into a baseline DCT-based JPEG
     let thumbnail = image.scaleTo(size: CGSize(width: thumbWidth, height: thumbHeight))
-    guard let jpegData = UIImageJPEGRepresentation(thumbnail, 0.2) else {
+    guard let jpegData = UIImageJPEGRepresentation(thumbnail, compressionQuality) else {
         log.error("Failed to encode thumbnail JPEG")
         return nil
     }
 
+    //TODO REMOVE
+//    let documentsPath = NSSearchPathForDirectoriesInDomains(.DocumentDirectory, .UserDomainMask, true)[0]
+//    let jpegPath = (documentsPath as NSString).stringByAppendingPathComponent("thumbnail.jpeg")
+//    if jpegData.writeToFile(jpegPath, atomically: true) {
+//        log.debug("JPEG thumb written to \(jpegPath)")
+//    } else {
+//        log.error("Failed to write JPEG")
+//    }
+    
     // Try to extract the JPEG image data
     guard let jpegImageData = extractJpegImageData(jpegData) else {
         log.error("Failed to extract image data from the JPEG data")
@@ -208,10 +203,12 @@ public func imageToJpegThumbnailData(sourceImage image: UIImage, pixelBudget: In
         log.error("Failed to allocate memory for the packet")
         return nil
     }
-    
-    let thumbHeader = [thumbHeaderPacketVersion, thumbHeaderDataTypeIOSJPEG, UInt8(thumbWidth), UInt8(thumbHeight)]
-    packetData.appendBytes(UnsafePointer<Void>(thumbHeader), length: thumbHeader.count)
+
+    let thumbHeader = [thumbHeaderPacketVersion, dataType, UInt8(thumbWidth), UInt8(thumbHeight)]
+    packetData.appendBytes(UnsafePointer<UInt8>(thumbHeader), length: thumbHeader.count)
     packetData.appendData(jpegImageData)
+
+    log.verbose("JPEG thumb packet is \(packetData.length) bytes")
     
     return packetData
 }
@@ -235,22 +232,24 @@ public func jpegThumbnailDataToImage(data data: NSData, maxSize: CGSize, imageSc
     
     let thumbWidth = ptr[thumbHeaderIndexImageWidth]
     let thumbHeight = ptr[thumbHeaderIndexImageHeight]
+//    log.debug("Thumbnail size: \(thumbWidth) x \(thumbHeight)")
     
-    // Construct a whole JPEG from a predefined header block, the jpeg data and EOI marker (2 bytes)
-    guard let jpegHeaderData = getJpegHeader(ptr[thumbHeaderIndexDataType]) else {
-        log.error("Failed to get JPEG header!")
+    // Get the JPEG header data for this data type
+    guard let jpegHeaderData = headerMap[ptr[thumbHeaderIndexDataType]] else {
+        log.error("Could not find JPEG header data")
         return nil
     }
-    log.debug("Read \(jpegHeaderData.length) bytes of JPEG header")
-    guard let jpegData = NSMutableData(capacity: (jpegHeaderData.length + (data.length - thumbHeaderLength) + 2)) else {
+//    log.debug("Read \(jpegHeaderData.length) bytes of JPEG header")
+    
+    guard let jpegData = NSMutableData(capacity: (jpegHeaderData.length + (data.length - thumbHeaderLength) + jpegEOI.count)) else {
         log.error("Failed to allocate memory for JPEG data!")
         return nil
     }
 
-    let eoiMarker = [jpegMarkerByte, jpegEOIMarker]
+    // Construct a whole JPEG from a predefined header block, the jpeg data and EOI marker (2 bytes)
     jpegData.appendData(jpegHeaderData)
     jpegData.appendBytes(UnsafePointer<UInt8>(data.bytes).advancedBy(thumbHeaderLength), length: (data.length - thumbHeaderLength))
-    jpegData.appendBytes(UnsafePointer<Void>(eoiMarker), length: eoiMarker.count)
+    jpegData.appendBytes(UnsafePointer<UInt8>(jpegEOI), length: jpegEOI.count)
     
     // Patch in the thumbnail size into the copied header to get an result image of the correct size
     if !writeImageSize(jpegData: jpegData, imageWidth: thumbWidth, imageHeight: thumbHeight) {
@@ -268,7 +267,7 @@ public func jpegThumbnailDataToImage(data data: NSData, maxSize: CGSize, imageSc
     let scaledThumbnail = thumbnailImage.scaleToFit(sizeToFit: maxSize, imageScale: imageScale)
 
     // Blur the image
-    let blurredThumbnail = scaledThumbnail.blur(radius: thumbnailBlurRadius, algorithm: .BoxConvolve)
+    let blurredThumbnail = scaledThumbnail.blur(radius: thumbnailBlurRadius)
     
     return blurredThumbnail
 }

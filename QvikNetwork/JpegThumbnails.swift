@@ -58,9 +58,6 @@ private let thumbHeaderIndexDataType = 1
 private let thumbHeaderIndexImageWidth = 2
 private let thumbHeaderIndexImageHeight = 3
 
-// Misc constants
-private let thumbnailBlurRadius = 3.0
-
 /// Map of registered custom data type -> JPEG header pairs.
 private var headerMap = [UInt8: NSData]()
 
@@ -81,7 +78,7 @@ private func findMarker(marker: UInt8, startIndex: Int, data: UnsafePointer<UInt
         }
 
         previousByte = currentByte
-        index++
+        index += 1
     }
     
     return nil
@@ -223,7 +220,7 @@ public func imageToJpegThumbnailData(sourceImage image: UIImage, dataType: UInt8
  - parameter imageScale: value for result image's UIImage.scale. Specify 0.0 to match the scale of the device's screen.
  - returns: Scaled-up and blurred version of the thumbnail, if successful
 */
-public func jpegThumbnailDataToImage(data data: NSData, maxSize: CGSize, imageScale: CGFloat = 0.0) -> UIImage? {
+public func jpegThumbnailDataToImage(data data: NSData, maxSize: CGSize, thumbnailBlurRadius: Double = 3.0, imageScale: CGFloat = 0.0) -> UIImage? {
     let ptr = UnsafeMutablePointer<UInt8>(data.bytes)
     if ptr[thumbHeaderIndexVersion] != thumbHeaderPacketVersion {
         log.error("Version mismatch!")
@@ -267,7 +264,7 @@ public func jpegThumbnailDataToImage(data data: NSData, maxSize: CGSize, imageSc
     let scaledThumbnail = thumbnailImage.scaleToFit(sizeToFit: maxSize, imageScale: imageScale)
 
     // Blur the image
-    let blurredThumbnail = scaledThumbnail.blur(radius: thumbnailBlurRadius)
+    let blurredThumbnail = scaledThumbnail.blur(radius: thumbnailBlurRadius, algorithm: .BoxConvolve)
     
     return blurredThumbnail
 }

@@ -314,7 +314,9 @@ public class ImageCache: NSObject {
             for entry in contents! {
                 let filePath = self.path.stringByAppendingPathComponent(entry)
                 do {
-                    try self.fileManager.removeItemAtPath(filePath)
+                    if self.fileManager.fileExistsAtPath(filePath) {
+                        try self.fileManager.removeItemAtPath(filePath)
+                    }
                 } catch let error {
                     log.error("Failed to remove file on disk, error: \(error)")
                 }
@@ -342,7 +344,11 @@ public class ImageCache: NSObject {
         if removeFromDisk {
             dispatch_async(diskOperationQueue) {
                 do {
-                    try self.fileManager.removeItemAtPath(self.getFilePath(url: url))
+                    let filePath = self.getFilePath(url: url)
+
+                    if self.fileManager.fileExistsAtPath(filePath) {
+                        try self.fileManager.removeItemAtPath(filePath)
+                    }
                 } catch let error {
                     log.error("Failed to remove file on disk, error: \(error)")
                 }

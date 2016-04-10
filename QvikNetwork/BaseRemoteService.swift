@@ -118,7 +118,7 @@ class RemoteService: BaseRemoteService {
     let additionalHeaders = [
       "X-My-API-Key": "asldasdaksdjhakdjhasdkjh",
       "X-My-Api-Version": "1",
-      "X-My-Client": getClientId()
+      "X-My-Client": getClientId(keychainServiceName: "ServicName")
     ]
 
     super.init(backgroundSessionId: "com.example.MyApp", additionalHeaders: additionalHeaders, timeout: 5)

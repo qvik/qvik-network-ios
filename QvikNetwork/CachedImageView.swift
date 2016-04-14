@@ -47,11 +47,21 @@ public class CachedImageView: QvikImageView {
         }
     }
 
-    /// Average color of the image (and thumbnail). If set, will be displayed while thumbnail image is loaded. 
-    public var thumbnailAverageColor: UIColor? = nil
+    /// Dominant color of the image (and thumbnail). If set, will be displayed while thumbnail image is loaded.
+    public var thumbnailDominantColor: UIColor? = nil
 
     /// Preview thumbnail blur radius (size of the convolution kernel)
     public var thumbnailBlurRadius: Double = 7.0
+
+    /// Whether caching thumbnail images is enabled. Disable for less memory usage but poorer reuse performance.
+    public var enableThumbnailCaching = true
+
+    /// Fade-in timeout for the thumbnail in case it was loaded asynchronously, in seconds.
+    public var thumbnailFadeInDuration: NSTimeInterval = 0.1 {
+        didSet {
+            assert(thumbnailFadeInDuration >= 0.0, "Must not use a negative value!")
+        }
+    }
 
     /// Color for a fade-in view; used in case ```thumbnailData``` is not set
     @IBInspectable
@@ -110,29 +120,29 @@ public class CachedImageView: QvikImageView {
     }
 
     /// Load the thumbnail image from either in-memory cache or from the JPEG data.
-    private func loadThumbnail(fromData fromData: NSData, completionCallback: (UIImage? -> Void)) {
+    private func loadThumbnail(fromData fromData: NSData, completionCallback: ((thumbnail: UIImage?, async: Bool) -> Void)) {
         guard let md5 = self.thumbnailData?.md5().toHexString() else {
             log.error("Failed to calculate md5 string out of thumb data!")
-            completionCallback(nil)
+            completionCallback(thumbnail: nil, async: false)
             return
         }
 
         // Check if the image is present in in-memory cache
-        if let thumbImage = ImageCache.sharedInstance().getImage(url: md5, loadPolicy: .Memory) {
-            completionCallback(thumbImage)
+        if let thumbImage = ImageCache.sharedInstance().getImage(url: md5, loadPolicy: .Memory) where enableThumbnailCaching {
+            completionCallback(thumbnail: thumbImage, async: false)
         }
 
         // Not in cache; load asynchronously
         runInBackground {
             let thumbImage = jpegThumbnailDataToImage(data: fromData, maxSize: self.frame.size, thumbnailBlurRadius: self.thumbnailBlurRadius)
 
-            if let thumbImage = thumbImage {
+            if let thumbImage = thumbImage where self.enableThumbnailCaching {
                 // Put into in-memory cache
                 ImageCache.sharedInstance().putImage(image: thumbImage, url: md5, storeOnDisk: false)
             }
 
             runOnMainThread {
-                completionCallback(thumbImage)
+                completionCallback(thumbnail: thumbImage, async: true)
             }
         }
     }
@@ -205,20 +215,25 @@ public class CachedImageView: QvikImageView {
                     placeholderImageView!.contentMode = self.contentMode
 
                     // While thumbnail loads, set background color for the placeholderImageView to match thumb's average color
-                    if let thumbnailAverageColor = thumbnailAverageColor {
-                        placeholderImageView?.backgroundColor = thumbnailAverageColor
-                    } else {
-                        placeholderImageView?.backgroundColor = UIColor.clearColor()
-                    }
+                    let backgroundColor = thumbnailDominantColor ?? UIColor.whiteColor()
+                    placeholderImageView?.backgroundColor = backgroundColor
+                    self.backgroundColor = backgroundColor
 
-                    loadThumbnail(fromData: thumbnailData) { thumbnailImage in
+                    loadThumbnail(fromData: thumbnailData) { (thumbnailImage, async) in
                         self.placeholderImageView?.image = thumbnailImage
                         self.image = thumbnailImage
+
+                        if async {
+                            // Fade in the thumbnail 
+                            self.placeholderImageView?.alpha = 0
+                            UIView.animateWithDuration(self.thumbnailFadeInDuration, animations: {
+                                self.placeholderImageView?.alpha = 1
+                                }, completion: { finished in
+
+                            })
+                        }
                     }
-//                    runInBackground {
-//                        self.placeholderImageView?.image = jpegThumbnailDataToImage(data: thumbnailData, maxSize: self.frame.size, thumbnailBlurRadius: self.thumbnailBlurRadius)
-//                        self.image = self.placeholderImageView?.image
-//                    }
+
                     insertSubview(placeholderImageView!, atIndex: 0)
                 }
             } else if let fadeInColor = fadeInColor where placeholderImageView == nil {

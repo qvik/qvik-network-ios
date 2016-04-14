@@ -40,9 +40,19 @@ public class RemoteResponse {
     /// Underlying NSError, if any
     private(set) public var nsError: NSError?
     
-    /// Response JSON parsed into a dictionary, or nil if no JSON in response
-    private(set) public var parsedJson: [String: AnyObject]?
-    
+    /// Response JSON, or nil if no JSON in response
+    private(set) public var parsedResponseJson: AnyObject?
+
+    /// Convenience accessor for dictionary (JSON object) response JSON
+    public var parsedJson: [String: AnyObject]? {
+        return parsedResponseJson as? [String: AnyObject]
+    }
+
+    /// Convenience accessor for array (JSON array) response JSON
+    public var parsedJsonArray: [[String: AnyObject]]? {
+        return parsedResponseJson as? [[String: AnyObject]]
+    }
+
     /// Whether the request was successful or not
     public var success: Bool {
         return (remoteError == nil) && (nsError == nil)
@@ -51,14 +61,14 @@ public class RemoteResponse {
     public init() {
     }
     
-    public init(json: [String: AnyObject]) {
-        self.parsedJson = json
+    public init(json: AnyObject) {
+        self.parsedResponseJson = json
     }
     
-    public init(nsError: NSError, remoteError: RemoteError, json: [String: AnyObject]?) {
+    public init(nsError: NSError, remoteError: RemoteError, json: AnyObject?) {
         self.nsError = nsError
         self.remoteError = remoteError
-        self.parsedJson = json
+        self.parsedResponseJson = json
     }
 }
 

@@ -143,7 +143,7 @@ public class BaseRemoteService {
             return RemoteResponse(nsError: error, remoteError: remoteError, json: nil)
         }
 
-        let jsonResponse = afResponse.result.value as? [String: AnyObject]
+        let jsonResponse = afResponse.result.value 
         let statusCode = afResponse.response?.statusCode
         log.verbose("HTTP Status code: \(statusCode)")
         

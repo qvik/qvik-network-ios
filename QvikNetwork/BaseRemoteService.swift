@@ -137,6 +137,12 @@ public class BaseRemoteService {
      Returns either a valid JSON response or an error.
     */
     private func createRemoteResponse(afResponse: Response<AnyObject, NSError>) -> RemoteResponse {
+        // First handle network errors
+        if let error = afResponse.result.error {
+            let remoteError = (error.code == NSURLErrorTimedOut) ? RemoteResponse.RemoteError.NetworkTimeout : RemoteResponse.RemoteError.NetworkError
+            return RemoteResponse(nsError: error, remoteError: remoteError, json: nil)
+        }
+
         let jsonResponse = afResponse.result.value as? [String: AnyObject]
         let statusCode = afResponse.response?.statusCode
         log.verbose("HTTP Status code: \(statusCode)")
@@ -155,10 +161,6 @@ public class BaseRemoteService {
                 remoteError = .ServerError
             }
 
-            if let error = afResponse.result.error where error.code == NSURLErrorTimedOut {
-                remoteError = .NetworkTimeout
-            }
-            
             let nsError = NSError(domain: remoteServiceErrorDomain, code: code, userInfo: nil)
             let remoteResponse = RemoteResponse(nsError: nsError, remoteError: remoteError, json: jsonResponse)
             

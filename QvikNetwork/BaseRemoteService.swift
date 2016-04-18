@@ -185,7 +185,7 @@ public class BaseRemoteService {
     - parameter encoding: Request encoding
     - parameter headers: Any extra headers
     */
-    public func request(method: Alamofire.Method, _ URLString: URLStringConvertible, parameters: [String : AnyObject]?, encoding: ParameterEncoding = .URL, headers: [String: String]? = nil, callback: ((RemoteResponse) -> Void)) {
+    public func request(method: Alamofire.Method, _ URLString: URLStringConvertible, parameters: [String: AnyObject]?, encoding: ParameterEncoding = .URL, headers: [String: String]? = nil, callback: ((RemoteResponse) -> Void)) {
         
         log.verbose("Making a request to url: \(URLString)")
         

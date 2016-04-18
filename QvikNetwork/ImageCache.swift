@@ -547,7 +547,7 @@ public class ImageCache: NSObject {
         
         checkCacheDirExists()
         
-        NSNotificationCenter.defaultCenter().addObserver(self, selector: "memoryWarningNotification:", name: UIApplicationDidReceiveMemoryWarningNotification, object: nil)
+        NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(ImageCache.memoryWarningNotification(_:)), name: UIApplicationDidReceiveMemoryWarningNotification, object: nil)
         
         reapDiskCache()
     }

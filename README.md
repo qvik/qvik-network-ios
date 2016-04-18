@@ -5,6 +5,10 @@
 
 ## Changelog
 
+* 0.9.1
+    * Fixed Swift3 deprecation warnings
+    * Added features + performance boost to preview thumbnails (CachedImageView)
+    * Added top-level JSON-array support to rest call parsing (BaseRemoteService + RemoteResponse)
 * 0.9.0
     * Adopted AlamoFire 3; getting ready for 1.0
 * 0.1.4

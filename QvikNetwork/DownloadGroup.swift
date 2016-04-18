@@ -78,7 +78,7 @@ public class DownloadGroup {
                 }
                 
                 if download.error != nil {
-                    errors++
+                    errors += 1
                 }
             }
             

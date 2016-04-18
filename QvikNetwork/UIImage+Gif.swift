@@ -63,7 +63,9 @@ extension UIImage {
         return delay
     }
     
-    class func gcdForPair(var a: Int?, var _ b: Int?) -> Int {
+    class func gcdForPair(a: Int?, _ b: Int?) -> Int {
+        var a = a
+        var b = b
         // Check if one of them is nil
         if b == nil || a == nil {
             if b != nil {
@@ -74,19 +76,19 @@ extension UIImage {
                 return 0
             }
         }
-        
+
         // Swap for modulo
         if a < b {
             let c = a
             a = b
             b = c
         }
-        
+
         // Get greatest common divisor
         var rest: Int
         while true {
             rest = a! % b!
-            
+
             if rest == 0 {
                 return b! // Found it
             } else {

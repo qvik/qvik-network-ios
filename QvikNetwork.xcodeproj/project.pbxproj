@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		49274A6B1BBBEDA70024AB80 /* RemoteResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49274A691BBBEDA70024AB80 /* RemoteResponse.swift */; };
 		49274A6C1BBBEDA70024AB80 /* BaseRemoteService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49274A6A1BBBEDA70024AB80 /* BaseRemoteService.swift */; };
+		493818BC1CC4FB9500BAFAF4 /* QvikNetwork.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49B21C2B1BB7DCC700C25FDE /* QvikNetwork.swift */; };
 		4962C2301C1D5C4F00D1E289 /* JpegThumbnails.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4962C22F1C1D5C4F00D1E289 /* JpegThumbnails.swift */; };
 		49B21C0E1BB7CD9D00C25FDE /* QvikNetwork.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 49B21C031BB7CD9D00C25FDE /* QvikNetwork.framework */; };
 		49B21C131BB7CD9D00C25FDE /* QvikNetworkTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49B21C121BB7CD9D00C25FDE /* QvikNetworkTests.swift */; };
@@ -351,6 +352,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				493818BC1CC4FB9500BAFAF4 /* QvikNetwork.swift in Sources */,
 				49B6918F1C7F18F50076F680 /* JpegThumbnails.swift in Sources */,
 				49B21C131BB7CD9D00C25FDE /* QvikNetworkTests.swift in Sources */,
 			);

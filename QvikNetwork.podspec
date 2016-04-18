@@ -17,7 +17,7 @@ Pod::Spec.new do |s|
   #
 
   s.name         = "QvikNetwork"
-  s.version      = "0.9.0"
+  s.version      = "0.9.1"
   s.summary      = "QvikNetwork is a set of networking utilities for Swift."
   s.homepage     = "https://github.com/qvik/qvik-network-ios"
 

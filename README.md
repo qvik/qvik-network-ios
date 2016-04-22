@@ -160,6 +160,9 @@ func populateView(message: Message) {
     
     // Will display this image while the other one loads
     imageView.placeholderImage = smallerImage
+    
+    // Control how fast the fade-in animation for async loaded images is
+    imageView.imageFadeInDuration = 0.5
 }
 
 ```
@@ -207,14 +210,12 @@ class RemoteService: BaseRemoteService {
 JPEG thumbnails can be used for fast image previews. To understand the concept, read the links mentioned in the ```JpegThumbnails.swift``` source file.
 
 ```swift
-/// Generate a thumbnail:
-if let thumbnailData = imageToJpegThumbnailData(sourceImage: image) {
-  // TODO submit the data to server etc.
-}
-
 /// Use a thumbnail:
 thumbnailImageView.image = jpegThumbnailDataToImage(data: thumbnailData, maxSize: self.frame.size)
 
+/// Or, benefit from background threading etc. in CachedImageView: 
+myCachedImageView.thumbnailDominantColor = myImageObject.thumbDominantColor
+myCachedImageView.thumbnailData = myImageObject.thumbData
 ```
 
 ## Contributing 
@@ -226,6 +227,12 @@ Contributions to this library are welcomed. Any contributions have to meet the f
 * Stability. No code in the library must ever crash; never place *assert()*s or implicit optional unwrapping in library methods.
 * Testing. Create a test app for testing the functionality of your classes and/or provide unit tests if appropriate.
 * Logging. All code in the library must use the common logging handle (see QvikNetwork.swift) and sensible log levels. 
+
+### Swiftlint
+
+This project uses Swiftlint. No code in the library must generate Swiftlint warnings or errors. 
+
+[Guide for setting up Swiftlint](https://github.com/qvik/qvik-swiftlint)
 
 ### License
 

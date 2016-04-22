@@ -1,6 +1,6 @@
 // The MIT License (MIT)
 //
-// Copyright (c) 2015 Qvik (www.qvik.fi)
+// Copyright (c) 2015-2016 Qvik (www.qvik.fi)
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -145,9 +145,8 @@ public class DownloadManager {
         
         return download
     }
-    
-    
-    init(bgSessionId: String? = nil) {
+
+    public init(bgSessionId: String? = nil) {
         // Set up AlamoFire instance
         let defaultHeaders = Alamofire.Manager.sharedInstance.session.configuration.HTTPAdditionalHeaders ?? [:]
         
@@ -159,5 +158,3 @@ public class DownloadManager {
         manager = Alamofire.Manager(configuration: configuration)
     }
 }
-
-

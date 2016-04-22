@@ -51,7 +51,7 @@ public func getDeviceId(keychainServiceName: String) -> String {
         
         if let error = keychain.add(deviceIdKey) {
             log.error("Failed to add entry to keychain, error: \(error)")
-            assert(false);
+            assert(false)
         }
         
         return deviceId
@@ -125,25 +125,32 @@ class RemoteService: BaseRemoteService {
   }
 }
 ```
-
 */
 public class BaseRemoteService {
     /// Alamofire facade
     private let manager: Alamofire.Manager
-    
+
+    /// Defines the mechanism for wrapping a single header name to a (auth) token value.
     public typealias AuthenticationMapping = (headerName: String, authToken: String)
-    
+
+    /// If enabled, prints request and response headers with the modules logger at ```.Debug``` level.
+    public var enableRequestResponseDebug = false
+
     /**
-     Returns either a valid JSON response or an error.
+     Returns either a valid JSON response or an error. Override this method to provide
+     other interpretations of error conditions.
+     
+     - parameter afResponse: Response object from AlamoFire
+     - returns: Our response object.
     */
-    private func createRemoteResponse(afResponse: Response<AnyObject, NSError>) -> RemoteResponse {
+    public func createRemoteResponse(afResponse: Response<AnyObject, NSError>) -> RemoteResponse {
         // First handle network errors
         if let error = afResponse.result.error {
             let remoteError = (error.code == NSURLErrorTimedOut) ? RemoteResponse.RemoteError.NetworkTimeout : RemoteResponse.RemoteError.NetworkError
             return RemoteResponse(nsError: error, remoteError: remoteError, json: nil)
         }
 
-        let jsonResponse = afResponse.result.value 
+        let jsonResponse = afResponse.result.value
         let statusCode = afResponse.response?.statusCode
         log.verbose("HTTP Status code: \(statusCode)")
         
@@ -188,7 +195,7 @@ public class BaseRemoteService {
     public func request(method: Alamofire.Method, _ URLString: URLStringConvertible, parameters: [String: AnyObject]?, encoding: ParameterEncoding = .URL, headers: [String: String]? = nil, callback: ((RemoteResponse) -> Void)) {
         
         log.verbose("Making a request to url: \(URLString)")
-        
+
         let (request, error) = encoding.encode(NSMutableURLRequest(URL: NSURL(string: URLString.URLString)!), parameters: parameters)
         if let error = error {
             log.error("Failed to encode request, error: \(error)")
@@ -208,9 +215,20 @@ public class BaseRemoteService {
             request.setValue(authMapping.authToken, forHTTPHeaderField: authMapping.headerName)
         }
         
-        manager.request(request).responseJSON { response in
-            log.verbose("Request completed, URL: \(response.request?.URL), response: \(response), status code = \(response.response?.statusCode)")
-            callback(self.createRemoteResponse(response))
+        if enableRequestResponseDebug {
+            log.debug("Request headers are: \(request.allHTTPHeaderFields)")
+        }
+
+        manager.request(request).responseJSON { afResponse in
+            log.verbose("Request completed, URL: \(afResponse.request?.URL), response: \(afResponse), status code = \(afResponse.response?.statusCode)")
+
+            if self.enableRequestResponseDebug {
+                if let request = afResponse.request, response = afResponse.response {
+                    log.debug("Response headers are: \(response.allHeaderFields) -- for request URL: \(request.URL)")
+                }
+            }
+
+            callback(self.createRemoteResponse(afResponse))
         }
     }
     
@@ -242,7 +260,7 @@ public class BaseRemoteService {
     - parameter additionalHeaders: optional map of additional (custom) HTTP headers
     - parameter timeout: HTTP response timeout in seconds
     */
-    public init(backgroundSessionId: String, additionalHeaders: [String: AnyObject]? = nil, timeout: NSTimeInterval = 10) {
+    public init(backgroundSessionId: String?, additionalHeaders: [String: AnyObject]? = nil, timeout: NSTimeInterval = 10) {
         // Set up AlamoFire instance
         var defaultHeaders = Alamofire.Manager.sharedInstance.session.configuration.HTTPAdditionalHeaders ?? [:]
         if let additionalHeaders = additionalHeaders {
@@ -250,11 +268,18 @@ public class BaseRemoteService {
                 defaultHeaders[key] = value
             }
         }
-        
-        let configuration = NSURLSessionConfiguration.backgroundSessionConfigurationWithIdentifier(backgroundSessionId)
+
+        let configuration: NSURLSessionConfiguration
+
+        if let backgroundSessionId = backgroundSessionId {
+            configuration = NSURLSessionConfiguration.backgroundSessionConfigurationWithIdentifier(backgroundSessionId)
+        } else {
+            configuration = NSURLSessionConfiguration.defaultSessionConfiguration()
+        }
+
         configuration.HTTPAdditionalHeaders = defaultHeaders
         configuration.timeoutIntervalForResource = timeout
-        log.verbose("Using default headers: \(defaultHeaders)");
+        log.verbose("Using default headers: \(defaultHeaders)")
         
         manager = Alamofire.Manager(configuration: configuration)
     }

@@ -176,7 +176,8 @@ public class ImageCache: NSObject {
         }
     }
     
-    /// Inserts the image synchronously to the in-memory cache in a thread safe manner and sends a loading notification
+    /// Inserts the image synchronously to the in-memory cache in a thread safe 
+    /// manner and sends a loading notification
     private func insertToMemoryCache(image image: UIImage, url: String) {
         lock.withWriteLock {
             self.inMemoryCache[url] = image
@@ -241,7 +242,8 @@ public class ImageCache: NSObject {
         }
     }
     
-    // Fetches an image from an URL, storing it to disk/in-memory caches if successful and notifying on completion
+    /// Fetches an image from an URL, storing it to disk/in-memory caches if 
+    /// successful and notifying on completion
     private func fetchImage(url url: String) {
         log.verbose("Fetching image from URL: \(url)")
         
@@ -295,11 +297,20 @@ public class ImageCache: NSObject {
     
     // MARK: Public methods
 
-    /// Clears the entire cache's contents - on disk and in memory. This is a drastic 
-    // measure and mostly useful for special conditions such as debugging purposes.
-    public func clearCache() {
+    /**
+     Clears the entire cache's contents - on memory and optionally on disk too. This is a drastic
+     measure and mostly useful for special conditions such as debugging purposes and making sure
+     no memory is being clung to by the cache.
+     
+     - parameters clearDiskContents: whether to clear disk contents too. Defaults to ```true```.
+     */
+    public func clearCache(clearDiskContents clearDiskContents: Bool = true) {
         lock.withWriteLock {
             self.inMemoryCache.removeAll(keepCapacity: false)
+        }
+
+        if !clearDiskContents {
+            return
         }
 
         dispatch_async(diskOperationQueue) {

@@ -27,6 +27,7 @@ import Foundation
 */
 public class RemoteResponse {
     public enum RemoteError {
+        case ClientError
         case NetworkError
         case NetworkTimeout
         case BadCredentials
@@ -61,11 +62,20 @@ public class RemoteResponse {
     public init() {
     }
     
-    public init(json: AnyObject) {
+    public init(json: AnyObject?) {
         self.parsedResponseJson = json
     }
-    
-    public init(nsError: NSError, remoteError: RemoteError, json: AnyObject?) {
+
+    public init(remoteError: RemoteError) {
+        self.remoteError = remoteError
+    }
+
+    public init(remoteError: RemoteError?, json: AnyObject?) {
+        self.remoteError = remoteError
+        self.parsedResponseJson = json
+    }
+
+    public init(nsError: NSError?, remoteError: RemoteError?, json: AnyObject?) {
         self.nsError = nsError
         self.remoteError = remoteError
         self.parsedResponseJson = json

@@ -1,0 +1,31 @@
+excluded: 
+  - Pods
+
+disabled_rules: 
+  - force_cast
+  - force_try
+  - line_length
+  - trailing_whitespace
+  - todo
+  - type_body_length
+  - valid_docs
+  - nesting
+
+function_parameter_count:
+  warning: 5
+  error: 10
+  
+file_length:
+   warning: 800
+   error: 1200
+
+function_body_length:
+  warning: 70
+  error: 100
+
+variable_name:
+  min_length: 1
+  max_length: 
+    warning: 40
+    error: 45
+

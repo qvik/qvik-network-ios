@@ -268,4 +268,3 @@ public func jpegThumbnailDataToImage(data data: NSData, maxSize: CGSize, thumbna
     
     return blurredThumbnail
 }
-

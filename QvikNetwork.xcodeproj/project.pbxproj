@@ -7,12 +7,16 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		490CB4A91CCA6E1A00057994 /* MockRemoteService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 490CB4A81CCA6E1A00057994 /* MockRemoteService.swift */; };
+		490CB4AA1CCA6E1A00057994 /* MockRemoteService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 490CB4A81CCA6E1A00057994 /* MockRemoteService.swift */; };
+		490CB4AB1CCA6E2100057994 /* RemoteResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49274A691BBBEDA70024AB80 /* RemoteResponse.swift */; };
+		490CB4AC1CCA6E2500057994 /* BaseRemoteService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49274A6A1BBBEDA70024AB80 /* BaseRemoteService.swift */; };
+		490CB4AE1CCA847300057994 /* BaseRemoteServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 490CB4AD1CCA847300057994 /* BaseRemoteServiceTests.swift */; };
 		49274A6B1BBBEDA70024AB80 /* RemoteResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49274A691BBBEDA70024AB80 /* RemoteResponse.swift */; };
 		49274A6C1BBBEDA70024AB80 /* BaseRemoteService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49274A6A1BBBEDA70024AB80 /* BaseRemoteService.swift */; };
 		493818BC1CC4FB9500BAFAF4 /* QvikNetwork.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49B21C2B1BB7DCC700C25FDE /* QvikNetwork.swift */; };
 		4962C2301C1D5C4F00D1E289 /* JpegThumbnails.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4962C22F1C1D5C4F00D1E289 /* JpegThumbnails.swift */; };
 		49B21C0E1BB7CD9D00C25FDE /* QvikNetwork.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 49B21C031BB7CD9D00C25FDE /* QvikNetwork.framework */; };
-		49B21C131BB7CD9D00C25FDE /* QvikNetworkTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49B21C121BB7CD9D00C25FDE /* QvikNetworkTests.swift */; };
 		49B21C231BB7CE4000C25FDE /* CachedImageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49B21C1E1BB7CE4000C25FDE /* CachedImageView.swift */; };
 		49B21C241BB7CE4000C25FDE /* Download.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49B21C1F1BB7CE4000C25FDE /* Download.swift */; };
 		49B21C251BB7CE4000C25FDE /* DownloadGroup.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49B21C201BB7CE4000C25FDE /* DownloadGroup.swift */; };
@@ -36,13 +40,14 @@
 
 /* Begin PBXFileReference section */
 		0DB2951FFB5B46B6CF96C77F /* Pods.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = Pods.debug.xcconfig; path = "Pods/Target Support Files/Pods/Pods.debug.xcconfig"; sourceTree = "<group>"; };
+		490CB4A81CCA6E1A00057994 /* MockRemoteService.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MockRemoteService.swift; sourceTree = "<group>"; };
+		490CB4AD1CCA847300057994 /* BaseRemoteServiceTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BaseRemoteServiceTests.swift; sourceTree = "<group>"; };
 		49274A691BBBEDA70024AB80 /* RemoteResponse.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RemoteResponse.swift; sourceTree = "<group>"; };
 		49274A6A1BBBEDA70024AB80 /* BaseRemoteService.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BaseRemoteService.swift; sourceTree = "<group>"; };
 		4962C22F1C1D5C4F00D1E289 /* JpegThumbnails.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = JpegThumbnails.swift; sourceTree = "<group>"; };
 		49B21C031BB7CD9D00C25FDE /* QvikNetwork.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = QvikNetwork.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		49B21C081BB7CD9D00C25FDE /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		49B21C0D1BB7CD9D00C25FDE /* QvikNetworkTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = QvikNetworkTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
-		49B21C121BB7CD9D00C25FDE /* QvikNetworkTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QvikNetworkTests.swift; sourceTree = "<group>"; };
 		49B21C141BB7CD9D00C25FDE /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		49B21C1E1BB7CE4000C25FDE /* CachedImageView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CachedImageView.swift; sourceTree = "<group>"; };
 		49B21C1F1BB7CE4000C25FDE /* Download.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Download.swift; sourceTree = "<group>"; };
@@ -78,6 +83,14 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		490CB4A71CCA6DF100057994 /* MockRemoteService */ = {
+			isa = PBXGroup;
+			children = (
+				490CB4A81CCA6E1A00057994 /* MockRemoteService.swift */,
+			);
+			name = MockRemoteService;
+			sourceTree = "<group>";
+		};
 		49274A651BBBED6B0024AB80 /* Download manager */ = {
 			isa = PBXGroup;
 			children = (
@@ -107,6 +120,7 @@
 		49274A681BBBED930024AB80 /* Base remote service */ = {
 			isa = PBXGroup;
 			children = (
+				490CB4A71CCA6DF100057994 /* MockRemoteService */,
 				49274A691BBBEDA70024AB80 /* RemoteResponse.swift */,
 				49274A6A1BBBEDA70024AB80 /* BaseRemoteService.swift */,
 			);
@@ -162,7 +176,7 @@
 		49B21C111BB7CD9D00C25FDE /* QvikNetworkTests */ = {
 			isa = PBXGroup;
 			children = (
-				49B21C121BB7CD9D00C25FDE /* QvikNetworkTests.swift */,
+				490CB4AD1CCA847300057994 /* BaseRemoteServiceTests.swift */,
 				49B21C141BB7CD9D00C25FDE /* Info.plist */,
 			);
 			path = QvikNetworkTests;
@@ -212,6 +226,7 @@
 			buildPhases = (
 				0F9DFD7E214DCB05164A5F13 /* Check Pods Manifest.lock */,
 				49B21BFE1BB7CD9D00C25FDE /* Sources */,
+				490CB4A61CCA69A200057994 /* Swiftlint */,
 				49B21BFF1BB7CD9D00C25FDE /* Frameworks */,
 				49B21C001BB7CD9D00C25FDE /* Headers */,
 				49B21C011BB7CD9D00C25FDE /* Resources */,
@@ -328,6 +343,20 @@
 			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods/Pods-resources.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
+		490CB4A61CCA69A200057994 /* Swiftlint */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = Swiftlint;
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "if which swiftlint >/dev/null; then\nswiftlint\nelse\necho \"error: Swiftlint not installed - see https://github.com/realm/SwiftLint\"\nexit 1\nfi\n";
+		};
 /* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
@@ -344,6 +373,7 @@
 				49B21C2C1BB7DCC700C25FDE /* QvikNetwork.swift in Sources */,
 				49B21C251BB7CE4000C25FDE /* DownloadGroup.swift in Sources */,
 				49B21C261BB7CE4000C25FDE /* DownloadManager.swift in Sources */,
+				490CB4A91CCA6E1A00057994 /* MockRemoteService.swift in Sources */,
 				49274A6B1BBBEDA70024AB80 /* RemoteResponse.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -352,9 +382,12 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				490CB4AC1CCA6E2500057994 /* BaseRemoteService.swift in Sources */,
 				493818BC1CC4FB9500BAFAF4 /* QvikNetwork.swift in Sources */,
+				490CB4AE1CCA847300057994 /* BaseRemoteServiceTests.swift in Sources */,
+				490CB4AA1CCA6E1A00057994 /* MockRemoteService.swift in Sources */,
 				49B6918F1C7F18F50076F680 /* JpegThumbnails.swift in Sources */,
-				49B21C131BB7CD9D00C25FDE /* QvikNetworkTests.swift in Sources */,
+				490CB4AB1CCA6E2100057994 /* RemoteResponse.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

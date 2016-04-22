@@ -266,4 +266,3 @@ public class CachedImageView: QvikImageView {
         commonInit()
     }
 }
-

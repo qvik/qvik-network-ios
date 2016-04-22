@@ -24,17 +24,25 @@ import XCTest
 
 /// Example "remote service" used for testing
 class RemoteService {
-    let remote: BaseRemoteService
+    let remoteImpl: BaseRemoteService
     let baseUrl = "http://www.site.com"
 
     func list(callback: ((RemoteResponse) -> Void)) {
         let url = "\(baseUrl)/list"
 
-        remote.request(.GET, url, parameters: nil, callback: callback)
+        remoteImpl.request(.GET, url, parameters: nil, callback: callback)
     }
 
-    init(remote: BaseRemoteService) {
-        self.remote = remote
+    func update(name: String, callback: ((RemoteResponse) -> Void)) {
+        let url = "\(baseUrl)/update"
+
+        let params = ["name": name]
+
+        remoteImpl.request(.POST, url, parameters: params, callback: callback)
+    }
+
+    init(remoteImpl: BaseRemoteService) {
+        self.remoteImpl = remoteImpl
     }
 }
 
@@ -51,9 +59,9 @@ class BaseRemoteServiceTests: XCTestCase {
     }
 
     func testSuccess() {
-        let remoteService = RemoteService(remote: MockRemoteService())
+        let remoteService = RemoteService(remoteImpl: MockRemoteService())
 
-        let expectation = self.expectationWithDescription("success")
+        let expectation = expectationWithDescription("success")
 
         remoteService.list { response in
             if response.success {
@@ -68,13 +76,36 @@ class BaseRemoteServiceTests: XCTestCase {
         let mockService = MockRemoteService()
         mockService.failureProbability = 1.0
 
-        let remoteService = RemoteService(remote: mockService)
+        let remoteService = RemoteService(remoteImpl: mockService)
 
-        let expectation = self.expectationWithDescription("failure")
+        let expectation = expectationWithDescription("failure")
 
         remoteService.list { response in
             if !response.success {
                 expectation.fulfill()
+            }
+        }
+
+        waitForExpectationsWithTimeout(1.0, handler: nil)
+    }
+
+    func testSimplePathMapping() {
+        let mockService = MockRemoteService()
+        mockService.addOperationMappingForPath("/update", mapping: (failureProbability: 1.0, params: nil, successResponse: ["status": "ok"], failureResponse: ["status": "failed"], failureError: .ServerError))
+        let remoteService = RemoteService(remoteImpl: mockService)
+
+        let listMustSucceed = expectationWithDescription("listMustSucceed")
+        let updateMustFail = expectationWithDescription("updateMustFail")
+
+        remoteService.list { response in
+            if response.success {
+                listMustSucceed.fulfill()
+            }
+        }
+
+        remoteService.update("Gary") { response in
+            if !response.success {
+                updateMustFail.fulfill()
             }
         }
 

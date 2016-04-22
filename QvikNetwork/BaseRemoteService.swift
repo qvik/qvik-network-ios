@@ -125,6 +125,22 @@ class RemoteService: BaseRemoteService {
   }
 }
 ```
+
+ Also notice that despite the class name, ```BaseRemoteService``` can as well be used with a ```has-a```
+ relationship instead of a ```is-a``` relationship; this is especially useful for mocking. Here's an example of has-a use:
+ 
+ ```swift
+ class RemoteService {
+   let remoteImpl: BaseRemoteService
+   let baseUrl = "http://www.site.com"
+
+   // .. methods ..
+
+   init(remoteImpl: BaseRemoteService) {
+     self.remoteImpl = remoteImpl
+   }
+ }
+ ```
 */
 public class BaseRemoteService {
     /// Alamofire facade

@@ -57,6 +57,8 @@ public class MockRemoteService: BaseRemoteService {
     /// Response content for failed operations (unless overridden by a mapping)
     public var failureResponse: AnyObject?
 
+    /// Compares two AnyObject values for equality, by attempting to cast them to the same types
+    /// and comparing the casted values if successful. Only basic types supported.
     private func compareValues(valueA: AnyObject, _ valueB: AnyObject) -> Bool {
         if let intA = valueA as? Int, intB = valueB as? Int where intA == intB {
             return true
@@ -73,6 +75,7 @@ public class MockRemoteService: BaseRemoteService {
         return false
     }
 
+    /// Processes an operation mapping and decides on success/failure.
     private func handleMapping(mapping: OperationMapping, requestParams: [String: AnyObject]?, callback: ((RemoteResponse) -> Void)) {
         let triggerSuccess = {
             callback(RemoteResponse(json: mapping.successResponse))
@@ -80,7 +83,6 @@ public class MockRemoteService: BaseRemoteService {
 
         let triggerPossibleFailure = {
             if Double.random() < mapping.failureProbability {
-                // Failure it is..
                 callback(RemoteResponse(remoteError: mapping.failureError, json: mapping.failureResponse))
             } else {
                 triggerSuccess()
@@ -90,16 +92,21 @@ public class MockRemoteService: BaseRemoteService {
         // If failure precondition parameters are given, check for their existence
         if let mappingParams = mapping.params {
             if let requestParams = requestParams {
+
                 var allMatch = true
                 for (name, value) in mappingParams {
                     if let reqValue = requestParams[name] {
                         if !compareValues(value, reqValue) {
                             allMatch = false
+                            break
                         }
                     }
                 }
+
                 if allMatch {
                     triggerPossibleFailure()
+                } else {
+                    triggerSuccess()
                 }
             }
         } else {
@@ -153,7 +160,7 @@ public class MockRemoteService: BaseRemoteService {
 
         // Simulate network latency
         let requestDuration = (maxResponseTime - minResponseTime) * Double.random() + minResponseTime
-        log.verbose("requestDuration = \(requestDuration)")
+        log.verbose("Request will take \(requestDuration) seconds")
 
         runOnMainThreadAfter(delay: requestDuration) {
             guard let url = NSURL(string: URLString.URLString), urlPath = url.path else {
@@ -162,7 +169,7 @@ public class MockRemoteService: BaseRemoteService {
                 return
             }
 
-            log.verbose("Request path is: \(url.path)")
+            log.verbose("Request path: \(urlPath), parameters: \(parameters)")
 
             // Check if the path has a registered OperationMapping and use it the handle the request if so
             if let mapping = self.operationMappingsByPath[urlPath] {

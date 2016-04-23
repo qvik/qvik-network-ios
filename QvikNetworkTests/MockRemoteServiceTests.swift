@@ -33,10 +33,10 @@ class RemoteService {
         remoteImpl.request(.GET, url, parameters: nil, callback: callback)
     }
 
-    func update(name: String, callback: ((RemoteResponse) -> Void)) {
+    func update(name name: String, age: Int, married: Bool, callback: ((RemoteResponse) -> Void)) {
         let url = "\(baseUrl)/update"
 
-        let params = ["name": name]
+        let params: [String: AnyObject] = ["name": name, "age": age, "married": married]
 
         remoteImpl.request(.POST, url, parameters: params, callback: callback)
     }
@@ -46,7 +46,7 @@ class RemoteService {
     }
 }
 
-class BaseRemoteServiceTests: XCTestCase {
+class MockRemoteServiceTests: XCTestCase {
     override func setUp() {
         super.setUp()
 
@@ -74,6 +74,8 @@ class BaseRemoteServiceTests: XCTestCase {
 
     func testFailure() {
         let mockService = MockRemoteService()
+
+        // Set every request to fail always
         mockService.failureProbability = 1.0
 
         let remoteService = RemoteService(remoteImpl: mockService)
@@ -81,6 +83,7 @@ class BaseRemoteServiceTests: XCTestCase {
         let expectation = expectationWithDescription("failure")
 
         remoteService.list { response in
+            // The request must fail in order for the test to pass
             if !response.success {
                 expectation.fulfill()
             }
@@ -91,6 +94,8 @@ class BaseRemoteServiceTests: XCTestCase {
 
     func testSimplePathMapping() {
         let mockService = MockRemoteService()
+
+        // Create a precondition that /update always fails
         mockService.addOperationMappingForPath("/update", mapping: (failureProbability: 1.0, params: nil, successResponse: ["status": "ok"], failureResponse: ["status": "failed"], failureError: .ServerError))
         let remoteService = RemoteService(remoteImpl: mockService)
 
@@ -103,9 +108,46 @@ class BaseRemoteServiceTests: XCTestCase {
             }
         }
 
-        remoteService.update("Gary") { response in
+        remoteService.update(name: "Gary", age: 44, married: true) { response in
             if !response.success {
                 updateMustFail.fulfill()
+            }
+        }
+
+        waitForExpectationsWithTimeout(1.0, handler: nil)
+    }
+
+    func testPathAndParamMapping() {
+        let mockService = MockRemoteService()
+
+        // Create a precondition that /update always fails if params age = 17, married = true are set
+        mockService.addOperationMappingForPath("/update", mapping: (failureProbability: 1.0, params: ["age": 17, "married": true], successResponse: ["status": "ok"], failureResponse: ["status": "failed"], failureError: .ServerError))
+
+        // Set default success response content
+        mockService.successResponse = ["status": "ok"]
+
+        let remoteService = RemoteService(remoteImpl: mockService)
+
+        let mustSucceed = expectationWithDescription("Must succeed with these params")
+        let mustFail = expectationWithDescription("Must fail with these params")
+
+        // Start a request that should succeed
+        remoteService.update(name: "Leslie", age: 18, married: true) { response in
+            if response.success {
+                // Also check that proper success response content is in place
+                if let status = response.parsedJson?["status"] as? String where status == "ok" {
+                    mustSucceed.fulfill()
+                }
+            }
+        }
+
+        // Start a request that should fail
+        remoteService.update(name: "Leslie", age: 17, married: true) { response in
+            if !response.success {
+                // Also check that proper failure content is in place
+                if let status = response.parsedJson?["status"] as? String where status == "failed" {
+                    mustFail.fulfill()
+                }
             }
         }
 

@@ -5,6 +5,9 @@
 
 ## Changelog
 
+* 0.9.2
+	* Added MockRemoteService
+	* Added Double.clamp() and CGFloat.clamp()
 * 0.9.1
     * Fixed Swift3 deprecation warnings
     * Added features + performance boost to preview thumbnails (CachedImageView)

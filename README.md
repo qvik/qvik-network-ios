@@ -205,6 +205,77 @@ class RemoteService: BaseRemoteService {
 }
 ```
 
+### MockRemoteService
+
+You like to unit test your REST interface? With ```MockRemoteService``` you can! Set up your interface to use ```BaseRemoteService``` with an has-a relationship instead of a is-a relationship, instantiate ```MockRemoteService``` and use it instead of ```BaseRemoteService```. For example like this: 
+
+```swift
+class TestRemoteService {
+    let remoteImpl: BaseRemoteService
+    let baseUrl = "http://www.site.com"
+
+    func list(callback: ((RemoteResponse) -> Void)) {
+        let url = "\(baseUrl)/list"
+
+        remoteImpl.request(.GET, url, parameters: nil, callback: callback)
+    }
+
+    func update(name name: String, age: Int, married: Bool, callback: ((RemoteResponse) -> Void)) {
+        let url = "\(baseUrl)/update"
+
+        let params: [String: AnyObject] = ["name": name, "age": age, "married": married]
+
+        remoteImpl.request(.POST, url, parameters: params, callback: callback)
+    }
+
+    init(remoteImpl: BaseRemoteService) {
+        self.remoteImpl = remoteImpl
+    }
+}
+```
+
+And build test cases like this: 
+
+```swift
+    func testPathAndParamMapping() {
+        let mockService = MockRemoteService()
+
+        // Create a precondition that /update always fails if params age = 17, married = true are set
+        mockService.addOperationMappingForPath("/update", mapping: (failureProbability: 1.0, params: ["age": 17, "married": true], successResponse: ["status": "ok"], failureResponse: ["status": "failed"], failureError: .ServerError))
+
+        // Set default success response content
+        mockService.successResponse = ["status": "ok"]
+
+        let remoteService = TestRemoteService(remoteImpl: mockService)
+
+        let mustSucceed = expectationWithDescription("Must succeed with these params")
+        let mustFail = expectationWithDescription("Must fail with these params")
+
+        // Start a request that should succeed
+        remoteService.update(name: "Leslie", age: 18, married: true) { response in
+            if response.success {
+                // Also check that proper success response content is in place
+                if let status = response.parsedJson?["status"] as? String where status == "ok" {
+                    mustSucceed.fulfill()
+                }
+            }
+        }
+
+        // Start a request that should fail
+        remoteService.update(name: "Leslie", age: 17, married: true) { response in
+            if !response.success {
+                // Also check that proper failure content is in place
+                if let status = response.parsedJson?["status"] as? String where status == "failed" {
+                    mustFail.fulfill()
+                }
+            }
+        }
+
+        waitForExpectationsWithTimeout(1.0, handler: nil)
+    }
+}
+```
+
 ### JPEG Thumbnails
 
 JPEG thumbnails can be used for fast image previews. To understand the concept, read the links mentioned in the ```JpegThumbnails.swift``` source file.

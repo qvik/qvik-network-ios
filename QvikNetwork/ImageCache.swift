@@ -121,7 +121,7 @@ public class ImageCache: NSObject {
                 try fileManager.createDirectoryAtPath(path as String, withIntermediateDirectories: true, attributes: nil)
             }
         } catch let error {
-            log.error("Failed to create image cache directory \(path), error: \(error)")
+            log.error("Failed to create image cache directory \(self.path), error: \(error)")
             assertionFailure("Failed to create image cache directory")
         }
     }
@@ -555,7 +555,7 @@ public class ImageCache: NSObject {
             
         super.init()
         
-        log.verbose("My disk cache path is: \(path)")
+        log.verbose("My disk cache path is: \(self.path)")
         
         checkCacheDirExists()
         

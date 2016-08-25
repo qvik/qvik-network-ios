@@ -17,7 +17,7 @@ Pod::Spec.new do |s|
   #
 
   s.name         = "QvikNetwork"
-  s.version      = "0.9.2"
+  s.version      = "0.9.3"
   s.summary      = "QvikNetwork is a set of networking utilities for Swift."
   s.homepage     = "https://github.com/qvik/qvik-network-ios"
 
@@ -111,6 +111,7 @@ Pod::Spec.new do |s|
   s.dependency 'XCGLogger', '~> 3.0'
   s.dependency 'CryptoSwift', '~> 0.2'
   s.dependency 'SwiftKeychain', '~> 0.1'
+  s.dependency 'SwiftGifOrigin', '~> 1.5'
 
   # s.frameworks = "SomeFramework", "AnotherFramework"
 

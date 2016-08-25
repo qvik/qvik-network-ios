@@ -10,5 +10,5 @@ pod 'QvikSwift', '~> 2.0.0'
 pod 'XCGLogger', '~> 3.0'
 pod 'CryptoSwift'
 pod 'SwiftKeychain', '~> 0.1'
-
+pod 'SwiftGifOrigin', '~> 1.5'
 

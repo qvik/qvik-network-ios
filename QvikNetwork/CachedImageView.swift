@@ -103,18 +103,15 @@ public class CachedImageView: QvikImageView {
 
             reset()
             
-            if imageUrl?.length <= 0 {
-                self.image = nil
-                return
-            }
-            
-            if let imageUrl = imageUrl {
+            if let imageUrl = imageUrl where imageUrl.length > 0 {
                 if imageUrl == oldValue {
                     // No need to do anything
                     return
                 }
                 
                 self.image = imageCache.getImage(url: imageUrl, loadPolicy: .Network)
+            } else {
+                self.image = nil
             }
         }
     }

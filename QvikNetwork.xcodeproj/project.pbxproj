@@ -29,7 +29,8 @@
 		49C6A9A01D6EDE1300F0525E /* randombytes_broken.gif in Resources */ = {isa = PBXBuildFile; fileRef = 49C6A99D1D6EDE1300F0525E /* randombytes_broken.gif */; };
 		49C6A9A11D6EDE1300F0525E /* animated.gif in Resources */ = {isa = PBXBuildFile; fileRef = 49C6A99E1D6EDE1300F0525E /* animated.gif */; };
 		49C6A9A21D6EDE1300F0525E /* working.gif in Resources */ = {isa = PBXBuildFile; fileRef = 49C6A99F1D6EDE1300F0525E /* working.gif */; };
-		5B39879705C49AA2C65D7201 /* Pods.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7BA235D0FD554244194F2361 /* Pods.framework */; };
+		91C2937C44CA258F5D1D2B42 /* Pods_QvikNetwork.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 07089FD5ABBA62AB434B9E94 /* Pods_QvikNetwork.framework */; };
+		AFF2539146273CA59B1EECD9 /* Pods_QvikNetworkTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E3A556322B928B721EB4F266 /* Pods_QvikNetworkTests.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -43,7 +44,9 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		07089FD5ABBA62AB434B9E94 /* Pods_QvikNetwork.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_QvikNetwork.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		0DB2951FFB5B46B6CF96C77F /* Pods.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = Pods.debug.xcconfig; path = "Pods/Target Support Files/Pods/Pods.debug.xcconfig"; sourceTree = "<group>"; };
+		0F3FCC745FE64A521A0D611A /* Pods-QvikNetworkTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-QvikNetworkTests.release.xcconfig"; path = "Pods/Target Support Files/Pods-QvikNetworkTests/Pods-QvikNetworkTests.release.xcconfig"; sourceTree = "<group>"; };
 		490CB4A81CCA6E1A00057994 /* MockRemoteService.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MockRemoteService.swift; sourceTree = "<group>"; };
 		490CB4AD1CCA847300057994 /* MockRemoteServiceTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MockRemoteServiceTests.swift; sourceTree = "<group>"; };
 		49274A691BBBEDA70024AB80 /* RemoteResponse.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RemoteResponse.swift; sourceTree = "<group>"; };
@@ -67,8 +70,12 @@
 		49C6A99D1D6EDE1300F0525E /* randombytes_broken.gif */ = {isa = PBXFileReference; lastKnownFileType = image.gif; name = randombytes_broken.gif; path = TestData/randombytes_broken.gif; sourceTree = "<group>"; };
 		49C6A99E1D6EDE1300F0525E /* animated.gif */ = {isa = PBXFileReference; lastKnownFileType = image.gif; name = animated.gif; path = TestData/animated.gif; sourceTree = "<group>"; };
 		49C6A99F1D6EDE1300F0525E /* working.gif */ = {isa = PBXFileReference; lastKnownFileType = image.gif; name = working.gif; path = TestData/working.gif; sourceTree = "<group>"; };
+		741226C731293BB08DEFC4C2 /* Pods-QvikNetwork.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-QvikNetwork.debug.xcconfig"; path = "Pods/Target Support Files/Pods-QvikNetwork/Pods-QvikNetwork.debug.xcconfig"; sourceTree = "<group>"; };
+		7AA7BF913C0C19BAD30487F1 /* Pods-QvikNetwork.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-QvikNetwork.release.xcconfig"; path = "Pods/Target Support Files/Pods-QvikNetwork/Pods-QvikNetwork.release.xcconfig"; sourceTree = "<group>"; };
 		7BA235D0FD554244194F2361 /* Pods.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		8BE5742F579D0C7590BD3D14 /* Pods.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = Pods.release.xcconfig; path = "Pods/Target Support Files/Pods/Pods.release.xcconfig"; sourceTree = "<group>"; };
+		8CBD612309F371FA58DE3AAF /* Pods-QvikNetworkTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-QvikNetworkTests.debug.xcconfig"; path = "Pods/Target Support Files/Pods-QvikNetworkTests/Pods-QvikNetworkTests.debug.xcconfig"; sourceTree = "<group>"; };
+		E3A556322B928B721EB4F266 /* Pods_QvikNetworkTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_QvikNetworkTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -76,7 +83,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				5B39879705C49AA2C65D7201 /* Pods.framework in Frameworks */,
+				91C2937C44CA258F5D1D2B42 /* Pods_QvikNetwork.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -85,6 +92,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				49B21C0E1BB7CD9D00C25FDE /* QvikNetwork.framework in Frameworks */,
+				AFF2539146273CA59B1EECD9 /* Pods_QvikNetworkTests.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -222,6 +230,8 @@
 			isa = PBXGroup;
 			children = (
 				7BA235D0FD554244194F2361 /* Pods.framework */,
+				07089FD5ABBA62AB434B9E94 /* Pods_QvikNetwork.framework */,
+				E3A556322B928B721EB4F266 /* Pods_QvikNetworkTests.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -231,6 +241,10 @@
 			children = (
 				0DB2951FFB5B46B6CF96C77F /* Pods.debug.xcconfig */,
 				8BE5742F579D0C7590BD3D14 /* Pods.release.xcconfig */,
+				741226C731293BB08DEFC4C2 /* Pods-QvikNetwork.debug.xcconfig */,
+				7AA7BF913C0C19BAD30487F1 /* Pods-QvikNetwork.release.xcconfig */,
+				8CBD612309F371FA58DE3AAF /* Pods-QvikNetworkTests.debug.xcconfig */,
+				0F3FCC745FE64A521A0D611A /* Pods-QvikNetworkTests.release.xcconfig */,
 			);
 			name = Pods;
 			sourceTree = "<group>";
@@ -252,13 +266,13 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 49B21C171BB7CD9D00C25FDE /* Build configuration list for PBXNativeTarget "QvikNetwork" */;
 			buildPhases = (
-				0F9DFD7E214DCB05164A5F13 /* Check Pods Manifest.lock */,
+				0F9DFD7E214DCB05164A5F13 /* [CP] Check Pods Manifest.lock */,
 				49B21BFE1BB7CD9D00C25FDE /* Sources */,
 				490CB4A61CCA69A200057994 /* Swiftlint */,
 				49B21BFF1BB7CD9D00C25FDE /* Frameworks */,
 				49B21C001BB7CD9D00C25FDE /* Headers */,
 				49B21C011BB7CD9D00C25FDE /* Resources */,
-				3EE53D4C99822267CFE9B6F9 /* Copy Pods Resources */,
+				3EE53D4C99822267CFE9B6F9 /* [CP] Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -273,9 +287,12 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 49B21C1A1BB7CD9D00C25FDE /* Build configuration list for PBXNativeTarget "QvikNetworkTests" */;
 			buildPhases = (
+				12BDF2D3E97F7D4A313421ED /* [CP] Check Pods Manifest.lock */,
 				49B21C091BB7CD9D00C25FDE /* Sources */,
 				49B21C0A1BB7CD9D00C25FDE /* Frameworks */,
 				49B21C0B1BB7CD9D00C25FDE /* Resources */,
+				CABE09C7C6EE95A83C3EC318 /* [CP] Embed Pods Frameworks */,
+				2AC338422D233B9EAA23B276 /* [CP] Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -345,14 +362,14 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
-		0F9DFD7E214DCB05164A5F13 /* Check Pods Manifest.lock */ = {
+		0F9DFD7E214DCB05164A5F13 /* [CP] Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 			);
 			inputPaths = (
 			);
-			name = "Check Pods Manifest.lock";
+			name = "[CP] Check Pods Manifest.lock";
 			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -360,19 +377,49 @@
 			shellScript = "diff \"${PODS_ROOT}/../Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [[ $? != 0 ]] ; then\n    cat << EOM\nerror: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\nEOM\n    exit 1\nfi\n";
 			showEnvVarsInLog = 0;
 		};
-		3EE53D4C99822267CFE9B6F9 /* Copy Pods Resources */ = {
+		12BDF2D3E97F7D4A313421ED /* [CP] Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 			);
 			inputPaths = (
 			);
-			name = "Copy Pods Resources";
+			name = "[CP] Check Pods Manifest.lock";
 			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods/Pods-resources.sh\"\n";
+			shellScript = "diff \"${PODS_ROOT}/../Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [[ $? != 0 ]] ; then\n    cat << EOM\nerror: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\nEOM\n    exit 1\nfi\n";
+			showEnvVarsInLog = 0;
+		};
+		2AC338422D233B9EAA23B276 /* [CP] Copy Pods Resources */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "[CP] Copy Pods Resources";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-QvikNetworkTests/Pods-QvikNetworkTests-resources.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		3EE53D4C99822267CFE9B6F9 /* [CP] Copy Pods Resources */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "[CP] Copy Pods Resources";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-QvikNetwork/Pods-QvikNetwork-resources.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
 		490CB4A61CCA69A200057994 /* Swiftlint */ = {
@@ -388,6 +435,21 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "if which swiftlint >/dev/null; then\nswiftlint\nelse\necho \"error: Swiftlint not installed - see https://github.com/realm/SwiftLint\"\nexit 1\nfi\n";
+		};
+		CABE09C7C6EE95A83C3EC318 /* [CP] Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "[CP] Embed Pods Frameworks";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-QvikNetworkTests/Pods-QvikNetworkTests-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
 		};
 /* End PBXShellScriptBuildPhase section */
 
@@ -525,7 +587,7 @@
 		};
 		49B21C181BB7CD9D00C25FDE /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 0DB2951FFB5B46B6CF96C77F /* Pods.debug.xcconfig */;
+			baseConfigurationReference = 741226C731293BB08DEFC4C2 /* Pods-QvikNetwork.debug.xcconfig */;
 			buildSettings = {
 				CLANG_ENABLE_MODULES = YES;
 				DEFINES_MODULE = YES;
@@ -545,7 +607,7 @@
 		};
 		49B21C191BB7CD9D00C25FDE /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 8BE5742F579D0C7590BD3D14 /* Pods.release.xcconfig */;
+			baseConfigurationReference = 7AA7BF913C0C19BAD30487F1 /* Pods-QvikNetwork.release.xcconfig */;
 			buildSettings = {
 				CLANG_ENABLE_MODULES = YES;
 				DEFINES_MODULE = YES;
@@ -564,6 +626,7 @@
 		};
 		49B21C1B1BB7CD9D00C25FDE /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 8CBD612309F371FA58DE3AAF /* Pods-QvikNetworkTests.debug.xcconfig */;
 			buildSettings = {
 				INFOPLIST_FILE = QvikNetworkTests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
@@ -574,6 +637,7 @@
 		};
 		49B21C1C1BB7CD9D00C25FDE /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 0F3FCC745FE64A521A0D611A /* Pods-QvikNetworkTests.release.xcconfig */;
 			buildSettings = {
 				INFOPLIST_FILE = QvikNetworkTests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";

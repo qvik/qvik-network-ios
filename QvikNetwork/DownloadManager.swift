@@ -24,8 +24,8 @@ import Foundation
 import Alamofire
 import QvikSwift
 
-public typealias DownloadProgressCallback = (bytesRead: UInt64, totalBytesRead: UInt64, totalBytesExpectedToRead: UInt64) -> ()
-public typealias DownloadCompletionCallback = (error: NSError?, response: NSHTTPURLResponse?, data: NSData?) -> ()
+public typealias DownloadProgressCallback = (_ bytesRead: UInt64, _ totalBytesRead: UInt64, _ totalBytesExpectedToRead: UInt64) -> ()
+public typealias DownloadCompletionCallback = (_ error: NSError?, _ response: HTTPURLResponse?, _ data: Data?) -> ()
 
 /**
 High level HTTP download manager that supports grouping several downloads
@@ -35,26 +35,26 @@ Internally the implementation uses AlamoFire the de facto HTTP library.
 
 All the methods in this class are thread safe.
 */
-public class DownloadManager {
-    public static let errorDomain = "DownloadManager"
+open class DownloadManager {
+    open static let errorDomain = "DownloadManager"
     
-    private static let staticInstance = DownloadManager()
+    fileprivate static let staticInstance = DownloadManager()
     
-    private let manager: Alamofire.Manager
+    fileprivate let manager: Alamofire.Manager
     
     /// Currently pending downloads
-    private(set) public var pendingDownloads = [Download]()
+    fileprivate(set) open var pendingDownloads = [Download]()
     
     // Read/write lock for synchornizing access to pending downloads array
-    private let lock = ReadWriteLock()
+    fileprivate let lock = ReadWriteLock()
 
     /// Returns the shared instance
-    public class func sharedInstance() -> DownloadManager {
+    open class func sharedInstance() -> DownloadManager {
         return staticInstance
     }
 
     /// Checks whether there is a pending download for a given URL.
-    public func hasPendingDownload(url url: String) -> Bool {
+    open func hasPendingDownload(_ url: String) -> Bool {
         return lock.withReadLock {
             for download in self.pendingDownloads {
                 if download.url == url {
@@ -70,7 +70,7 @@ public class DownloadManager {
     
     - returns: a new group object
     */
-    public func createGroup() -> DownloadGroup {
+    open func createGroup() -> DownloadGroup {
         let group = DownloadGroup(manager: self)
         
         return group
@@ -85,7 +85,7 @@ public class DownloadManager {
     - parameter progressCallback: download progress callback for this particular download
     - parameter completionCallback: download completion callback for this particular download
     */
-    public func download(url url: String, additionalHeaders: [String: String]? = nil, progressCallback: DownloadProgressCallback?, completionCallback: DownloadCompletionCallback?) -> Download {
+    open func download(_ url: String, additionalHeaders: [String: String]? = nil, progressCallback: DownloadProgressCallback?, completionCallback: DownloadCompletionCallback?) -> Download {
         log.debug("Starting download for url '\(url)'")
         
         let download = Download(url: url)
@@ -151,7 +151,7 @@ public class DownloadManager {
         let defaultHeaders = Alamofire.Manager.sharedInstance.session.configuration.HTTPAdditionalHeaders ?? [:]
         
         let bgSessionId = bgSessionId ?? "com.qvik.downloadManager"
-        let configuration = NSURLSessionConfiguration.backgroundSessionConfigurationWithIdentifier(bgSessionId)
+        let configuration = URLSessionConfiguration.background(withIdentifier: bgSessionId)
         configuration.HTTPAdditionalHeaders = defaultHeaders
         configuration.timeoutIntervalForResource = 30
         

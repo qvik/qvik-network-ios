@@ -33,45 +33,45 @@ Do not create Download objects directly but instead through a DownloadManager/Do
 
 All the methods in this class are thread safe.
 */
-public class Download: Equatable {
+open class Download: Equatable {
     public enum State {
-        case NotInitialized
-        case Starting
-        case InProgress
-        case Failed
-        case Completed
+        case notInitialized
+        case starting
+        case inProgress
+        case failed
+        case completed
     }
     
     /// Download progress callback
-    public var progressCallback: DownloadProgressCallback?
+    open var progressCallback: DownloadProgressCallback?
     
     /// Download completion callback
-    public var completionCallback: DownloadCompletionCallback?
+    open var completionCallback: DownloadCompletionCallback?
     
     /// Arbitrary user data for use by the caller
-    public var userData: AnyObject?
+    open var userData: AnyObject?
     
     /// URL of this download
-    private(set) public var url: String
+    fileprivate(set) open var url: String
     
     /// Download group of this download or nil if single download
-    internal(set) public var group: DownloadGroup?
+    internal(set) open var group: DownloadGroup?
     
     /// State of this download
-    internal(set) public var state: State
+    internal(set) open var state: State
     
     /// Number of bytes downloaded
-    internal(set) public var bytesDownloaded: UInt64
+    internal(set) open var bytesDownloaded: UInt64
     
     /// Total size of the download
-    internal(set) public var totalSize: UInt64?
+    internal(set) open var totalSize: UInt64?
     
     /// Error that occurred while downloading or nil if none
-    internal(set) public var error: NSError?
+    internal(set) open var error: NSError?
     
     init(url: String) {
         self.url = url
-        self.state = .NotInitialized
+        self.state = .notInitialized
         self.bytesDownloaded = 0
     }
 }

@@ -28,19 +28,19 @@ import QvikSwift
 An UIImageView that retrieves the image from ImageCache (default shared instance).
 */
 @IBDesignable
-public class CachedImageView: QvikImageView {
+open class CachedImageView: QvikImageView {
     /// Placeholder image view; used to display a temporary image (smaller or thumbnail) while actual image loads
-    private var placeholderImageView: UIImageView? = nil
+    fileprivate var placeholderImageView: UIImageView? = nil
     
     /// Single-color placeholder view in case there is no placeholder image
-    private var fadeInView: UIView? = nil
+    fileprivate var fadeInView: UIView? = nil
     
     /// Duration for fading in the loaded image, in case it is asynchronously loaded.
     @IBInspectable
-    public var imageFadeInDuration: NSTimeInterval = 0.3
+    open var imageFadeInDuration: TimeInterval = 0.3
     
     /// JPEG thumbnail data for the image. Should set this before layout cycle.
-    public var thumbnailData: NSData? = nil {
+    open var thumbnailData: Data? = nil {
         didSet {
             reset()
             setNeedsLayout()
@@ -48,16 +48,16 @@ public class CachedImageView: QvikImageView {
     }
 
     /// Dominant color of the image (and thumbnail). If set, will be displayed while thumbnail image is loaded.
-    public var thumbnailDominantColor: UIColor? = nil
+    open var thumbnailDominantColor: UIColor? = nil
 
     /// Preview thumbnail blur radius (size of the convolution kernel)
-    public var thumbnailBlurRadius: Double = 7.0
+    open var thumbnailBlurRadius: Double = 7.0
 
     /// Whether caching thumbnail images is enabled. Disable for less memory usage but poorer reuse performance.
-    public var enableThumbnailCaching = true
+    open var enableThumbnailCaching = true
 
     /// Fade-in timeout for the thumbnail in case it was loaded asynchronously, in seconds.
-    public var thumbnailFadeInDuration: NSTimeInterval = 0.1 {
+    open var thumbnailFadeInDuration: TimeInterval = 0.1 {
         didSet {
             assert(thumbnailFadeInDuration >= 0.0, "Must not use a negative value!")
         }
@@ -65,7 +65,7 @@ public class CachedImageView: QvikImageView {
 
     /// Color for a fade-in view; used in case ```thumbnailData``` is not set
     @IBInspectable
-    public var fadeInColor: UIColor? = nil {
+    open var fadeInColor: UIColor? = nil {
         didSet {
             reset()
             setNeedsLayout()
@@ -73,7 +73,7 @@ public class CachedImageView: QvikImageView {
     }
 
     /// Placeholder image; displayed while actual image loads.
-    public var placeholderImage: UIImage? = nil {
+    open var placeholderImage: UIImage? = nil {
         didSet {
             reset()
             setNeedsLayout()
@@ -81,35 +81,35 @@ public class CachedImageView: QvikImageView {
     }
 
     /// ImageCache instance to use. Default value is the shared instance.
-    public var imageCache = ImageCache.sharedInstance()
+    open var imageCache = ImageCache.sharedInstance()
     
     /// Callback to be called when the image changes.
-    public var imageChangedCallback: (Void -> Void)?
+    open var imageChangedCallback: ((Void) -> Void)?
     
     /// Whether to automaticallty respond to image load notification
     @IBInspectable
-    public var ignoreLoadNotification = false
+    open var ignoreLoadNotification = false
     
-    override public var image: UIImage? {
+    override open var image: UIImage? {
         didSet {
             imageChangedCallback?()
         }
     }
     
     /// Image URL. Setting this will cause the view to automatically load the image
-    public var imageUrl: String? = nil {
+    open var imageUrl: String? = nil {
         didSet {
-            assert(NSThread.isMainThread(), "Must be called on main thread!")
+            assert(Thread.isMainThread, "Must be called on main thread!")
 
             reset()
             
-            if let imageUrl = imageUrl where imageUrl.length > 0 {
+            if let imageUrl = imageUrl , imageUrl.length > 0 {
                 if imageUrl == oldValue {
                     // No need to do anything
                     return
                 }
                 
-                self.image = imageCache.getImage(url: imageUrl, loadPolicy: .Network)
+                self.image = imageCache.getImage(url: imageUrl, loadPolicy: .network)
             } else {
                 self.image = nil
             }
@@ -117,15 +117,15 @@ public class CachedImageView: QvikImageView {
     }
 
     /// Load the thumbnail image from either in-memory cache or from the JPEG data.
-    private func loadThumbnail(fromData fromData: NSData, completionCallback: ((thumbnail: UIImage?, async: Bool) -> Void)) {
+    fileprivate func loadThumbnail(_ fromData: Data, completionCallback: @escaping ((_ thumbnail: UIImage?, _ async: Bool) -> Void)) {
         guard let md5 = self.thumbnailData?.md5().toHexString() else {
             log.error("Failed to calculate md5 string out of thumb data!")
-            completionCallback(thumbnail: nil, async: false)
+            completionCallback(nil, false)
             return
         }
 
         // Check if the image is present in in-memory cache
-        if let thumbImage = ImageCache.sharedInstance().getImage(url: md5, loadPolicy: .Memory) where enableThumbnailCaching {
+        if let thumbImage = ImageCache.sharedInstance().getImage(url: md5, loadPolicy: .Memory) , enableThumbnailCaching {
             completionCallback(thumbnail: thumbImage, async: false)
         }
 
@@ -133,7 +133,7 @@ public class CachedImageView: QvikImageView {
         runInBackground {
             let thumbImage = jpegThumbnailDataToImage(data: fromData, maxSize: self.frame.size, thumbnailBlurRadius: self.thumbnailBlurRadius)
 
-            if let thumbImage = thumbImage where self.enableThumbnailCaching {
+            if let thumbImage = thumbImage , self.enableThumbnailCaching {
                 // Put into in-memory cache
                 ImageCache.sharedInstance().putImage(image: thumbImage, url: md5, storeOnDisk: false)
             }
@@ -145,7 +145,7 @@ public class CachedImageView: QvikImageView {
     }
 
     /// Resets all the properties (extra views etc) to the original state
-    private func reset() {
+    fileprivate func reset() {
         placeholderImageView?.removeFromSuperview()
         placeholderImageView = nil
         fadeInView?.removeFromSuperview()
@@ -158,14 +158,14 @@ public class CachedImageView: QvikImageView {
      
      Extending classes may override this to change the default behavior.
      */
-    public func imageLoaded() {
+    open func imageLoaded() {
         if let imageUrl = self.imageUrl {
-            if let image = ImageCache.sharedInstance().getImage(url: imageUrl, loadPolicy: .Memory) {
+            if let image = ImageCache.sharedInstance().getImage(url: imageUrl, loadPolicy: .memory) {
                 // Image loaded & found
                 self.image = image
                 
                 // Fade out the thumbnail view
-                UIView.animateWithDuration(imageFadeInDuration, animations: {
+                UIView.animate(withDuration: imageFadeInDuration, animations: {
                     self.placeholderImageView?.alpha = 0.0
                     self.fadeInView?.alpha = 0.0
                     }, completion: { finished in
@@ -175,14 +175,14 @@ public class CachedImageView: QvikImageView {
         }
     }
     
-    func imageLoadedNotification(notification: NSNotification) {
-        assert(NSThread.isMainThread(), "Must be called on main thread!")
+    func imageLoadedNotification(_ notification: Notification) {
+        assert(Thread.isMainThread, "Must be called on main thread!")
         
         if ignoreLoadNotification {
             return
         }
         
-        if let imageUrl = notification.userInfo?[ImageCache.urlParam] as? String {
+        if let imageUrl = (notification as NSNotification).userInfo?[ImageCache.urlParam] as? String {
             if imageUrl == self.imageUrl {
                 imageLoaded()
             }
@@ -190,10 +190,10 @@ public class CachedImageView: QvikImageView {
     }
     
     deinit {
-        NSNotificationCenter.defaultCenter().removeObserver(self)
+        NotificationCenter.default.removeObserver(self)
     }
 
-    override public func layoutSubviews() {
+    override open func layoutSubviews() {
         super.layoutSubviews()
         
         if image == nil {
@@ -212,18 +212,18 @@ public class CachedImageView: QvikImageView {
                     placeholderImageView!.contentMode = self.contentMode
 
                     // While thumbnail loads, set background color for the placeholderImageView to match thumb's average color
-                    let backgroundColor = thumbnailDominantColor ?? UIColor.whiteColor()
+                    let backgroundColor = thumbnailDominantColor ?? UIColor.white
                     placeholderImageView?.backgroundColor = backgroundColor
                     self.backgroundColor = backgroundColor
 
-                    loadThumbnail(fromData: thumbnailData) { (thumbnailImage, async) in
+                    loadThumbnail(thumbnailData) { (thumbnailImage, async) in
                         self.placeholderImageView?.image = thumbnailImage
                         self.image = thumbnailImage
 
                         if async {
                             // Fade in the thumbnail 
                             self.placeholderImageView?.alpha = 0
-                            UIView.animateWithDuration(self.thumbnailFadeInDuration, animations: {
+                            UIView.animate(withDuration: self.thumbnailFadeInDuration, animations: {
                                 self.placeholderImageView?.alpha = 1
                                 }, completion: { finished in
 
@@ -233,7 +233,7 @@ public class CachedImageView: QvikImageView {
 
                     insertSubview(placeholderImageView!, atIndex: 0)
                 }
-            } else if let fadeInColor = fadeInColor where placeholderImageView == nil {
+            } else if let fadeInColor = fadeInColor , placeholderImageView == nil {
                 if fadeInView == nil {
                     // No thumbnail data set; show a colored fade-in view
                     fadeInView = UIView(frame: self.bounds)
@@ -247,8 +247,8 @@ public class CachedImageView: QvikImageView {
         fadeInView?.frame = self.frame
     }
 
-    private func commonInit() {
-        NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(imageLoadedNotification), name: ImageCache.cacheImageLoadedNotification, object: nil)
+    fileprivate func commonInit() {
+        NotificationCenter.default.addObserver(self, selector: #selector(imageLoadedNotification), name: NSNotification.Name(rawValue: ImageCache.cacheImageLoadedNotification), object: nil)
     }
 
     required public init?(coder: NSCoder) {

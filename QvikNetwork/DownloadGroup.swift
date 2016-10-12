@@ -23,8 +23,8 @@
 import Foundation
 import QvikSwift
 
-public typealias DownloadGroupProgressCallback = (totalBytesRead: UInt64, progress: Double) -> ()
-public typealias GroupDownloadCompletionCallback = (numErrors: Int) -> ()
+public typealias DownloadGroupProgressCallback = (_ totalBytesRead: UInt64, _ progress: Double) -> ()
+public typealias GroupDownloadCompletionCallback = (_ numErrors: Int) -> ()
 
 /**
 A download group can be used to 'group' downloads together; ie, when batch-downloading
@@ -35,28 +35,28 @@ Do not create DownloadGroup objects directly but instead through a DownloadManag
 
 All the methods in this class are thread safe.
 */
-public class DownloadGroup {    
+open class DownloadGroup {    
     /// Download progress callback
-    public var progressCallback: DownloadGroupProgressCallback?
+    open var progressCallback: DownloadGroupProgressCallback?
     
     /// Download completion callback
-    public var completionCallback: GroupDownloadCompletionCallback?
+    open var completionCallback: GroupDownloadCompletionCallback?
     
     /// Arbitrary user data for use by the caller
-    public var userData: AnyObject?
+    open var userData: AnyObject?
     
     /// Reference to the download manager that created this object
-    private(set) var manager: DownloadManager
+    fileprivate(set) var manager: DownloadManager
     
     /// Downloads of this group
-    private(set) public var downloads = [Download]()
+    fileprivate(set) open var downloads = [Download]()
     
     // Read/write lock for synchornizing access to downloads array
-    private let lock = ReadWriteLock()
+    fileprivate let lock = ReadWriteLock()
     
     // MARK: Private methods
     
-    private func notifyProgress() {
+    fileprivate func notifyProgress() {
         var bytesDownloaded: UInt64 = 0
         var completed = true
         var progress = 0.0
@@ -90,13 +90,13 @@ public class DownloadGroup {
         log.debug("progress: \(progress), numDownloads = \(numDownloads)")
         
         if let progressCallback = progressCallback {
-            progressCallback(totalBytesRead: bytesDownloaded, progress: progress)
+            progressCallback(bytesDownloaded, progress)
         }
         
         if let completionCallback = completionCallback {
             if completed {
                 log.debug("Calling group completionCallback")
-                completionCallback(numErrors: errors)
+                completionCallback(errors)
             }
         }
     }
@@ -104,7 +104,7 @@ public class DownloadGroup {
     // MARK: Public methods
     
     /// Indicates whether all the downloads in the group have completed
-    public var completed: Bool {
+    open var completed: Bool {
         return lock.withReadLock {
             for download in self.downloads {
                 if download.state != .Completed {
@@ -118,7 +118,7 @@ public class DownloadGroup {
     /**
     Starts a new download within the download group.
     */
-    public func download(url url: String, additionalHeaders: [String: String]? = nil) -> Download {
+    open func download(_ url: String, additionalHeaders: [String: String]? = nil) -> Download {
         let download = manager.download(url: url, additionalHeaders: additionalHeaders, progressCallback: { [weak self] (bytesRead, totalBytesRead, totalBytesExpectedToRead) -> ()  in
             self?.notifyProgress()
         }) { [weak self] (error, response, data) -> () in

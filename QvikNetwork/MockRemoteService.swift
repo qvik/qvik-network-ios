@@ -28,47 +28,47 @@ import QvikSwift
 /**
  This class can be used for writing Unit Tests around ```BaseRemoteService``` functionality.
  */
-public class MockRemoteService: BaseRemoteService {
+open class MockRemoteService: BaseRemoteService {
     /// This type represents a success/failure condition by path. 
     public typealias OperationMapping = (failureProbability: Double, params: [String: AnyObject]?, successResponse: AnyObject?, failureResponse: AnyObject?, failureError: RemoteResponse.RemoteError)
 
     /// Minimum duration (in seconds) for receiving response. Can be used to simulate network latency.
-    private(set) public var minResponseTime: NSTimeInterval = 0.01
+    fileprivate(set) open var minResponseTime: TimeInterval = 0.01
 
     /// Maximum duration (in seconds) for receiving response. Can be used to simulate network latency.
-    private(set) public var maxResponseTime: NSTimeInterval = 0.1
+    fileprivate(set) open var maxResponseTime: TimeInterval = 0.1
 
     /// Operation success/failure mappings by path.
-    private var operationMappingsByPath = [String: OperationMapping]()
+    fileprivate var operationMappingsByPath = [String: OperationMapping]()
 
     /// Probability [0, 1] for failure (unless overridden by a mapping)
-    public var failureProbability: Double = 0 {
+    open var failureProbability: Double = 0 {
         didSet {
             assert(failureProbability >= 0 && failureProbability <= 1, "Must be within [0, 1]")
         }
     }
 
     /// Simulated error condition for failures. 
-    public var failureError: RemoteResponse.RemoteError = .ServerError
+    open var failureError: RemoteResponse.RemoteError = .serverError
 
     /// Response content for successful operations (unless overridden by a mapping)
-    public var successResponse: AnyObject?
+    open var successResponse: AnyObject?
 
     /// Response content for failed operations (unless overridden by a mapping)
-    public var failureResponse: AnyObject?
+    open var failureResponse: AnyObject?
 
     /// Compares two AnyObject values for equality, by attempting to cast them to the same types
     /// and comparing the casted values if successful. Only basic types supported.
-    private func compareValues(valueA: AnyObject, _ valueB: AnyObject) -> Bool {
-        if let intA = valueA as? Int, intB = valueB as? Int where intA == intB {
+    fileprivate func compareValues(_ valueA: AnyObject, _ valueB: AnyObject) -> Bool {
+        if let intA = valueA as? Int, let intB = valueB as? Int , intA == intB {
             return true
         }
 
-        if let strA = valueA as? String, strB = valueB as? String where strA == strB {
+        if let strA = valueA as? String, let strB = valueB as? String , strA == strB {
             return true
         }
 
-        if let dblA = valueA as? Double, dblB = valueB as? Double where dblA == dblB {
+        if let dblA = valueA as? Double, let dblB = valueB as? Double , dblA == dblB {
             return true
         }
 
@@ -76,7 +76,7 @@ public class MockRemoteService: BaseRemoteService {
     }
 
     /// Processes an operation mapping and decides on success/failure.
-    private func handleMapping(mapping: OperationMapping, requestParams: [String: AnyObject]?, callback: ((RemoteResponse) -> Void)) {
+    fileprivate func handleMapping(_ mapping: OperationMapping, requestParams: [String: AnyObject]?, callback: @escaping ((RemoteResponse) -> Void)) {
         let triggerSuccess = {
             callback(RemoteResponse(json: mapping.successResponse))
         }
@@ -121,7 +121,7 @@ public class MockRemoteService: BaseRemoteService {
      - parameter minResponseTime: Minimum duration (in seconds) for receiving response. Must be > 0.
      - parameter maxResponseTime: Maximum duration (in seconds) for receiving response. Must be > 0.
      */
-    public func setResponseTimeLimits(minResponseTime min: NSTimeInterval, maxResponseTime max: NSTimeInterval) {
+    open func setResponseTimeLimits(minResponseTime min: TimeInterval, maxResponseTime max: TimeInterval) {
         assert(min > 0, "Must be > 0")
         assert(max > 0, "Must be > 0")
         assert(min <= max, "Must be minResponseTime <= maxResponseTime")
@@ -141,7 +141,7 @@ public class MockRemoteService: BaseRemoteService {
      
      In case of success, ```successResponse``` is set to the response's parsedResponseJson body. RemoteError is set to nil.
      */
-    public func addOperationMappingForPath(path: String, mapping: OperationMapping) {
+    open func addOperationMappingForPath(_ path: String, mapping: OperationMapping) {
         assert(mapping.failureProbability >= 0 && mapping.failureProbability <= 1, "Must be in range [0, 1]")
 
         operationMappingsByPath[path] = mapping
@@ -156,14 +156,14 @@ public class MockRemoteService: BaseRemoteService {
      - parameter encoding: Request encoding
      - parameter headers: Any extra headers
      */
-    override public func request(method: Alamofire.Method, _ URLString: URLStringConvertible, parameters: [String: AnyObject]?, encoding: ParameterEncoding = .URL, headers: [String: String]? = nil, callback: ((RemoteResponse) -> Void)) {
+    override open func request(_ method: Alamofire.Method, _ URLString: URLStringConvertible, parameters: [String: AnyObject]?, encoding: ParameterEncoding = .URL, headers: [String: String]? = nil, callback: @escaping ((RemoteResponse) -> Void)) {
 
         // Simulate network latency
         let requestDuration = (maxResponseTime - minResponseTime) * Double.random() + minResponseTime
         log.verbose("Request will take \(requestDuration) seconds")
 
         runOnMainThreadAfter(delay: requestDuration) {
-            guard let url = NSURL(string: URLString.URLString), urlPath = url.path else {
+            guard let url = NSURL(string: URLString.URLString), let urlPath = url.path else {
                 log.error("Invalid URL given: \(URLString.URLString)")
                 callback(RemoteResponse(remoteError: .ClientError))
                 return

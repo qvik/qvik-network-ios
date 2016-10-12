@@ -25,65 +25,67 @@ import Foundation
 /**
  Represents a response from the server.
 */
-public class RemoteResponse {
-    public enum RemoteError {
-        case ClientError
-        case NetworkError
-        case NetworkTimeout
-        case BadCredentials
-        case ServerError
-        case NotFound
+open class RemoteResponse {
+    public enum Errors {
+        case clientError
+        case networkError
+        case networkTimeout
+        case badCredentials
+        case serverError
+        case notFound
+        case badResponse
     }
     
     /// Type of error in the API call, or nil if success
-    private(set) public var remoteError: RemoteError?
+    fileprivate(set) open var remoteError: Errors?
     
     /// Underlying NSError, if any
-    private(set) public var nsError: NSError?
-    
-    /// Response JSON, or nil if no JSON in response
-    private(set) public var parsedResponseJson: AnyObject?
+//    fileprivate(set) open var nsError: NSError?
+
+    /// Response content
+    fileprivate(set) open var content: Any?
 
     /// Convenience accessor for dictionary (JSON object) response JSON
-    public var parsedJson: [String: AnyObject]? {
-        return parsedResponseJson as? [String: AnyObject]
+    open var contentJson: [String: AnyObject]? {
+        return content as? [String: AnyObject]
     }
 
     /// Convenience accessor for array (JSON array) response JSON
-    public var parsedJsonArray: [[String: AnyObject]]? {
-        return parsedResponseJson as? [[String: AnyObject]]
+    open var contentJsonArray: [[String: AnyObject]]? {
+        return content as? [[String: AnyObject]]
     }
 
     /// Whether the request was successful or not
-    public var success: Bool {
-        return (remoteError == nil) && (nsError == nil)
+    open var success: Bool {
+//        return (remoteError == nil) && (nsError == nil)
+        return (remoteError == nil)
     }
     
-    public init() {
-    }
-    
-    public init(json: AnyObject?) {
-        self.parsedResponseJson = json
+//    public init() {
+//    }
+
+    public init(content: Any?) {
+        self.content = content
     }
 
-    public init(remoteError: RemoteError) {
+    public init(remoteError: Errors) {
         self.remoteError = remoteError
     }
 
-    public init(remoteError: RemoteError?, json: AnyObject?) {
+    public init(remoteError: Errors?, content: Any?) {
         self.remoteError = remoteError
-        self.parsedResponseJson = json
+        self.content = content
     }
 
-    public init(nsError: NSError?, remoteError: RemoteError?, json: AnyObject?) {
-        self.nsError = nsError
-        self.remoteError = remoteError
-        self.parsedResponseJson = json
-    }
+//    public init(nsError: NSError?, remoteError: Errors?, json: AnyObject?) {
+//        self.nsError = nsError
+//        self.remoteError = remoteError
+//        self.parsedResponseJson = json
+//    }
 }
 
 extension RemoteResponse: CustomStringConvertible {
     public var description: String {
-        return "RemoteResponse: remoteError: \(remoteError), nsError: \(nsError), parsedJson: \(parsedJson)"
+        return "RemoteResponse: remoteError: \(remoteError), content: \(content)"
     }
 }

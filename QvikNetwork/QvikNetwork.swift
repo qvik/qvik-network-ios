@@ -25,37 +25,37 @@ import XCGLogger
 
 let log = QvikNetwork.createLogger()
 
-public class QvikNetwork {
+open class QvikNetwork {
     public enum LogLevel {
-        case Info
-        case Debug
-        case Verbose
+        case info
+        case debug
+        case verbose
     }
     
-    private static func createLogger() -> XCGLogger {
+    fileprivate static func createLogger() -> XCGLogger {
         let logger = XCGLogger(identifier: "QvikNetwork")
         logger.setup(.Info, showLogLevel: true, showFileNames: true, showLineNumbers: true, writeToFile: nil, fileLogLevel: nil)
         
         return logger
     }
 
-    @available(*, deprecated, message="use .logLevel instead")
-    public static var debugLogging = false {
+    @available(*, deprecated, message: "use .logLevel instead")
+    open static var debugLogging = false {
         didSet {
-            QvikNetwork.logLevel = debugLogging ? .Debug : .Info
+            QvikNetwork.logLevel = debugLogging ? .debug : .info
         }
     }
     
-    public static var logLevel = QvikNetwork.LogLevel.Info {
+    open static var logLevel = QvikNetwork.LogLevel.info {
         didSet {
             let level: XCGLogger.LogLevel
             
             switch logLevel {
-            case .Info:
+            case .info:
                 level = .Info
-            case .Debug:
+            case .debug:
                 level = .Debug
-            case .Verbose:
+            case .verbose:
                 level = .Verbose
             }
             

@@ -1,17 +1,15 @@
-platform :ios, '8.0'
+platform :ios, '9.0'
 use_frameworks!
 
 source 'https://github.com/CocoaPods/Specs.git'
 source 'https://github.com/qvik/qvik-podspecs.git'
 
 def pods
-  pod 'Alamofire', '~> 3.0'
-  pod 'QvikSwift', '~> 2.0.0'
-#  pod 'QvikSwift', :path => '../qvik-swift-ios/'
-  pod 'XCGLogger', '~> 3.0'
-  pod 'CryptoSwift', '~> 0.5.1'
-  pod 'SwiftKeychain', '~> 0.1'
-  pod 'SwiftGifOrigin', '~> 1.5'
+  pod 'Alamofire', '~> 4.0'
+  #  pod 'QvikSwift', '~> 3.0'
+  pod 'QvikSwift', :path => '../qvik-swift-ios/'
+  pod 'XCGLogger', '~> 4.0'
+  pod 'CryptoSwift', '~> 0.6'
 end
 
 target 'QvikNetwork' do

@@ -22,7 +22,6 @@
 
 import UIKit
 import CryptoSwift
-import SwiftGifOrigin
 
 import QvikSwift
 
@@ -45,41 +44,41 @@ All notifications are sent on the main (UI) thread.
 
 All the methods of this class are thread safe.
 */
-public class ImageCache: NSObject {
+open class ImageCache: NSObject {
     public enum FileFormat: String {
         case JPEG = "image/jpeg"
         case PNG = "image/png"
     }
     
-    public static let cacheImageLoadedNotification = "cacheImageLoadedNotification"
-    public static let cacheImageLoadFailedNotification = "cacheImageLoadFailedNotification"
-    public static let urlParam = "urlParam"
+    open static let cacheImageLoadedNotification = "cacheImageLoadedNotification"
+    open static let cacheImageLoadFailedNotification = "cacheImageLoadFailedNotification"
+    open static let urlParam = "urlParam"
     
-    private static let singletonInstance = ImageCache()
+    fileprivate static let singletonInstance = ImageCache()
     
     /// Returns the absolute path of the image disk cache directory
-    private(set) public var path: NSString
+    fileprivate(set) open var path: NSString
     
     /** 
     Maximum dimensions for images to store on disk; any image with width/height
     larger than these are downscaled after downloading. Aspect ratio is retained.
     By default this is not set.
     */
-    public var maximumImageDimensions: CGSize?
+    open var maximumImageDimensions: CGSize?
 
     /**
     Maximum age for unused files in the file cache, in seconds. Default is 30 days.
     */
-    public var maximumUnusedFileAge: NSTimeInterval = 30 * 24 * 60 * 60
+    open var maximumUnusedFileAge: TimeInterval = 30 * 24 * 60 * 60
     
     /**
     Format to store the downloaded files. By default it is not set and images
     of supported formats (see FileFormat enum) are written to the disk as-is.
     */
-    public var fileFormat: FileFormat?
+    open var fileFormat: FileFormat?
     
     /// Quality of JPEG compression; must be in range [0, 1]. Default value is 0.9.
-    public var jpegQuality: CGFloat = 0.9 {
+    open var jpegQuality: CGFloat = 0.9 {
         didSet {
             assert(jpegQuality >= 0.0, "Allowed value range is 0..1")
             assert(jpegQuality <= 1.0, "Allowed value range is 0..1")
@@ -87,38 +86,38 @@ public class ImageCache: NSObject {
     }
     
     /// The memory cache dictionary
-    private var inMemoryCache = [String: UIImage]()
+    fileprivate var inMemoryCache = [String: UIImage]()
     
     /// Lock for synchronizing access to the in-memory cache
-    private let lock = ReadWriteLock()
+    fileprivate let lock = ReadWriteLock()
     
     /// GCD queue for performing all disk operations
-    private let diskOperationQueue: dispatch_queue_t
+    fileprivate let diskOperationQueue: DispatchQueue
     
-    private let fileManager = NSFileManager.defaultManager()
-    private let downloadManager = DownloadManager.sharedInstance()
+    fileprivate let fileManager = FileManager.default
+    fileprivate let downloadManager = DownloadManager.sharedInstance()
     
     // MARK: Private methods
     
     /// Creates a file path for a given URL. 
-    private func getFilePath(url url: String) -> String {
+    fileprivate func getFilePath(_ url: String) -> String {
         return path.stringByAppendingPathComponent(url.md5())
     }
     
     /// Makes sure the image cache directory exists
-    private func checkCacheDirExists() {
+    fileprivate func checkCacheDirExists() {
         do {
             var isDirectory: ObjCBool = true
-            var exists = fileManager.fileExistsAtPath(path as String, isDirectory: &isDirectory)
+            var exists = fileManager.fileExists(atPath: path as String, isDirectory: &isDirectory)
             if exists && !isDirectory {
                 // This should obviously never happen ..
                 log.error("File system entry for image cache path is a file!")
-                try fileManager.removeItemAtPath(path as String)
+                try fileManager.removeItem(atPath: path as String)
                 exists = false
             }
             
             if !exists {
-                try fileManager.createDirectoryAtPath(path as String, withIntermediateDirectories: true, attributes: nil)
+                try fileManager.createDirectory(atPath: path as String, withIntermediateDirectories: true, attributes: nil)
             }
         } catch let error {
             log.error("Failed to create image cache directory \(self.path), error: \(error)")
@@ -127,7 +126,7 @@ public class ImageCache: NSObject {
     }
     
     /// Responds to memory warning; clears the memory cache
-    func memoryWarningNotification(notification: NSNotification) {
+    func memoryWarningNotification(_ notification: Notification) {
         log.info("Memory warning received; dumping cache contents.")
         
         lock.withWriteLock {
@@ -136,25 +135,25 @@ public class ImageCache: NSObject {
     }
 
     /// Checks disk cache and removes entries older than fileMaxAge.
-    private func reapDiskCache() {
-        dispatch_async(diskOperationQueue) {
+    fileprivate func reapDiskCache() {
+        diskOperationQueue.async {
             let error: NSError? = nil
             let contents: [String]?
             
             do {
-                contents = try self.fileManager.contentsOfDirectoryAtPath(self.path as String)
+                contents = try self.fileManager.contentsOfDirectory(atPath: self.path as String)
             } catch let error as NSError {
                 log.error("Failed to get contents of disk cache directory, error: \(error)")
                 return
             }
             
             for entry in contents! {
-                let filePath = self.path.stringByAppendingPathComponent(entry)
+                let filePath = self.path.appendingPathComponent(entry)
                 
                 let attributes: NSDictionary?
                 
                 do {
-                    attributes = try self.fileManager.attributesOfItemAtPath(filePath)
+                    attributes = try self.fileManager.attributesOfItem(atPath: filePath) as NSDictionary?
                 } catch let error as NSError {
                     log.error("Failed to get attributes of file at path: \(filePath), error: \(error)")
                     attributes = nil
@@ -164,7 +163,7 @@ public class ImageCache: NSObject {
                         if -modified.timeIntervalSinceNow > self.maximumUnusedFileAge {
                             log.verbose("Removing old unused file at path: \(filePath)")
                             do {
-                                try self.fileManager.removeItemAtPath(filePath)
+                                try self.fileManager.removeItem(atPath: filePath)
                             } catch let error as NSError {
                                 log.error("Failed to remove file at path: \(filePath), error: \(error)")
                             }
@@ -179,7 +178,7 @@ public class ImageCache: NSObject {
     
     /// Inserts the image synchronously to the in-memory cache in a thread safe 
     /// manner and sends a loading notification
-    private func insertToMemoryCache(image image: UIImage, url: String) {
+    fileprivate func insertToMemoryCache(_ image: UIImage, url: String) {
         lock.withWriteLock {
             self.inMemoryCache[url] = image
         }
@@ -194,19 +193,19 @@ public class ImageCache: NSObject {
     
     /// Encodes image data to the format specified by ´´´self.fileFormat´´´ and writes it to the disk 
     /// to a given path.
-    private func encodeAndWriteImageToDisk(image image: UIImage, filePath: String) {
-        dispatch_async(diskOperationQueue) {
+    fileprivate func encodeAndWriteImageToDisk(_ image: UIImage, filePath: String) {
+        diskOperationQueue.async {
             autoreleasepool {
                 let fileFormat = self.fileFormat ?? FileFormat.PNG
                 
                 if fileFormat == .JPEG {
-                    if !UIImageJPEGRepresentation(image, self.jpegQuality)!.writeToFile(filePath, atomically: true) {
+                    if !((try? UIImageJPEGRepresentation(image, self.jpegQuality)!.write(to: URL(fileURLWithPath: filePath), options: [.atomic])) != nil) {
                         log.verbose("Failed to write JPEG file \(filePath)")
                     } else {
                         log.verbose("JPEG image written to path \(filePath)")
                     }
                 } else {
-                    if !UIImagePNGRepresentation(image)!.writeToFile(filePath, atomically: true) {
+                    if !((try? UIImagePNGRepresentation(image)!.write(to: URL(fileURLWithPath: filePath), options: [.atomic])) != nil) {
                         log.verbose("Failed to write PNG file \(filePath)")
                     } else {
                         log.verbose("PNG image written to path \(filePath)")
@@ -218,40 +217,40 @@ public class ImageCache: NSObject {
     
     /// Figure out the type of the file in the response and write to the disk, possibly avoiding the
     /// re-encoding in case the cache was configured to use the file format in the response
-    private func writeResponseImageToDisk(image image: UIImage, url: String, response: NSHTTPURLResponse?, data: NSData?) {
-        dispatch_async(diskOperationQueue) {
+    fileprivate func writeResponseImageToDisk(_ image: UIImage, url: String, response: HTTPURLResponse?, data: Data?) {
+        diskOperationQueue.async {
             self.checkCacheDirExists()
             
-            let filePath = self.getFilePath(url: url)
+            let filePath = self.getFilePath(url)
             
             do {
-                try self.fileManager.removeItemAtPath(filePath) // First remove the file if it exists
+                try self.fileManager.removeItem(atPath: filePath) // First remove the file if it exists
             } catch {
                 // Not found, can ignore
             }
             
-            let contentType = (response?.allHeaderFields["content-type"] as? String)?.lowercaseString
+            let contentType = (response?.allHeaderFields["content-type"] as? String)?.lowercased()
             
             // If fileFormat matches the response's content type and data is set, we can directly write the data
             if ((contentType == gifMimeType) || (self.fileFormat == nil) || (contentType == self.fileFormat!.rawValue)) && (data != nil) {
                 log.verbose("Content type matches (or is GIF) or is not set and data is set - writing as pass-through")
-                data!.writeToFile(filePath, atomically: true)
+                try? data!.write(to: URL(fileURLWithPath: filePath), options: [.atomic])
             } else {
                 // File format does not match or image has been downscaled; we must re-compress into selected format
-                self.encodeAndWriteImageToDisk(image: image, filePath: filePath)
+                self.encodeAndWriteImageToDisk(image, filePath: filePath)
             }
         }
     }
     
     /// Fetches an image from an URL, storing it to disk/in-memory caches if 
     /// successful and notifying on completion
-    private func fetchImage(url url: String) {
+    fileprivate func fetchImage(_ url: String) {
         log.verbose("Fetching image from URL: \(url)")
         
         self.downloadManager.download(url: url, additionalHeaders: nil, progressCallback: nil) { (error, response, data) -> () in
             if let error = error {
                 log.warning("Image download failed for URL: \(url), error: \(error)")
-                NSNotificationCenter.defaultCenter().postNotificationName(ImageCache.cacheImageLoadFailedNotification, object: self, userInfo: [ImageCache.urlParam: url])
+                NotificationCenter.default.post(name: Notification.Name(rawValue: ImageCache.cacheImageLoadFailedNotification), object: self, userInfo: [ImageCache.urlParam: url])
             } else {
                 if let data = data {
                     log.verbose("Response headers: \(response!.allHeaderFields)")
@@ -276,7 +275,7 @@ public class ImageCache: NSObject {
                         
                         var data: NSData? = data
                         
-                        if let maximumImageDimensions = self.maximumImageDimensions where !isGif {
+                        if let maximumImageDimensions = self.maximumImageDimensions , !isGif {
                             log.verbose("Downscaling the downloaded image to max size: \(maximumImageDimensions)")
                             image = image!.scaleDown(maxSize: maximumImageDimensions)
                             data = nil
@@ -290,7 +289,7 @@ public class ImageCache: NSObject {
                     }
                 } else {
                     log.error("Missing image data in response!")
-                    NSNotificationCenter.defaultCenter().postNotificationName(ImageCache.cacheImageLoadFailedNotification, object: self, userInfo: [ImageCache.urlParam: url])
+                    NotificationCenter.default.post(name: Notification.Name(rawValue: ImageCache.cacheImageLoadFailedNotification), object: self, userInfo: [ImageCache.urlParam: url])
                 }
             }
         }
@@ -305,7 +304,7 @@ public class ImageCache: NSObject {
      
      - parameters clearDiskContents: whether to clear disk contents too. Defaults to ```true```.
      */
-    public func clearCache(clearDiskContents clearDiskContents: Bool = true) {
+    open func clearCache(clearDiskContents: Bool = true) {
         lock.withWriteLock {
             self.inMemoryCache.removeAll(keepCapacity: false)
         }
@@ -314,20 +313,20 @@ public class ImageCache: NSObject {
             return
         }
 
-        dispatch_async(diskOperationQueue) {
+        diskOperationQueue.async {
             let contents: [String]?
             do {
-                contents = try self.fileManager.contentsOfDirectoryAtPath(self.path as String)
+                contents = try self.fileManager.contentsOfDirectory(atPath: self.path as String)
             } catch let error {
                 log.error("Failed to get contents of disk cache directory, error: \(error)")
                 return
             }
             
             for entry in contents! {
-                let filePath = self.path.stringByAppendingPathComponent(entry)
+                let filePath = self.path.appendingPathComponent(entry)
                 do {
-                    if self.fileManager.fileExistsAtPath(filePath) {
-                        try self.fileManager.removeItemAtPath(filePath)
+                    if self.fileManager.fileExists(atPath: filePath) {
+                        try self.fileManager.removeItem(atPath: filePath)
                     }
                 } catch let error {
                     log.error("Failed to remove file on disk, error: \(error)")
@@ -348,18 +347,18 @@ public class ImageCache: NSObject {
      - parameter url: url for the image to remove
      - parameter removeFromDisk: whether to remove from disk also.
      */
-    public func removeImage(url url: String, removeFromDisk: Bool) {
+    open func removeImage(url: String, removeFromDisk: Bool) {
         lock.withWriteLock {
             self.inMemoryCache.removeValueForKey(url)
         }
         
         if removeFromDisk {
-            dispatch_async(diskOperationQueue) {
+            diskOperationQueue.async {
                 do {
-                    let filePath = self.getFilePath(url: url)
+                    let filePath = self.getFilePath(url)
 
-                    if self.fileManager.fileExistsAtPath(filePath) {
-                        try self.fileManager.removeItemAtPath(filePath)
+                    if self.fileManager.fileExists(atPath: filePath) {
+                        try self.fileManager.removeItem(atPath: filePath)
                     }
                 } catch let error {
                     log.error("Failed to remove file on disk, error: \(error)")
@@ -385,8 +384,8 @@ public class ImageCache: NSObject {
      - parameter url: URL of the image
      - parameter storeOnDisk: whether to store the image to the disk cache also.
      */
-    public func putImage(image originalImage: UIImage, url: String, storeOnDisk: Bool) {
-        if url.lowercaseString.hasSuffix(gifExtension) {
+    open func putImage(image originalImage: UIImage, url: String, storeOnDisk: Bool) {
+        if url.lowercased().hasSuffix(gifExtension) {
             log.warning("putImage() called with .gif extension; this method cannot be used to properly store gifs.")
         }
         
@@ -397,10 +396,10 @@ public class ImageCache: NSObject {
             imageToStore = originalImage.scaleDown(maxSize: maximumImageDimensions)
         }
 
-        insertToMemoryCache(image: imageToStore, url: url)
+        insertToMemoryCache(imageToStore, url: url)
         
         if storeOnDisk {
-            encodeAndWriteImageToDisk(image: imageToStore, filePath: getFilePath(url: url))
+            encodeAndWriteImageToDisk(imageToStore, filePath: getFilePath(url))
         }
     }
     
@@ -412,17 +411,17 @@ public class ImageCache: NSObject {
      - parameter imageData: image bytes to store
      - parameter url: URL of the image
      */
-    public func storeImage(imageData data: NSData, url: String) {
-        dispatch_async(diskOperationQueue) {
-            let filePath = self.getFilePath(url: url)
+    open func storeImage(imageData data: Data, url: String) {
+        diskOperationQueue.async {
+            let filePath = self.getFilePath(url)
             
             do {
-                try self.fileManager.removeItemAtPath(filePath) // First remove the file if it exists
+                try self.fileManager.removeItem(atPath: filePath) // First remove the file if it exists
             } catch {
                 // Not found, can ignore
             }
             
-            data.writeToFile(filePath, atomically: true)
+            try? data.write(to: URL(fileURLWithPath: filePath), options: [.atomic])
         }
     }
     
@@ -436,19 +435,19 @@ public class ImageCache: NSObject {
      
      - parameter fetch: if YES, treats the token as an URL and attempts to fetch the image over the internet.
      */
-    @available(*, deprecated, message="use the other overload instead. this will be removed in a (near) future release.")
-    public func getImage(url url: String, fetch: Bool = true) -> UIImage? {
-        return getImage(url: url, loadPolicy: fetch ? .Network : .Disk)
+    @available(*, deprecated, message: "use the other overload instead. this will be removed in a (near) future release.")
+    open func getImage(url: String, fetch: Bool = true) -> UIImage? {
+        return getImage(url: url, loadPolicy: fetch ? .network : .disk)
     }
 
     /// Where to look for an image being loaded from the cache.
     public enum CacheLoadPolicy {
         /// Look for the image only in the in-memory cache
-        case Memory
+        case memory
         /// Look for the image in in-memory cache and if not found, on the disk
-        case Disk
+        case disk
         /// Look for the image over the network if not found in in-memory cache or on the disk
-        case Network
+        case network
     }
     
     /**
@@ -462,7 +461,7 @@ public class ImageCache: NSObject {
      - parameter url: image URL to request
      - parameter loadPolicy: whether to look for the image only in in-memory cache, or also on disk and/or over network.
     */
-    public func getImage(url url: String, loadPolicy: CacheLoadPolicy) -> UIImage? {
+    open func getImage(url: String, loadPolicy: CacheLoadPolicy) -> UIImage? {
         log.verbose("getting image for url: \(url)")
         
         // Check if the image is found in the in-memory cache
@@ -475,20 +474,20 @@ public class ImageCache: NSObject {
             return image
         }
 
-        if loadPolicy == .Memory {
+        if loadPolicy == .memory {
             // Image not found in in-memory cache and we won't be looking any further!
             return nil
         }
         
-        dispatch_async(diskOperationQueue) {
-            let filePath = self.getFilePath(url: url)
+        diskOperationQueue.async {
+            let filePath = self.getFilePath(url)
 
             var image: UIImage?
             
-            if url.lowercaseString.hasSuffix(gifExtension) {
+            if url.lowercased().hasSuffix(gifExtension) {
                 // GIFs are handled differently
                 log.verbose("Loading a GIF image")
-                if let gifData = NSData(contentsOfFile: filePath) {
+                if let gifData = try? Data(contentsOf: URL(fileURLWithPath: filePath)) {
                     image = UIImage.gifWithData(gifData)
                 }
             } else {
@@ -500,19 +499,19 @@ public class ImageCache: NSObject {
                 // Image found in disk cache; 'touch' the file to update its timestamp
                 log.verbose("Image found on disk in path \(filePath)")
                 do {
-                    try self.fileManager.setAttributes([NSFileModificationDate: NSDate()], ofItemAtPath: filePath)
+                    try self.fileManager.setAttributes([FileAttributeKey.modificationDate: Date()], ofItemAtPath: filePath)
                 } catch let error {
                     log.error("Failed to update last modification date of file \(filePath), error: \(error)")
                 }
                 
-                self.insertToMemoryCache(image: image, url: url) // Will send loaded -notification
+                self.insertToMemoryCache(image, url: url) // Will send loaded -notification
             } else {
                 log.verbose("Image not found on disk.")
-                if loadPolicy == .Network {
+                if loadPolicy == .network {
                     if self.downloadManager.hasPendingDownload(url: url) {
                         log.verbose("Already fetching image from url \(url)")
                     } else {
-                        self.fetchImage(url: url)
+                        self.fetchImage(url)
                     }
                 }
             }
@@ -522,7 +521,7 @@ public class ImageCache: NSObject {
     }
     
     /// Whether an image for a given URL is present in the in-memory cache
-    public func availableInMemory(url url: String) -> Bool {
+    open func availableInMemory(url: String) -> Bool {
         let image = lock.withReadLock {
             return self.inMemoryCache[url]
         }
@@ -531,12 +530,12 @@ public class ImageCache: NSObject {
     }
 
     /// Returns a shared, singleton instance
-    public class func sharedInstance() -> ImageCache {
+    open class func sharedInstance() -> ImageCache {
         return singletonInstance
     }
 
     deinit {
-        NSNotificationCenter.defaultCenter().removeObserver(self)
+        NotificationCenter.default.removeObserver(self)
     }
     
     /**
@@ -548,10 +547,10 @@ public class ImageCache: NSObject {
     */
     public init(imagePath: String? = nil) {
         let imagePath = imagePath ?? "images"
-        let paths = NSSearchPathForDirectoriesInDomains(.CachesDirectory, .UserDomainMask, true)
+        let paths = NSSearchPathForDirectoriesInDomains(.cachesDirectory, .userDomainMask, true)
         let cacheRootDirectory = paths[0] as NSString
-        path = cacheRootDirectory.stringByAppendingPathComponent(imagePath)
-        diskOperationQueue = dispatch_queue_create("fi.qvik.ImageCache-\(imagePath ?? "default")", DISPATCH_QUEUE_SERIAL)
+        path = cacheRootDirectory.appendingPathComponent(imagePath) as NSString
+        diskOperationQueue = DispatchQueue(label: "fi.qvik.ImageCache-\(imagePath ?? "default")", attributes: [])
             
         super.init()
         
@@ -559,7 +558,7 @@ public class ImageCache: NSObject {
         
         checkCacheDirExists()
         
-        NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(ImageCache.memoryWarningNotification(_:)), name: UIApplicationDidReceiveMemoryWarningNotification, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(ImageCache.memoryWarningNotification(_:)), name: NSNotification.Name.UIApplicationDidReceiveMemoryWarning, object: nil)
         
         reapDiskCache()
     }

@@ -59,18 +59,18 @@ private let thumbHeaderIndexImageWidth = 2
 private let thumbHeaderIndexImageHeight = 3
 
 /// Map of registered custom data type -> JPEG header pairs.
-private var headerMap = [UInt8: NSData]()
+private var headerMap = [UInt8: Data]()
 
 /// Finds the (next) index of a give marker; returns index of the FF marker byte; the actual
 /// marker content (if any) begins at this index + 2 bytes.
-private func findMarker(marker: UInt8, startIndex: Int, data: UnsafePointer<UInt8>, dataLength: Int) -> Int? {
+private func findMarker(_ marker: UInt8, startIndex: Int, data: UnsafePointer<UInt8>, dataLength: Int) -> Int? {
     var index = startIndex
     var previousByte: UInt8? = nil
     
     while index < dataLength {
         let currentByte = data[index]
         
-        if let previousByte = previousByte where previousByte == jpegMarkerByte {
+        if let previousByte = previousByte, previousByte == jpegMarkerByte {
             if currentByte == marker {
                 // Requested marker found; return the index of the marker byte FF
                 return index - 1
@@ -85,10 +85,10 @@ private func findMarker(marker: UInt8, startIndex: Int, data: UnsafePointer<UInt
 }
 
 /// Writes the given image dimensions into the JPEG header in the given data. Returns true if successful
-private func writeImageSize(jpegData jpegData: NSData, imageWidth: UInt8, imageHeight: UInt8) -> Bool {
-    let bytes = UnsafeMutablePointer<UInt8>(jpegData.bytes)
+private func writeImageSize(_ jpegData: Data, imageWidth: UInt8, imageHeight: UInt8) -> Bool {
+    let bytes = UnsafeMutablePointer<UInt8>(mutating: (jpegData as NSData).bytes.bindMemory(to: UInt8.self, capacity: jpegData.count))
     
-    guard let sofIndex = findMarker(jpegSOF0Marker, startIndex: 0, data: bytes, dataLength: jpegData.length) else {
+    guard let sofIndex = findMarker(jpegSOF0Marker, startIndex: 0, data: bytes, dataLength: jpegData.count) else {
         log.error("Failed to locate SOF0 marker in JPEG data!")
         return false
     }
@@ -104,17 +104,17 @@ private func writeImageSize(jpegData jpegData: NSData, imageWidth: UInt8, imageH
 }
 
 /// Returns JPEG image data out of a complete JPEG data, omitting any 'headers' including end of image marker.
-private func extractJpegImageData(jpegData: NSData) -> NSData? {
-    let bytes = UnsafePointer<UInt8>(jpegData.bytes)
+private func extractJpegImageData(_ jpegData: Data) -> Data? {
+    let bytes = (jpegData as NSData).bytes.bindMemory(to: UInt8.self, capacity: jpegData.count)
     
     // Locate the Start of Scan (image data) marker
-    guard let sosIndex = findMarker(jpegSOSMarker, startIndex: 0, data: bytes, dataLength: jpegData.length) else {
+    guard let sosIndex = findMarker(jpegSOSMarker, startIndex: 0, data: bytes, dataLength: jpegData.count) else {
         log.error("Failed to find SOS marker in JPEG data!")
         return nil
     }
     
     // Locate the End of Image marker
-    guard let eoiIndex = findMarker(jpegEOIMarker, startIndex: sosIndex, data: bytes, dataLength: jpegData.length) else {
+    guard let eoiIndex = findMarker(jpegEOIMarker, startIndex: sosIndex, data: bytes, dataLength: jpegData.count) else {
         log.error("Failed to find EOI marker in JPEG data!")
         return nil
     }
@@ -125,7 +125,7 @@ private func extractJpegImageData(jpegData: NSData) -> NSData? {
     log.debug("imageDataStartIndex = \(imageDataStartIndex), imageDataLength: \(imageDataLength)")
     let imageDataPointer = UnsafeMutablePointer<UInt8>(bytes.advancedBy(imageDataStartIndex))
     
-    return NSData(bytesNoCopy: imageDataPointer, length: imageDataLength, freeWhenDone: false)
+    return Data(bytesNoCopy: UnsafeMutablePointer<UInt8>(imageDataPointer), count: imageDataLength, deallocator: .none)
 }
 
 /**
@@ -136,7 +136,7 @@ private func extractJpegImageData(jpegData: NSData) -> NSData? {
  - parameter dataType: data type value corresponding to the thumbnail data packets
  - parameter headerData: JPEG header to use for this data type value
 */
-public func registerJpegThumbnailHeader(dataType dataType: UInt8, headerData: NSData) {
+public func registerJpegThumbnailHeader(_ dataType: UInt8, headerData: Data) {
     headerMap[dataType] = headerData
 }
 
@@ -155,7 +155,7 @@ public func registerJpegThumbnailHeader(dataType dataType: UInt8, headerData: NS
  - parameter pixelBudget: approximate amount of pixels in the thumbnail.
  - returns: the data representing the thumbnail (our custom header + JPEG data) if successful
 */
-public func imageToJpegThumbnailData(sourceImage image: UIImage, dataType: UInt8, compressionQuality: CGFloat, pixelBudget: Int = (42 * 42)) -> NSData? {
+public func imageToJpegThumbnailData(sourceImage image: UIImage, dataType: UInt8, compressionQuality: CGFloat, pixelBudget: Int = (42 * 42)) -> Data? {
     // Calculate the thumbnail size by comparing amount of pixels in original image to the 
     // 'pixel budget' while retaining the aspect ratio
     let imageWidth = floor(image.width * image.scale)
@@ -220,8 +220,8 @@ public func imageToJpegThumbnailData(sourceImage image: UIImage, dataType: UInt8
  - parameter imageScale: value for result image's UIImage.scale. Specify 0.0 to match the scale of the device's screen.
  - returns: Scaled-up and blurred version of the thumbnail, if successful
 */
-public func jpegThumbnailDataToImage(data data: NSData, maxSize: CGSize, thumbnailBlurRadius: Double = 3.0, imageScale: CGFloat = 0.0) -> UIImage? {
-    let ptr = UnsafeMutablePointer<UInt8>(data.bytes)
+public func jpegThumbnailDataToImage(_ data: Data, maxSize: CGSize, thumbnailBlurRadius: Double = 3.0, imageScale: CGFloat = 0.0) -> UIImage? {
+    let ptr = UnsafeMutablePointer<UInt8>(mutating: (data as NSData).bytes.bindMemory(to: UInt8.self, capacity: data.count))
     if ptr[thumbHeaderIndexVersion] != thumbHeaderPacketVersion {
         log.error("Version mismatch!")
         return nil
@@ -238,24 +238,24 @@ public func jpegThumbnailDataToImage(data data: NSData, maxSize: CGSize, thumbna
     }
 //    log.debug("Read \(jpegHeaderData.length) bytes of JPEG header")
     
-    guard let jpegData = NSMutableData(capacity: (jpegHeaderData.length + (data.length - thumbHeaderLength) + jpegEOI.count)) else {
+    guard let jpegData = NSMutableData(capacity: (jpegHeaderData.count + (data.count - thumbHeaderLength) + jpegEOI.count)) else {
         log.error("Failed to allocate memory for JPEG data!")
         return nil
     }
 
     // Construct a whole JPEG from a predefined header block, the jpeg data and EOI marker (2 bytes)
-    jpegData.appendData(jpegHeaderData)
-    jpegData.appendBytes(UnsafePointer<UInt8>(data.bytes).advancedBy(thumbHeaderLength), length: (data.length - thumbHeaderLength))
-    jpegData.appendBytes(UnsafePointer<UInt8>(jpegEOI), length: jpegEOI.count)
+    jpegData.append(jpegHeaderData)
+    jpegData.append((data as NSData).bytes.bindMemory(to: UInt8.self, capacity: data.count).advancedBy(thumbHeaderLength), length: (data.count - thumbHeaderLength))
+    jpegData.append(UnsafePointer<UInt8>(jpegEOI), length: jpegEOI.count)
     
     // Patch in the thumbnail size into the copied header to get an result image of the correct size
-    if !writeImageSize(jpegData: jpegData, imageWidth: thumbWidth, imageHeight: thumbHeight) {
+    if !writeImageSize(jpegData as Data, imageWidth: thumbWidth, imageHeight: thumbHeight) {
         log.error("Failed to write thumbnail dimensions to JPEG header!")
         return nil
     }
     
     // Create an UIImage out of this JPEG data
-    guard let thumbnailImage = UIImage(data: jpegData) else {
+    guard let thumbnailImage = UIImage(data: jpegData as Data) else {
         log.error("Failed to create UIImage from JPEG data!")
         return nil
     }

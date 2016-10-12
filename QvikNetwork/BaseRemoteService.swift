@@ -22,8 +22,6 @@
 
 import Foundation
 import Alamofire
-import SwiftKeychain
-
 import QvikSwift
 
 // Error domain for errors emitted by this class
@@ -32,28 +30,25 @@ let remoteServiceErrorDomain = "RemoteServiceErrorDomain"
 // MARK: Util functions
 
 /**
-Returns a unique device identifier (UUID) that does not change for the same keychainServiceName
-until the device is factory reset.
+ Returns a unique device identifier (UUID) that does not change for the same keychainServiceName
+ until the device is factory reset.
 
-- parameter keychainServiceName: name for keychain entry for storing the device id, eg. "MyApp"
-*/
-public func getDeviceId(keychainServiceName: String) -> String {
-    let key = GenericKey(keyName: "deviceId")
-    let keychain = Keychain(serviceName: keychainServiceName, accessMode: kSecAttrAccessibleAlways, group: nil)
-    
-    if let deviceId = keychain.get(key).item?.value {
+ - parameter keychainServiceName: name for keychain entry for storing the device id, eg. "MyApp"
+ - throws: May throw an exception if keychain access fails
+ */
+public func getDeviceId(_ keychainServiceName: String) throws -> String {
+    let keyName = "deviceId"
+    let keychain = Keychain(serviceName: keychainServiceName, accessMode: kSecAttrAccessibleAlways as String)
+
+    if let deviceId = try keychain.getValue(key: keyName) {
         log.verbose("deviceId found in keychain: \(deviceId)")
-        return deviceId as String
+
+        return deviceId
     } else {
-        let deviceId = NSUUID().UUIDString
+        let deviceId = UUID().uuidString
         log.verbose("Created new deviceId: \(deviceId)")
-        let deviceIdKey = GenericKey(keyName: "deviceId", value: deviceId)
-        
-        if let error = keychain.add(deviceIdKey) {
-            log.error("Failed to add entry to keychain, error: \(error)")
-            assert(false)
-        }
-        
+        try keychain.addValue(key: keyName, value: deviceId)
+
         return deviceId
     }
 }
@@ -67,20 +62,26 @@ public func getDeviceId(keychainServiceName: String) -> String {
 
  - parameter keychainServiceName: name for keychain entry for storing the device id, eg. "MyApp"
  */
-public func getClientId(keychainServiceName: String) -> String {
-    let key = "hw.machine".cStringUsingEncoding(NSUTF8StringEncoding)
+public func getClientId(_ keychainServiceName: String) -> String {
+    let key = "hw.machine".cString(using: String.Encoding.utf8)
     var size: Int = 0
     sysctlbyname(key!, nil, &size, nil, 0)
-    var machine = [CChar](count: Int(size), repeatedValue: 0)
+    var machine = [CChar](repeating: 0, count: Int(size))
     sysctlbyname(key!, &machine, &size, nil, 0)
-    let model = String.fromCString(machine)!
+    let model = String(cString: machine)
     
-    let deviceType = UIDevice.currentDevice().model
-    let osVersion = NSProcessInfo.processInfo().operatingSystemVersion
-    let deviceId = getDeviceId(keychainServiceName)
-    
+    let deviceType = UIDevice.current.model
+    let osVersion = ProcessInfo.processInfo.operatingSystemVersion
+    var deviceId = ""
+
+    do {
+        deviceId = try getDeviceId(keychainServiceName)
+    } catch {
+        log.error("Caught an error while getting devviceId: \(error)")
+    }
+
     let clientId = String(format: "IOS/Apple;%@;%@;%d.%d.%d/%@/%@", deviceType, model, osVersion.majorVersion,
-        osVersion.minorVersion, osVersion.patchVersion, deviceId, NSLocale.preferredLanguages().first!)
+        osVersion.minorVersion, osVersion.patchVersion, deviceId, Locale.preferredLanguages.first!)
     
     log.verbose("Using clientId = \(clientId)")
     
@@ -142,15 +143,15 @@ class RemoteService: BaseRemoteService {
  }
  ```
 */
-public class BaseRemoteService {
+open class BaseRemoteService {
     /// Alamofire facade
-    private let manager: Alamofire.Manager
+    fileprivate let manager: SessionManager
 
     /// Defines the mechanism for wrapping a single header name to a (auth) token value.
     public typealias AuthenticationMapping = (headerName: String, authToken: String)
 
     /// If enabled, prints request and response headers with the modules logger at ```.Debug``` level.
-    public var enableRequestResponseDebug = false
+    open var enableRequestResponseDebug = false
 
     /**
      Returns either a valid JSON response or an error. Override this method to provide
@@ -159,43 +160,47 @@ public class BaseRemoteService {
      - parameter afResponse: Response object from AlamoFire
      - returns: Our response object.
     */
-    public func createRemoteResponse(afResponse: Response<AnyObject, NSError>) -> RemoteResponse {
+    open func createRemoteResponse(_ afResponse: DataResponse<Any>) -> RemoteResponse {
         // First handle network errors
         if let error = afResponse.result.error {
-            let remoteError = (error.code == NSURLErrorTimedOut) ? RemoteResponse.RemoteError.NetworkTimeout : RemoteResponse.RemoteError.NetworkError
-            return RemoteResponse(nsError: error, remoteError: remoteError, json: nil)
+            let remoteError = RemoteResponse.Errors.networkError
+            return RemoteResponse(remoteError: remoteError)
+
+//            let remoteError = (error.code == NSURLErrorTimedOut) ? RemoteResponse.Errors.NetworkTimeout : RemoteResponse.Errors.NetworkError
+            //return RemoteResponse(nsError: error, remoteError: remoteError, json: nil)
         }
 
-        let jsonResponse = afResponse.result.value
+        let responseContent = afResponse.result.value
         let statusCode = afResponse.response?.statusCode
         log.verbose("HTTP Status code: \(statusCode)")
         
-        if let code = statusCode where code < 200 || code >= 300 {
+        if let code = statusCode, code < 200 || code >= 300 {
             log.debug("Got non-success HTTP response: \(code)")
             
-            var remoteError = RemoteResponse.RemoteError.ServerError
+            var remoteError = RemoteResponse.Errors.serverError
             
             switch code {
             case 401:
-                remoteError = .BadCredentials
+                remoteError = .badCredentials
             case 404:
-                remoteError = .NotFound
+                remoteError = .notFound
             default:
-                remoteError = .ServerError
+                remoteError = .serverError
             }
 
-            let nsError = NSError(domain: remoteServiceErrorDomain, code: code, userInfo: nil)
-            let remoteResponse = RemoteResponse(nsError: nsError, remoteError: remoteError, json: jsonResponse)
-            
+            let remoteResponse = RemoteResponse(remoteError: remoteError, content: responseContent)
+//            let nsError = NSError(domain: remoteServiceErrorDomain, code: code, userInfo: nil)
+//            let remoteResponse = RemoteResponse(nsError: nsError, remoteError: remoteError, json: jsonResponse)
+
             return remoteResponse
         }
         
-        if let jsonResponse = jsonResponse {
+        if let responseContent = responseContent {
             log.verbose("Received a valid response.")
-            return RemoteResponse(json: jsonResponse)
+            return RemoteResponse(content: responseContent)
         } else {
             log.debug("Received invalid or empty JSON response: \(afResponse.result.value)")
-            return RemoteResponse()
+            return RemoteResponse(remoteError: RemoteResponse.Errors.badResponse)
         }
     }
     
@@ -208,44 +213,58 @@ public class BaseRemoteService {
     - parameter encoding: Request encoding
     - parameter headers: Any extra headers
     */
-    public func request(method: Alamofire.Method, _ URLString: URLStringConvertible, parameters: [String: AnyObject]?, encoding: ParameterEncoding = .URL, headers: [String: String]? = nil, callback: ((RemoteResponse) -> Void)) {
+    open func request(_ method: HTTPMethod, _ url: URLConvertible, parameters: Parameters? = nil, encoding: ParameterEncoding = JSONEncoding.default, headers: HTTPHeaders? = nil, callback: @escaping ((RemoteResponse) -> Void)) {
         
-        log.verbose("Making a request to url: \(URLString)")
+        log.verbose("Making a request to url: \(url)")
 
-        let (request, error) = encoding.encode(NSMutableURLRequest(URL: NSURL(string: URLString.URLString)!), parameters: parameters)
-        if let error = error {
-            log.error("Failed to encode request, error: \(error)")
-            assert(false)
-        }
-        
-        request.HTTPMethod = method.rawValue
-        
-        if let headers = headers {
-            for (field, value) in headers {
-                request.setValue(value, forHTTPHeaderField: field)
+        let encodedURLRequest: URLRequestConvertible
+        do {
+            var urlRequest = try URLRequest(url: url, method: method, headers: headers)
+
+            if let authMapping = getAuthentication() {
+                log.verbose("Using access token: \(authMapping.authToken)")
+                urlRequest.setValue(authMapping.authToken, forHTTPHeaderField: authMapping.headerName)
             }
-        }
-        
-        if let authMapping = getAuthentication() {
-            log.verbose("Using access token: \(authMapping.authToken)")
-            request.setValue(authMapping.authToken, forHTTPHeaderField: authMapping.headerName)
-        }
-        
-        if enableRequestResponseDebug {
-            log.debug("Request headers are: \(request.allHTTPHeaderFields)")
+
+            if enableRequestResponseDebug {
+                log.debug("Request headers are: \(urlRequest.allHTTPHeaderFields)")
+            }
+
+            encodedURLRequest = try encoding.encode(urlRequest, with: parameters)
+        } catch {
+            log.error("Caught an error while constructing a request: \(error)")
+            callback(RemoteResponse(remoteError: .clientError))
+            return
         }
 
+        manager.request(encodedURLRequest).responseJSON { afResponse in
+            log.verbose("Request completed, URL: \(afResponse.request?.url), response: \(afResponse), status code = \(afResponse.response?.statusCode)")
+
+            //TODO remove
+            debugPrint(afResponse)
+
+            if self.enableRequestResponseDebug {
+                if let request = afResponse.request, let response = afResponse.response {
+                    log.debug("Response headers are: \(response.allHeaderFields) -- for request URL: \(request.url)")
+                }
+            }
+
+            callback(self.createRemoteResponse(afResponse))
+        }
+
+        /*
         manager.request(request).responseJSON { afResponse in
             log.verbose("Request completed, URL: \(afResponse.request?.URL), response: \(afResponse), status code = \(afResponse.response?.statusCode)")
 
             if self.enableRequestResponseDebug {
-                if let request = afResponse.request, response = afResponse.response {
+                if let request = afResponse.request, let response = afResponse.response {
                     log.debug("Response headers are: \(response.allHeaderFields) -- for request URL: \(request.URL)")
                 }
             }
 
             callback(self.createRemoteResponse(afResponse))
         }
+ */
     }
     
     /**
@@ -264,7 +283,7 @@ public class BaseRemoteService {
     }
     ```
     */
-    public func getAuthentication() -> AuthenticationMapping? {
+    open func getAuthentication() -> AuthenticationMapping? {
         // Base implementation does not nothing
         return nil
     }
@@ -276,27 +295,27 @@ public class BaseRemoteService {
     - parameter additionalHeaders: optional map of additional (custom) HTTP headers
     - parameter timeout: HTTP response timeout in seconds
     */
-    public init(backgroundSessionId: String?, additionalHeaders: [String: AnyObject]? = nil, timeout: NSTimeInterval = 10) {
+    public init(backgroundSessionId: String?, additionalHeaders: [String: AnyObject]? = nil, timeout: TimeInterval = 10) {
         // Set up AlamoFire instance
-        var defaultHeaders = Alamofire.Manager.sharedInstance.session.configuration.HTTPAdditionalHeaders ?? [:]
+        var defaultHeaders = SessionManager.default.session.configuration.httpAdditionalHeaders ?? [:]
         if let additionalHeaders = additionalHeaders {
             for (key, value) in additionalHeaders {
                 defaultHeaders[key] = value
             }
         }
 
-        let configuration: NSURLSessionConfiguration
+        let configuration: URLSessionConfiguration
 
         if let backgroundSessionId = backgroundSessionId {
-            configuration = NSURLSessionConfiguration.backgroundSessionConfigurationWithIdentifier(backgroundSessionId)
+            configuration = URLSessionConfiguration.background(withIdentifier: backgroundSessionId)
         } else {
-            configuration = NSURLSessionConfiguration.defaultSessionConfiguration()
+            configuration = URLSessionConfiguration.default
         }
 
-        configuration.HTTPAdditionalHeaders = defaultHeaders
+        configuration.httpAdditionalHeaders = defaultHeaders
         configuration.timeoutIntervalForResource = timeout
         log.verbose("Using default headers: \(defaultHeaders)")
         
-        manager = Alamofire.Manager(configuration: configuration)
+        manager = SessionManager(configuration: configuration)
     }
 }

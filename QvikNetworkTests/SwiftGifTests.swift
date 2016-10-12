@@ -36,10 +36,10 @@ class SwiftGifTests: XCTestCase {
         super.tearDown()
     }
 
-    private func loadGif(name: String) -> UIImage? {
-        let bundle = NSBundle(forClass: self.dynamicType)
-        let path = bundle.pathForResource(name, ofType: "gif")!
-        guard let data = NSData(contentsOfFile: path) else {
+    fileprivate func loadGif(_ name: String) -> UIImage? {
+        let bundle = Bundle(for: type(of: self))
+        let path = bundle.path(forResource: name, ofType: "gif")!
+        guard let data = try? Data(contentsOf: URL(fileURLWithPath: path)) else {
             return nil
         }
 

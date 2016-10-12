@@ -17,8 +17,8 @@ Pod::Spec.new do |s|
   #
 
   s.name         = "QvikNetwork"
-  s.version      = "0.9.4"
-  s.summary      = "QvikNetwork is a set of networking utilities for Swift."
+  s.version      = "0.10.0"
+  s.summary      = "QvikNetwork is a set of networking utilities for Swift3."
   s.homepage     = "https://github.com/qvik/qvik-network-ios"
 
   # ―――  Spec License  ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― #
@@ -41,10 +41,7 @@ Pod::Spec.new do |s|
   #  profile URL.
   #
 
-  s.author             = { "Matti Dahlbom" => "matti.dahlbom@qvik.fi" }
-  # Or just: s.author    = "Matti Dahlbom"
-  # s.authors            = { "Matti Dahlbom" => "matti.dahlbom@qvik.fi" }
-  # s.social_media_url   = "http://twitter.com/Matti Dahlbom"
+  s.authors            = { "Matti Dahlbom" => "matti.dahlbom@qvik.fi" }
 
   # ――― Platform Specifics ――――――――――――――――――――――――――――――――――――――――――――――――――――――― #
   #
@@ -53,11 +50,8 @@ Pod::Spec.new do |s|
   #
 
   s.platform     = :ios
-  s.ios.deployment_target = '8.0'
+  s.ios.deployment_target = '9.0'
   s.requires_arc = true
-
-  # s.platform     = :ios
-  # s.platform     = :ios, "5.0"
 
   # ――― Source Location ―――――――――――――――――――――――――――――――――――――――――――――――――――――――――― #
   #
@@ -65,8 +59,7 @@ Pod::Spec.new do |s|
   #  Supports git, hg, bzr, svn and HTTP.
   #
 
-  s.source       = { :git => "https://github.com/qvik/qvik-network-ios.git", :tag => "#{s.version}" }
-
+  s.source = { :git => "https://github.com/qvik/qvik-network-ios.git", :tag => "#{s.version}" }
 
   # ――― Source Code ―――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― #
   #
@@ -78,12 +71,6 @@ Pod::Spec.new do |s|
 
   s.exclude_files = "QvikNetworkTests"
   s.source_files  = "QvikNetwork/**/*.{swift}"
-
-  #s.source_files  = "Classes", "Classes/**/*.{h,m}"
-  #s.exclude_files = "Classes/Exclude"
-
-  # s.public_header_files = "Classes/**/*.h"
-
 
   # ――― Resources ―――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― #
   #
@@ -106,18 +93,10 @@ Pod::Spec.new do |s|
   #
 
   s.framework = "UIKit"
-  s.dependency 'Alamofire', '~> 3.0'
-  s.dependency 'QvikSwift', '~> 2.0.0'
-  s.dependency 'XCGLogger', '~> 3.0'
-  s.dependency 'CryptoSwift', '~> 0.2'
-  s.dependency 'SwiftKeychain', '~> 0.1'
-  s.dependency 'SwiftGifOrigin', '~> 1.5'
-
-  # s.frameworks = "SomeFramework", "AnotherFramework"
-
-  # s.library   = "iconv"
-  # s.libraries = "iconv", "xml2"
-
+  s.dependency 'Alamofire', '~> 4.0'
+  s.dependency 'QvikSwift', '~> 3.0'
+  s.dependency 'XCGLogger', '~> 4.0'
+  s.dependency 'CryptoSwift', '~> 0.6'
 
   # ――― Project Settings ――――――――――――――――――――――――――――――――――――――――――――――――――――――――― #
   #

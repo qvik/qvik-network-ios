@@ -30,24 +30,27 @@ private let gifMimeType = "image/gif"
 private let gifExtension = ".gif"
 
 /**
-Disk-backed image cache with functionality to retrieve the requested
-image over the internet if not found.
+ Disk-backed image cache with functionality to retrieve the requested
+ image over the internet if not found.
 
-The images are accessed by their original URLs. The
-images are stored on disk as PNG/JPEGs (with GIF passthrough suoported), filenames are MD5 hashes of the tokens.
+ The images are accessed by their original URLs. The
+ images are stored on disk as PNG/JPEGs (with GIF passthrough suoported), filenames are MD5 hashes of the tokens.
 
-Whenever an image is loaded into the memory cache (and is thus available for use),
-cacheImageLoadedNotification is sent with imageParam user info key specifying the image
-and urlParam specifying the related image URL.
+ Whenever an image is loaded into the memory cache (and is thus available for use),
+ cacheImageLoadedNotification is sent with imageParam user info key specifying the image
+ and urlParam specifying the related image URL.
 
-All notifications are sent on the main (UI) thread.
+ Note, to properly support animated GIFs, their urls must have ".gif" suffix in order
+ for the disk load to load them as such.
 
-All the methods of this class are thread safe.
+ All notifications are sent on the main (UI) thread.
+
+ All the methods of this class are thread safe.
 */
 open class ImageCache: NSObject {
     public enum FileFormat: String {
-        case JPEG = "image/jpeg"
-        case PNG = "image/png"
+        case jpeg = "image/jpeg"
+        case png = "image/png"
     }
     
     open static let cacheImageLoadedNotification = "cacheImageLoadedNotification"
@@ -196,9 +199,9 @@ open class ImageCache: NSObject {
     fileprivate func encodeAndWriteImageToDisk(_ image: UIImage, filePath: String) {
         diskOperationQueue.async {
             autoreleasepool {
-                let fileFormat = self.fileFormat ?? FileFormat.PNG
+                let fileFormat = self.fileFormat ?? .png
                 
-                if fileFormat == .JPEG {
+                if fileFormat == .jpeg {
                     if !((try? UIImageJPEGRepresentation(image, self.jpegQuality)!.write(to: URL(fileURLWithPath: filePath), options: [.atomic])) != nil) {
                         log.verbose("Failed to write JPEG file \(filePath)")
                     } else {
@@ -261,7 +264,7 @@ open class ImageCache: NSObject {
                 guard let response = response,
                     let httpResponse = response.response,
                     let data = response.data,
-                    let contentType = httpResponse.allHeaderFields["content-type"] as? String else {
+                    let contentType = httpResponse.allHeaderFields["Content-Type"] as? String else {
                         log.error("Missing request data although no error?")
                         NotificationCenter.default.post(name: Notification.Name(rawValue: ImageCache.cacheImageLoadFailedNotification), object: self, userInfo: [ImageCache.urlParam: url])
                         return

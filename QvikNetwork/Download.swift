@@ -69,6 +69,9 @@ open class Download: Equatable {
     
     /// Total size of the download
     internal(set) open var totalSize: UInt64?
+
+    /// The Content-Type of this download. Set upon completion. 
+    internal(set) open var contentType: String?
     
     /// Error that occurred while downloading or nil if none
     internal(set) open var error: Error?

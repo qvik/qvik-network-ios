@@ -108,7 +108,10 @@ open class DownloadManager {
                 progressCallback(UInt64(progress.totalUnitCount), UInt64(progress.totalUnitCount))
             }
         }.responseData { afResponse in
-            log.debug("Request completed: url: \(url), response = \(afResponse)")
+            let contentType = afResponse.response?.allHeaderFields["Content-Type"] as? String
+            download.contentType = contentType
+
+            log.debug("Request completed: url: \(url), response = \(afResponse), http response: \(afResponse.response), contentType = \(contentType)")
 
             var error = afResponse.result.error
 
@@ -154,6 +157,8 @@ open class DownloadManager {
         let configuration = URLSessionConfiguration.background(withIdentifier: bgSessionId)
         configuration.httpAdditionalHeaders = defaultHeaders
         configuration.timeoutIntervalForResource = 30
+
+        log.debug("Constructing SessionManager with defaultHeaders: \(defaultHeaders)")
         
         manager = SessionManager(configuration: configuration)
     }

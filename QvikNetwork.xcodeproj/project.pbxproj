@@ -16,6 +16,17 @@
 		49274A6C1BBBEDA70024AB80 /* BaseRemoteService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49274A6A1BBBEDA70024AB80 /* BaseRemoteService.swift */; };
 		493818BC1CC4FB9500BAFAF4 /* QvikNetwork.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49B21C2B1BB7DCC700C25FDE /* QvikNetwork.swift */; };
 		4962C2301C1D5C4F00D1E289 /* JpegThumbnails.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4962C22F1C1D5C4F00D1E289 /* JpegThumbnails.swift */; };
+		499359A71DAFAF650029115F /* DownloadManagerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 499359A61DAFAF650029115F /* DownloadManagerTests.swift */; };
+		499359A81DAFB2490029115F /* DownloadManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49B21C211BB7CE4000C25FDE /* DownloadManager.swift */; };
+		499359A91DAFB24D0029115F /* Download.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49B21C1F1BB7CE4000C25FDE /* Download.swift */; };
+		499359AA1DAFB2500029115F /* DownloadGroup.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49B21C201BB7CE4000C25FDE /* DownloadGroup.swift */; };
+		499359AB1DAFB2530029115F /* ImageCache.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49B21C221BB7CE4000C25FDE /* ImageCache.swift */; };
+		499359AC1DAFB2580029115F /* CachedImageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49B21C1E1BB7CE4000C25FDE /* CachedImageView.swift */; };
+		499359B41DAFBC270029115F /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 499359B31DAFBC270029115F /* AppDelegate.swift */; };
+		499359B61DAFBC270029115F /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 499359B51DAFBC270029115F /* ViewController.swift */; };
+		499359B91DAFBC270029115F /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 499359B71DAFBC270029115F /* Main.storyboard */; };
+		499359BB1DAFBC270029115F /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 499359BA1DAFBC270029115F /* Assets.xcassets */; };
+		499359BE1DAFBC270029115F /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 499359BC1DAFBC270029115F /* LaunchScreen.storyboard */; };
 		49B21C0E1BB7CD9D00C25FDE /* QvikNetwork.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 49B21C031BB7CD9D00C25FDE /* QvikNetwork.framework */; };
 		49B21C231BB7CE4000C25FDE /* CachedImageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49B21C1E1BB7CE4000C25FDE /* CachedImageView.swift */; };
 		49B21C241BB7CE4000C25FDE /* Download.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49B21C1F1BB7CE4000C25FDE /* Download.swift */; };
@@ -29,6 +40,13 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
+		499359C31DAFBC390029115F /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 49B21BFA1BB7CD9D00C25FDE /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 499359B01DAFBC270029115F;
+			remoteInfo = DownloadManagerTestApp;
+		};
 		49B21C0F1BB7CD9D00C25FDE /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 49B21BFA1BB7CD9D00C25FDE /* Project object */;
@@ -47,6 +65,15 @@
 		49274A691BBBEDA70024AB80 /* RemoteResponse.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RemoteResponse.swift; sourceTree = "<group>"; };
 		49274A6A1BBBEDA70024AB80 /* BaseRemoteService.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BaseRemoteService.swift; sourceTree = "<group>"; };
 		4962C22F1C1D5C4F00D1E289 /* JpegThumbnails.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = JpegThumbnails.swift; sourceTree = "<group>"; };
+		499359A61DAFAF650029115F /* DownloadManagerTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DownloadManagerTests.swift; sourceTree = "<group>"; };
+		499359B11DAFBC270029115F /* DownloadManagerTestApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = DownloadManagerTestApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		499359B31DAFBC270029115F /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
+		499359B51DAFBC270029115F /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
+		499359B81DAFBC270029115F /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
+		499359BA1DAFBC270029115F /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		499359BD1DAFBC270029115F /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
+		499359BF1DAFBC270029115F /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		499359C51DAFBC620029115F /* DownloadManagerTestApp.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = DownloadManagerTestApp.entitlements; sourceTree = "<group>"; };
 		49B21C031BB7CD9D00C25FDE /* QvikNetwork.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = QvikNetwork.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		49B21C081BB7CD9D00C25FDE /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		49B21C0D1BB7CD9D00C25FDE /* QvikNetworkTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = QvikNetworkTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -67,6 +94,13 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		499359AE1DAFBC270029115F /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		49B21BFF1BB7CD9D00C25FDE /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -139,6 +173,20 @@
 			name = JpegThumbnails;
 			sourceTree = "<group>";
 		};
+		499359B21DAFBC270029115F /* DownloadManagerTestApp */ = {
+			isa = PBXGroup;
+			children = (
+				499359C51DAFBC620029115F /* DownloadManagerTestApp.entitlements */,
+				499359B31DAFBC270029115F /* AppDelegate.swift */,
+				499359B51DAFBC270029115F /* ViewController.swift */,
+				499359B71DAFBC270029115F /* Main.storyboard */,
+				499359BA1DAFBC270029115F /* Assets.xcassets */,
+				499359BC1DAFBC270029115F /* LaunchScreen.storyboard */,
+				499359BF1DAFBC270029115F /* Info.plist */,
+			);
+			path = DownloadManagerTestApp;
+			sourceTree = "<group>";
+		};
 		49B21BF91BB7CD9D00C25FDE = {
 			isa = PBXGroup;
 			children = (
@@ -147,6 +195,7 @@
 				49B21C291BB7CF0700C25FDE /* README.md */,
 				49B21C051BB7CD9D00C25FDE /* QvikNetwork */,
 				49B21C111BB7CD9D00C25FDE /* QvikNetworkTests */,
+				499359B21DAFBC270029115F /* DownloadManagerTestApp */,
 				49B21C041BB7CD9D00C25FDE /* Products */,
 				7880DC01344F9C035112EB03 /* Frameworks */,
 				74E6B620A651CC00E3300F6B /* Pods */,
@@ -158,6 +207,7 @@
 			children = (
 				49B21C031BB7CD9D00C25FDE /* QvikNetwork.framework */,
 				49B21C0D1BB7CD9D00C25FDE /* QvikNetworkTests.xctest */,
+				499359B11DAFBC270029115F /* DownloadManagerTestApp.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -179,6 +229,7 @@
 		49B21C111BB7CD9D00C25FDE /* QvikNetworkTests */ = {
 			isa = PBXGroup;
 			children = (
+				499359A61DAFAF650029115F /* DownloadManagerTests.swift */,
 				490CB4AD1CCA847300057994 /* MockRemoteServiceTests.swift */,
 				49B21C141BB7CD9D00C25FDE /* Info.plist */,
 			);
@@ -227,6 +278,23 @@
 /* End PBXHeadersBuildPhase section */
 
 /* Begin PBXNativeTarget section */
+		499359B01DAFBC270029115F /* DownloadManagerTestApp */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 499359C01DAFBC270029115F /* Build configuration list for PBXNativeTarget "DownloadManagerTestApp" */;
+			buildPhases = (
+				499359AD1DAFBC270029115F /* Sources */,
+				499359AE1DAFBC270029115F /* Frameworks */,
+				499359AF1DAFBC270029115F /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = DownloadManagerTestApp;
+			productName = DownloadManagerTestApp;
+			productReference = 499359B11DAFBC270029115F /* DownloadManagerTestApp.app */;
+			productType = "com.apple.product-type.application";
+		};
 		49B21C021BB7CD9D00C25FDE /* QvikNetwork */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 49B21C171BB7CD9D00C25FDE /* Build configuration list for PBXNativeTarget "QvikNetwork" */;
@@ -263,6 +331,7 @@
 			);
 			dependencies = (
 				49B21C101BB7CD9D00C25FDE /* PBXTargetDependency */,
+				499359C41DAFBC390029115F /* PBXTargetDependency */,
 			);
 			name = QvikNetworkTests;
 			productName = QvikNetworkTests;
@@ -275,10 +344,20 @@
 		49B21BFA1BB7CD9D00C25FDE /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastSwiftUpdateCheck = 0700;
+				LastSwiftUpdateCheck = 0800;
 				LastUpgradeCheck = 0800;
 				ORGANIZATIONNAME = Qvik;
 				TargetAttributes = {
+					499359B01DAFBC270029115F = {
+						CreatedOnToolsVersion = 8.0;
+						DevelopmentTeam = 2RLYKMD3U8;
+						ProvisioningStyle = Automatic;
+						SystemCapabilities = {
+							com.apple.Keychain = {
+								enabled = 1;
+							};
+						};
+					};
 					49B21C021BB7CD9D00C25FDE = {
 						CreatedOnToolsVersion = 7.0;
 						LastSwiftMigration = 0800;
@@ -287,6 +366,7 @@
 						CreatedOnToolsVersion = 7.0;
 						DevelopmentTeam = 2RLYKMD3U8;
 						LastSwiftMigration = 0800;
+						TestTargetID = 499359B01DAFBC270029115F;
 					};
 				};
 			};
@@ -296,6 +376,7 @@
 			hasScannedForEncodings = 0;
 			knownRegions = (
 				en,
+				Base,
 			);
 			mainGroup = 49B21BF91BB7CD9D00C25FDE;
 			productRefGroup = 49B21C041BB7CD9D00C25FDE /* Products */;
@@ -304,11 +385,22 @@
 			targets = (
 				49B21C021BB7CD9D00C25FDE /* QvikNetwork */,
 				49B21C0C1BB7CD9D00C25FDE /* QvikNetworkTests */,
+				499359B01DAFBC270029115F /* DownloadManagerTestApp */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
+		499359AF1DAFBC270029115F /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				499359BE1DAFBC270029115F /* LaunchScreen.storyboard in Resources */,
+				499359BB1DAFBC270029115F /* Assets.xcassets in Resources */,
+				499359B91DAFBC270029115F /* Main.storyboard in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		49B21C011BB7CD9D00C25FDE /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -418,6 +510,15 @@
 /* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
+		499359AD1DAFBC270029115F /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				499359B61DAFBC270029115F /* ViewController.swift in Sources */,
+				499359B41DAFBC270029115F /* AppDelegate.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		49B21BFE1BB7CD9D00C25FDE /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -439,11 +540,17 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				499359AB1DAFB2530029115F /* ImageCache.swift in Sources */,
+				499359A91DAFB24D0029115F /* Download.swift in Sources */,
+				499359AA1DAFB2500029115F /* DownloadGroup.swift in Sources */,
 				490CB4AC1CCA6E2500057994 /* BaseRemoteService.swift in Sources */,
+				499359A71DAFAF650029115F /* DownloadManagerTests.swift in Sources */,
 				493818BC1CC4FB9500BAFAF4 /* QvikNetwork.swift in Sources */,
+				499359A81DAFB2490029115F /* DownloadManager.swift in Sources */,
 				490CB4AE1CCA847300057994 /* MockRemoteServiceTests.swift in Sources */,
 				490CB4AA1CCA6E1A00057994 /* MockRemoteService.swift in Sources */,
 				49B6918F1C7F18F50076F680 /* JpegThumbnails.swift in Sources */,
+				499359AC1DAFB2580029115F /* CachedImageView.swift in Sources */,
 				490CB4AB1CCA6E2100057994 /* RemoteResponse.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -451,6 +558,11 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
+		499359C41DAFBC390029115F /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 499359B01DAFBC270029115F /* DownloadManagerTestApp */;
+			targetProxy = 499359C31DAFBC390029115F /* PBXContainerItemProxy */;
+		};
 		49B21C101BB7CD9D00C25FDE /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = 49B21C021BB7CD9D00C25FDE /* QvikNetwork */;
@@ -458,7 +570,63 @@
 		};
 /* End PBXTargetDependency section */
 
+/* Begin PBXVariantGroup section */
+		499359B71DAFBC270029115F /* Main.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				499359B81DAFBC270029115F /* Base */,
+			);
+			name = Main.storyboard;
+			sourceTree = "<group>";
+		};
+		499359BC1DAFBC270029115F /* LaunchScreen.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				499359BD1DAFBC270029115F /* Base */,
+			);
+			name = LaunchScreen.storyboard;
+			sourceTree = "<group>";
+		};
+/* End PBXVariantGroup section */
+
 /* Begin XCBuildConfiguration section */
+		499359C11DAFBC270029115F /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_SUSPICIOUS_MOVES = YES;
+				CODE_SIGN_ENTITLEMENTS = DownloadManagerTestApp/DownloadManagerTestApp.entitlements;
+				DEVELOPMENT_TEAM = 2RLYKMD3U8;
+				INFOPLIST_FILE = DownloadManagerTestApp/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = fi.qvik.DownloadManagerTestApp;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_VERSION = 3.0;
+			};
+			name = Debug;
+		};
+		499359C21DAFBC270029115F /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_SUSPICIOUS_MOVES = YES;
+				CODE_SIGN_ENTITLEMENTS = DownloadManagerTestApp/DownloadManagerTestApp.entitlements;
+				DEVELOPMENT_TEAM = 2RLYKMD3U8;
+				INFOPLIST_FILE = DownloadManagerTestApp/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = fi.qvik.DownloadManagerTestApp;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 3.0;
+			};
+			name = Release;
+		};
 		49B21C151BB7CD9D00C25FDE /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -603,12 +771,14 @@
 			baseConfigurationReference = E44C3E07970F94248B415E7F /* Pods-QvikNetworkTests.debug.xcconfig */;
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				BUNDLE_LOADER = "$(TEST_HOST)";
 				DEVELOPMENT_TEAM = 2RLYKMD3U8;
 				INFOPLIST_FILE = QvikNetworkTests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = fi.qvik.QvikNetworkTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 3.0;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/DownloadManagerTestApp.app/DownloadManagerTestApp";
 			};
 			name = Debug;
 		};
@@ -617,18 +787,28 @@
 			baseConfigurationReference = 20858E957F8C9F33F0586151 /* Pods-QvikNetworkTests.release.xcconfig */;
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				BUNDLE_LOADER = "$(TEST_HOST)";
 				DEVELOPMENT_TEAM = 2RLYKMD3U8;
 				INFOPLIST_FILE = QvikNetworkTests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = fi.qvik.QvikNetworkTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 3.0;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/DownloadManagerTestApp.app/DownloadManagerTestApp";
 			};
 			name = Release;
 		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		499359C01DAFBC270029115F /* Build configuration list for PBXNativeTarget "DownloadManagerTestApp" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				499359C11DAFBC270029115F /* Debug */,
+				499359C21DAFBC270029115F /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+		};
 		49B21BFD1BB7CD9D00C25FDE /* Build configuration list for PBXProject "QvikNetwork" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (

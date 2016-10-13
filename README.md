@@ -1,10 +1,12 @@
 # Qvik's network utility collection
 
-*This library contains Swift (2.0+) networking utilities for use in both Qvik's internal and customer projects. They are released with the MIT license.*
+*This library contains Swift (3.0+) networking utilities for use in both Qvik's internal and customer projects. They are released with the MIT license.*
 
 
 ## Changelog
 
+* 0.10.0 
+    * Swift3 support
 * 0.9.2
 	* Added MockRemoteService
 	* Added Double.clamp() and CGFloat.clamp()
@@ -59,7 +61,7 @@ pod 'QvikNetwork'
 
 And the following to your source:
 
-```ruby
+```swift
 import QvikNetwork
 ```
 
@@ -68,17 +70,16 @@ import QvikNetwork
 The library has dependencies to the following external modules:
 
 * [QvikSwift](https://github.com/qvik/qvik-swift-ios)
-* [AlamoFire 3](https://cocoapods.org/?q=alamofire)
+* [AlamoFire 4](https://cocoapods.org/?q=alamofire)
 * [XCGLogger](https://cocoapods.org/?q=XCGLogger)
-* [CryptoSwift](https://cocoapods.org/?q=CryptoSwift)
-* [SwiftKeychain](https://cocoapods.org/?q=SwiftKeychain)
+* [CryptoSwift](https://cocoapods.org/pods/CryptoSwift)
 
 ## Controlling the library's log level
 
 The library may emit logging for errors, and if you tell it to, debug stuff. Enable debug logging as such:
 
 ```swift
-QvikNetwork.logLevel = .Debug // Or .Info, .Verbose
+QvikNetwork.logLevel = .debug // Or .info, .verbose
 ```
 
 ## Features
@@ -108,7 +109,7 @@ downloadGroup.completionCallback = { [weak self] numErrors in
 
 for url in downloadUrls {
 	let download = downloadGroup.download(url)
-    download.progressCallback = { [weak self] bytesRead, totalBytesRead, totalBytesExpectedToRead in
+    download.progressCallback = { [weak self] totalBytesRead, totalBytesExpectedToRead in
 	    let progress = Double(totalBytesRead) / Double(totalBytesExpectedToRead)
     	log.debug("Download progress for url \(url): \(progress)")
     }
@@ -123,12 +124,12 @@ A very fast, disk-backed in-memory image cache, featuring configurable storage l
 Example usage:
 
 ```swift
-func imageLoaded(notification: NSNotification) {
+func imageLoaded(notification: Notification) {
 	if let imageUrl = notification.userInfo?[ImageCache.urlParam] as? String {
     	// Check if it is my image
 		if imageUrl == self.imageUrl {
   	      // Now the image is in the cache - get it 
-			let image = ImageCache.sharedInstance().getImage(url: imageUrl, loadPolicy: .Memory)
+			let image = ImageCache.sharedInstance().getImage(url: imageUrl, loadPolicy: .memory)
             // TODO use the image for something
         }
     }
@@ -138,7 +139,7 @@ func imageLoaded(notification: NSNotification) {
 
 let imageCache = ImageCache.sharedInstance()
 
-NSNotificationCenter.defaultCenter().addObserver(self, selector: "imageLoaded:", name: ImageCache.cacheImageLoadedNotification, object: nil)
+NotificationCenter.default.addObserver(self, #selector(imageLoaded), name: NSNotification.Name(rawValue: ImageCache.cacheImageLoadedNotification), object: nil)
         
 // This will trigger a fetch over the network if not found in cache
 guard let image = imageCache.getImage(url: imageUrl, loadPolicy: .Network) else {

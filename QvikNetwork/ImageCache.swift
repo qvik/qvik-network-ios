@@ -184,10 +184,10 @@ open class ImageCache: NSObject {
         }
         
         log.verbose("Inserted image to the in-memory cache with the URL key \(url)")
-        
+
         runOnMainThread {
             log.verbose("Sending notification \(ImageCache.cacheImageLoadedNotification), object: \(self), param: \(ImageCache.urlParam), url: \(url)")
-            NotificationCenter.default.post(name: NSNotification.Name(rawValue: ImageCache.cacheImageLoadedNotification), object: self, userInfo: [ImageCache.urlParam: url])
+            NotificationCenter.default.post(name: Notification.Name(rawValue: ImageCache.cacheImageLoadedNotification), object: self, userInfo: [ImageCache.urlParam: url])
         }
     }
     
@@ -283,7 +283,7 @@ open class ImageCache: NSObject {
 
                     if image == nil {
                         log.error("Failed to parse the image data into an image")
-                        NotificationCenter.default.post(name: NSNotification.Name(rawValue: ImageCache.cacheImageLoadFailedNotification), object: self, userInfo: [ImageCache.urlParam: url])
+                        NotificationCenter.default.post(name: Notification.Name(rawValue: ImageCache.cacheImageLoadFailedNotification), object: self, userInfo: [ImageCache.urlParam: url])
                         return
                     }
 

@@ -27,18 +27,18 @@ class RemoteService {
     let remoteImpl: BaseRemoteService
     let baseUrl = "http://www.site.com"
 
-    func list(_ callback: ((RemoteResponse) -> Void)) {
+    func list(_ callback: @escaping ((RemoteResponse) -> Void)) {
         let url = "\(baseUrl)/list"
 
-        remoteImpl.request(.GET, url, parameters: nil, callback: callback)
+        remoteImpl.request(.get, url, parameters: nil, callback: callback)
     }
 
-    func update(name: String, age: Int, married: Bool, callback: ((RemoteResponse) -> Void)) {
+    func update(name: String, age: Int, married: Bool, callback: @escaping ((RemoteResponse) -> Void)) {
         let url = "\(baseUrl)/update"
 
         let params: [String: AnyObject] = ["name": name as AnyObject, "age": age as AnyObject, "married": married as AnyObject]
 
-        remoteImpl.request(.POST, url, parameters: params, callback: callback)
+        remoteImpl.request(.post, url, parameters: params, callback: callback)
     }
 
     init(remoteImpl: BaseRemoteService) {
@@ -135,7 +135,7 @@ class MockRemoteServiceTests: XCTestCase {
         remoteService.update(name: "Leslie", age: 18, married: true) { response in
             if response.success {
                 // Also check that proper success response content is in place
-                if let status = response.parsedJson?["status"] as? String, status == "ok" {
+                if let status = response.contentJson?["status"] as? String, status == "ok" {
                     mustSucceed.fulfill()
                 }
             }
@@ -145,7 +145,7 @@ class MockRemoteServiceTests: XCTestCase {
         remoteService.update(name: "Leslie", age: 17, married: true) { response in
             if !response.success {
                 // Also check that proper failure content is in place
-                if let status = response.parsedJson?["status"] as? String, status == "failed" {
+                if let status = response.contentJson?["status"] as? String, status == "failed" {
                     mustFail.fulfill()
                 }
             }

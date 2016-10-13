@@ -30,7 +30,7 @@ import QvikSwift
  */
 open class MockRemoteService: BaseRemoteService {
     /// This type represents a success/failure condition by path. 
-    public typealias OperationMapping = (failureProbability: Double, params: [String: AnyObject]?, successResponse: AnyObject?, failureResponse: AnyObject?, failureError: RemoteResponse.Errors)
+    public typealias OperationMapping = (failureProbability: Double, params: [String: AnyObject]?, successResponse: Any?, failureResponse: Any?, failureError: RemoteResponse.Errors)
 
     /// Minimum duration (in seconds) for receiving response. Can be used to simulate network latency.
     fileprivate(set) open var minResponseTime: TimeInterval = 0.01
@@ -52,10 +52,10 @@ open class MockRemoteService: BaseRemoteService {
     open var failureError: RemoteResponse.Errors = .serverError
 
     /// Response content for successful operations (unless overridden by a mapping)
-    open var successResponse: AnyObject?
+    open var successResponse: Any?
 
     /// Response content for failed operations (unless overridden by a mapping)
-    open var failureResponse: AnyObject?
+    open var failureResponse: Any?
 
     /// Compares two AnyObject values for equality, by attempting to cast them to the same types
     /// and comparing the casted values if successful. Only basic types supported.

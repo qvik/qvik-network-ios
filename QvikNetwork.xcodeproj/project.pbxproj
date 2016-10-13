@@ -24,11 +24,6 @@
 		49B21C271BB7CE4000C25FDE /* ImageCache.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49B21C221BB7CE4000C25FDE /* ImageCache.swift */; };
 		49B21C2C1BB7DCC700C25FDE /* QvikNetwork.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49B21C2B1BB7DCC700C25FDE /* QvikNetwork.swift */; };
 		49B6918F1C7F18F50076F680 /* JpegThumbnails.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4962C22F1C1D5C4F00D1E289 /* JpegThumbnails.swift */; };
-		49C6A9991D6ED9BC00F0525E /* empty.gif in Resources */ = {isa = PBXBuildFile; fileRef = 49C6A9981D6ED9BC00F0525E /* empty.gif */; };
-		49C6A99B1D6ED9E700F0525E /* SwiftGifTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49C6A99A1D6ED9E700F0525E /* SwiftGifTests.swift */; };
-		49C6A9A01D6EDE1300F0525E /* randombytes_broken.gif in Resources */ = {isa = PBXBuildFile; fileRef = 49C6A99D1D6EDE1300F0525E /* randombytes_broken.gif */; };
-		49C6A9A11D6EDE1300F0525E /* animated.gif in Resources */ = {isa = PBXBuildFile; fileRef = 49C6A99E1D6EDE1300F0525E /* animated.gif */; };
-		49C6A9A21D6EDE1300F0525E /* working.gif in Resources */ = {isa = PBXBuildFile; fileRef = 49C6A99F1D6EDE1300F0525E /* working.gif */; };
 		94D319AA628394D7FC6755CA /* Pods_QvikNetwork.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EC572D3083FDB77580729F38 /* Pods_QvikNetwork.framework */; };
 		AB9743DC3A3332EA0A271A31 /* Pods_QvikNetworkTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FB0A95684B14AA181F2D0437 /* Pods_QvikNetworkTests.framework */; };
 /* End PBXBuildFile section */
@@ -65,11 +60,6 @@
 		49B21C291BB7CF0700C25FDE /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		49B21C2A1BB7CF9700C25FDE /* QvikNetwork.podspec */ = {isa = PBXFileReference; lastKnownFileType = text; path = QvikNetwork.podspec; sourceTree = "<group>"; };
 		49B21C2B1BB7DCC700C25FDE /* QvikNetwork.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = QvikNetwork.swift; sourceTree = "<group>"; };
-		49C6A9981D6ED9BC00F0525E /* empty.gif */ = {isa = PBXFileReference; lastKnownFileType = image.gif; name = empty.gif; path = TestData/empty.gif; sourceTree = "<group>"; };
-		49C6A99A1D6ED9E700F0525E /* SwiftGifTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SwiftGifTests.swift; sourceTree = "<group>"; };
-		49C6A99D1D6EDE1300F0525E /* randombytes_broken.gif */ = {isa = PBXFileReference; lastKnownFileType = image.gif; name = randombytes_broken.gif; path = TestData/randombytes_broken.gif; sourceTree = "<group>"; };
-		49C6A99E1D6EDE1300F0525E /* animated.gif */ = {isa = PBXFileReference; lastKnownFileType = image.gif; name = animated.gif; path = TestData/animated.gif; sourceTree = "<group>"; };
-		49C6A99F1D6EDE1300F0525E /* working.gif */ = {isa = PBXFileReference; lastKnownFileType = image.gif; name = working.gif; path = TestData/working.gif; sourceTree = "<group>"; };
 		7BA235D0FD554244194F2361 /* Pods.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		E44C3E07970F94248B415E7F /* Pods-QvikNetworkTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-QvikNetworkTests.debug.xcconfig"; path = "Pods/Target Support Files/Pods-QvikNetworkTests/Pods-QvikNetworkTests.debug.xcconfig"; sourceTree = "<group>"; };
 		EC572D3083FDB77580729F38 /* Pods_QvikNetwork.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_QvikNetwork.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -189,9 +179,7 @@
 		49B21C111BB7CD9D00C25FDE /* QvikNetworkTests */ = {
 			isa = PBXGroup;
 			children = (
-				49C6A9971D6ED97D00F0525E /* TestData */,
 				490CB4AD1CCA847300057994 /* MockRemoteServiceTests.swift */,
-				49C6A99A1D6ED9E700F0525E /* SwiftGifTests.swift */,
 				49B21C141BB7CD9D00C25FDE /* Info.plist */,
 			);
 			path = QvikNetworkTests;
@@ -203,25 +191,6 @@
 				49B21C081BB7CD9D00C25FDE /* Info.plist */,
 			);
 			name = "Supporting files";
-			sourceTree = "<group>";
-		};
-		49C6A9971D6ED97D00F0525E /* TestData */ = {
-			isa = PBXGroup;
-			children = (
-				49C6A99C1D6EDE0500F0525E /* GIF */,
-			);
-			name = TestData;
-			sourceTree = "<group>";
-		};
-		49C6A99C1D6EDE0500F0525E /* GIF */ = {
-			isa = PBXGroup;
-			children = (
-				49C6A99D1D6EDE1300F0525E /* randombytes_broken.gif */,
-				49C6A99E1D6EDE1300F0525E /* animated.gif */,
-				49C6A99F1D6EDE1300F0525E /* working.gif */,
-				49C6A9981D6ED9BC00F0525E /* empty.gif */,
-			);
-			name = GIF;
 			sourceTree = "<group>";
 		};
 		74E6B620A651CC00E3300F6B /* Pods */ = {
@@ -351,10 +320,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				49C6A9A21D6EDE1300F0525E /* working.gif in Resources */,
-				49C6A9A01D6EDE1300F0525E /* randombytes_broken.gif in Resources */,
-				49C6A9991D6ED9BC00F0525E /* empty.gif in Resources */,
-				49C6A9A11D6EDE1300F0525E /* animated.gif in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -476,7 +441,6 @@
 			files = (
 				490CB4AC1CCA6E2500057994 /* BaseRemoteService.swift in Sources */,
 				493818BC1CC4FB9500BAFAF4 /* QvikNetwork.swift in Sources */,
-				49C6A99B1D6ED9E700F0525E /* SwiftGifTests.swift in Sources */,
 				490CB4AE1CCA847300057994 /* MockRemoteServiceTests.swift in Sources */,
 				490CB4AA1CCA6E1A00057994 /* MockRemoteService.swift in Sources */,
 				49B6918F1C7F18F50076F680 /* JpegThumbnails.swift in Sources */,

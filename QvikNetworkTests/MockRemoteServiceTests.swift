@@ -135,7 +135,7 @@ class MockRemoteServiceTests: XCTestCase {
         remoteService.update(name: "Leslie", age: 18, married: true) { response in
             if response.success {
                 // Also check that proper success response content is in place
-                if let status = response.parsedJson?["status"] as? String , status == "ok" {
+                if let status = response.parsedJson?["status"] as? String, status == "ok" {
                     mustSucceed.fulfill()
                 }
             }
@@ -145,7 +145,7 @@ class MockRemoteServiceTests: XCTestCase {
         remoteService.update(name: "Leslie", age: 17, married: true) { response in
             if !response.success {
                 // Also check that proper failure content is in place
-                if let status = response.parsedJson?["status"] as? String , status == "failed" {
+                if let status = response.parsedJson?["status"] as? String, status == "failed" {
                     mustFail.fulfill()
                 }
             }

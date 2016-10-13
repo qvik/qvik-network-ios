@@ -30,7 +30,7 @@ import QvikSwift
  */
 open class MockRemoteService: BaseRemoteService {
     /// This type represents a success/failure condition by path. 
-    public typealias OperationMapping = (failureProbability: Double, params: [String: AnyObject]?, successResponse: AnyObject?, failureResponse: AnyObject?, failureError: RemoteResponse.RemoteError)
+    public typealias OperationMapping = (failureProbability: Double, params: [String: AnyObject]?, successResponse: AnyObject?, failureResponse: AnyObject?, failureError: RemoteResponse.Errors)
 
     /// Minimum duration (in seconds) for receiving response. Can be used to simulate network latency.
     fileprivate(set) open var minResponseTime: TimeInterval = 0.01
@@ -49,7 +49,7 @@ open class MockRemoteService: BaseRemoteService {
     }
 
     /// Simulated error condition for failures. 
-    open var failureError: RemoteResponse.RemoteError = .serverError
+    open var failureError: RemoteResponse.Errors = .serverError
 
     /// Response content for successful operations (unless overridden by a mapping)
     open var successResponse: AnyObject?
@@ -59,16 +59,16 @@ open class MockRemoteService: BaseRemoteService {
 
     /// Compares two AnyObject values for equality, by attempting to cast them to the same types
     /// and comparing the casted values if successful. Only basic types supported.
-    fileprivate func compareValues(_ valueA: AnyObject, _ valueB: AnyObject) -> Bool {
-        if let intA = valueA as? Int, let intB = valueB as? Int , intA == intB {
+    fileprivate func compareValues(_ valueA: Any, _ valueB: Any) -> Bool {
+        if let intA = valueA as? Int, let intB = valueB as? Int, intA == intB {
             return true
         }
 
-        if let strA = valueA as? String, let strB = valueB as? String , strA == strB {
+        if let strA = valueA as? String, let strB = valueB as? String, strA == strB {
             return true
         }
 
-        if let dblA = valueA as? Double, let dblB = valueB as? Double , dblA == dblB {
+        if let dblA = valueA as? Double, let dblB = valueB as? Double, dblA == dblB {
             return true
         }
 
@@ -76,14 +76,14 @@ open class MockRemoteService: BaseRemoteService {
     }
 
     /// Processes an operation mapping and decides on success/failure.
-    fileprivate func handleMapping(_ mapping: OperationMapping, requestParams: [String: AnyObject]?, callback: @escaping ((RemoteResponse) -> Void)) {
+    fileprivate func handleMapping(_ mapping: OperationMapping, requestParams: Parameters?, callback: @escaping ((RemoteResponse) -> Void)) {
         let triggerSuccess = {
-            callback(RemoteResponse(json: mapping.successResponse))
+            callback(RemoteResponse(content: mapping.successResponse))
         }
 
         let triggerPossibleFailure = {
             if Double.random() < mapping.failureProbability {
-                callback(RemoteResponse(remoteError: mapping.failureError, json: mapping.failureResponse))
+                callback(RemoteResponse(remoteError: mapping.failureError, content: mapping.failureResponse))
             } else {
                 triggerSuccess()
             }
@@ -156,24 +156,26 @@ open class MockRemoteService: BaseRemoteService {
      - parameter encoding: Request encoding
      - parameter headers: Any extra headers
      */
-    override open func request(_ method: Alamofire.Method, _ URLString: URLStringConvertible, parameters: [String: AnyObject]?, encoding: ParameterEncoding = .URL, headers: [String: String]? = nil, callback: @escaping ((RemoteResponse) -> Void)) {
-
+    override open func request(_ method: HTTPMethod, _ url: URLConvertible, parameters: Parameters? = nil, encoding: ParameterEncoding = JSONEncoding.default, headers: HTTPHeaders? = nil, callback: @escaping ((RemoteResponse) -> Void)) {
         // Simulate network latency
         let requestDuration = (maxResponseTime - minResponseTime) * Double.random() + minResponseTime
         log.verbose("Request will take \(requestDuration) seconds")
 
-        runOnMainThreadAfter(delay: requestDuration) {
-            guard let url = NSURL(string: URLString.URLString), let urlPath = url.path else {
-                log.error("Invalid URL given: \(URLString.URLString)")
-                callback(RemoteResponse(remoteError: .ClientError))
-                return
-            }
+        let requestUrl: URL
+        do {
+            requestUrl = try url.asURL()
+        } catch {
+            log.error("Caught error while extracting url: \(error)")
+            callback(RemoteResponse(remoteError: .clientError))
+            return
+        }
 
-            log.verbose("Request path: \(urlPath), parameters: \(parameters)")
+        runOnMainThreadAfter(delay: requestDuration) {
+            log.verbose("Request path: \(requestUrl.path), parameters: \(parameters)")
 
             // Check if the path has a registered OperationMapping and use it the handle the request if so
-            if let mapping = self.operationMappingsByPath[urlPath] {
-                log.debug("Processing mapping for path: \(urlPath)")
+            if let mapping = self.operationMappingsByPath[requestUrl.path] {
+                log.debug("Processing mapping for path: \(requestUrl.path)")
                 self.handleMapping(mapping, requestParams: parameters, callback: callback)
                 return
             }
@@ -181,10 +183,10 @@ open class MockRemoteService: BaseRemoteService {
             // No mapping, lets handle this using the main failure probability.
             if Double.random() < self.failureProbability {
                 log.debug("Request will fail")
-                callback(RemoteResponse(remoteError: self.failureError, json: self.failureResponse))
+                callback(RemoteResponse(remoteError: self.failureError, content: self.failureResponse))
             } else {
                 log.debug("Request will succeed")
-                callback(RemoteResponse(json: self.successResponse))
+                callback(RemoteResponse(content: self.successResponse))
             }
         }
     }

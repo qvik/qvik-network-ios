@@ -73,7 +73,7 @@ open class DownloadGroup {
                     progress += Double(download.bytesDownloaded) / Double(downloadTotalSize)
                 }
                 
-                if (download.state != .Completed) && (download.state != .Failed) {
+                if (download.state != .completed) && (download.state != .failed) {
                     completed = false
                 }
                 
@@ -107,7 +107,7 @@ open class DownloadGroup {
     open var completed: Bool {
         return lock.withReadLock {
             for download in self.downloads {
-                if download.state != .Completed {
+                if download.state != .completed {
                     return false
                 }
             }
@@ -116,12 +116,12 @@ open class DownloadGroup {
     }
     
     /**
-    Starts a new download within the download group.
+     Starts a new download within the download group.
     */
     open func download(_ url: String, additionalHeaders: [String: String]? = nil) -> Download {
-        let download = manager.download(url: url, additionalHeaders: additionalHeaders, progressCallback: { [weak self] (bytesRead, totalBytesRead, totalBytesExpectedToRead) -> ()  in
+        let download = manager.download(url: url, additionalHeaders: additionalHeaders, progressCallback: { [weak self] (totalBytesRead, totalBytesExpectedToRead) -> ()  in
             self?.notifyProgress()
-        }) { [weak self] (error, response, data) -> () in
+        }) { [weak self] (error, response) -> () in
             self?.notifyProgress()
         }
         

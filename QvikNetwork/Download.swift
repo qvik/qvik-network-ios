@@ -41,6 +41,10 @@ open class Download: Equatable {
         case failed
         case completed
     }
+
+    public enum Errors: Error {
+        case badResponse(statusCode: Int)
+    }
     
     /// Download progress callback
     open var progressCallback: DownloadProgressCallback?
@@ -67,7 +71,7 @@ open class Download: Equatable {
     internal(set) open var totalSize: UInt64?
     
     /// Error that occurred while downloading or nil if none
-    internal(set) open var error: NSError?
+    internal(set) open var error: Error?
     
     init(url: String) {
         self.url = url

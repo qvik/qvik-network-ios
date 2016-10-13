@@ -26,7 +26,7 @@ import Foundation
  Represents a response from the server.
 */
 open class RemoteResponse {
-    public enum Errors {
+    public enum Errors: Error {
         case clientError
         case networkError
         case networkTimeout
@@ -39,9 +39,6 @@ open class RemoteResponse {
     /// Type of error in the API call, or nil if success
     fileprivate(set) open var remoteError: Errors?
     
-    /// Underlying NSError, if any
-//    fileprivate(set) open var nsError: NSError?
-
     /// Response content
     fileprivate(set) open var content: Any?
 
@@ -57,13 +54,9 @@ open class RemoteResponse {
 
     /// Whether the request was successful or not
     open var success: Bool {
-//        return (remoteError == nil) && (nsError == nil)
         return (remoteError == nil)
     }
     
-//    public init() {
-//    }
-
     public init(content: Any?) {
         self.content = content
     }
@@ -76,12 +69,6 @@ open class RemoteResponse {
         self.remoteError = remoteError
         self.content = content
     }
-
-//    public init(nsError: NSError?, remoteError: Errors?, json: AnyObject?) {
-//        self.nsError = nsError
-//        self.remoteError = remoteError
-//        self.parsedResponseJson = json
-//    }
 }
 
 extension RemoteResponse: CustomStringConvertible {

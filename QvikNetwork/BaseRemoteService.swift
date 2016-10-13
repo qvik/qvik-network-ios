@@ -162,7 +162,7 @@ open class BaseRemoteService {
     */
     open func createRemoteResponse(_ afResponse: DataResponse<Any>) -> RemoteResponse {
         // First handle network errors
-        if let error = afResponse.result.error {
+        if let _ = afResponse.result.error {
             let remoteError = RemoteResponse.Errors.networkError
             return RemoteResponse(remoteError: remoteError)
 

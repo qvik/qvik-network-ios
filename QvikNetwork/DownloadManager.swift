@@ -24,8 +24,8 @@ import Foundation
 import Alamofire
 import QvikSwift
 
-public typealias DownloadProgressCallback = (_ bytesRead: UInt64, _ totalBytesRead: UInt64, _ totalBytesExpectedToRead: UInt64) -> ()
-public typealias DownloadCompletionCallback = (_ error: NSError?, _ response: HTTPURLResponse?, _ data: Data?) -> ()
+public typealias DownloadProgressCallback = (_ totalBytesRead: UInt64, _ totalBytesExpectedToRead: UInt64) -> ()
+public typealias DownloadCompletionCallback = (_ error: Error?, _ response: DataResponse<Data>?) -> ()
 
 /**
 High level HTTP download manager that supports grouping several downloads
@@ -40,7 +40,7 @@ open class DownloadManager {
     
     fileprivate static let staticInstance = DownloadManager()
     
-    fileprivate let manager: Alamofire.Manager
+    fileprivate let manager: SessionManager
     
     /// Currently pending downloads
     fileprivate(set) open var pendingDownloads = [Download]()
@@ -77,15 +77,15 @@ open class DownloadManager {
     }
     
     /**
-    Start a download from the given url. Call this method directly to schedule a single download, 
-    or call DownloadGroup.download() to schedule a grouped download.
-    
-    - parameter url: URL of the file to download
-    - parameter additionalHeaders: Any additional/custom headers to add to the request or nil for none
-    - parameter progressCallback: download progress callback for this particular download
-    - parameter completionCallback: download completion callback for this particular download
-    */
-    open func download(_ url: String, additionalHeaders: [String: String]? = nil, progressCallback: DownloadProgressCallback?, completionCallback: DownloadCompletionCallback?) -> Download {
+     Start a download from the given url. Call this method directly to schedule a single download,
+     or call DownloadGroup.download() to schedule a grouped download.
+
+     - parameter url: URL of the file to download
+     - parameter additionalHeaders: Any additional/custom headers to add to the request or nil for none
+     - parameter progressCallback: download progress callback for this particular download
+     - parameter completionCallback: download completion callback for this particular download
+     */
+    @discardableResult open func download(url: String, additionalHeaders: [String: String]? = nil, progressCallback: DownloadProgressCallback?, completionCallback: DownloadCompletionCallback?) -> Download {
         log.debug("Starting download for url '\(url)'")
         
         let download = Download(url: url)
@@ -93,53 +93,53 @@ open class DownloadManager {
         lock.withWriteLock {
             self.pendingDownloads.append(download)
         }
-        
-        manager.request(.GET, url, parameters: nil, encoding: .URL, headers: additionalHeaders).progress { bytesRead, totalBytesRead, totalBytesExpectedToRead in
-            log.debug("Download progress: url: \(url), \(totalBytesRead)/\(totalBytesExpectedToRead)")
 
-            download.bytesDownloaded = UInt64(totalBytesRead)
-            download.totalSize = (totalBytesExpectedToRead > 0) ? UInt64(totalBytesExpectedToRead) : 0
+        manager.request(url, method: .get, parameters: nil, encoding: URLEncoding.default, headers: additionalHeaders).downloadProgress { progress in
+            log.debug("Download progress: url: \(url), \(progress.fractionCompleted * 100)%")
+
+            download.bytesDownloaded = UInt64(progress.completedUnitCount)
+            download.totalSize = (progress.totalUnitCount > 0) ? UInt64(progress.totalUnitCount) : 0
             
             if let progressCallback = download.progressCallback {
-                progressCallback(bytesRead: UInt64(bytesRead), totalBytesRead: UInt64(totalBytesRead), totalBytesExpectedToRead: UInt64(totalBytesExpectedToRead))
+                progressCallback(UInt64(progress.completedUnitCount), UInt64(progress.totalUnitCount))
             }
             
             if let progressCallback = progressCallback {
-                progressCallback(bytesRead: UInt64(bytesRead), totalBytesRead: UInt64(totalBytesRead), totalBytesExpectedToRead: UInt64(totalBytesExpectedToRead))
+                progressCallback(UInt64(progress.totalUnitCount), UInt64(progress.totalUnitCount))
             }
-        }.response { request, response, data, error in
-            log.debug("Request completed: url: \(url), error = \(error), response = \(response)")
+        }.responseData { afResponse in
+            log.debug("Request completed: url: \(url), response = \(afResponse)")
 
-            var nsError = error
-            
-            if let nsError = nsError {
-                download.state = .Failed
-                download.error = nsError
+            var error = afResponse.result.error
+
+            if let error = error {
+                download.state = .failed
+                download.error = error
             } else {
-                if let statusCode = response?.statusCode {
+                if let statusCode = afResponse.response?.statusCode {
                     if statusCode >= 200 && statusCode < 300 {
                         // Success
-                        download.state = .Completed
+                        download.state = .completed
                     } else {
-                        download.state = .Failed
-                        nsError = NSError(domain: DownloadManager.errorDomain, code: statusCode, userInfo: nil)
+                        download.state = .failed
+                        error = Download.Errors.badResponse(statusCode: statusCode)
                     }
                 }
             }
-            
+
             // Download completed, remove it from the pending -array
             self.lock.withWriteLock {
-                if let index = self.pendingDownloads.indexOf(download) {
-                    self.pendingDownloads.removeAtIndex(index)
+                if let index = self.pendingDownloads.index(of: download) {
+                    self.pendingDownloads.remove(at: index)
                 }
             }
             
             if let completionCallback = download.completionCallback {
-                completionCallback(error: nsError, response: response, data: data)
+                completionCallback(error, afResponse)
             }
-            
+
             if let completionCallback = completionCallback {
-                completionCallback(error: nsError, response: response, data: data)
+                completionCallback(error, afResponse)
             }
         }
         
@@ -148,13 +148,13 @@ open class DownloadManager {
 
     public init(bgSessionId: String? = nil) {
         // Set up AlamoFire instance
-        let defaultHeaders = Alamofire.Manager.sharedInstance.session.configuration.HTTPAdditionalHeaders ?? [:]
-        
+        let defaultHeaders = SessionManager.default.session.configuration.httpAdditionalHeaders ?? [:]
+
         let bgSessionId = bgSessionId ?? "com.qvik.downloadManager"
         let configuration = URLSessionConfiguration.background(withIdentifier: bgSessionId)
-        configuration.HTTPAdditionalHeaders = defaultHeaders
+        configuration.httpAdditionalHeaders = defaultHeaders
         configuration.timeoutIntervalForResource = 30
         
-        manager = Alamofire.Manager(configuration: configuration)
+        manager = SessionManager(configuration: configuration)
     }
 }

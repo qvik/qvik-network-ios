@@ -103,7 +103,7 @@ open class CachedImageView: QvikImageView {
 
             reset()
             
-            if let imageUrl = imageUrl , imageUrl.length > 0 {
+            if let imageUrl = imageUrl, imageUrl.length > 0 {
                 if imageUrl == oldValue {
                     // No need to do anything
                     return
@@ -125,21 +125,21 @@ open class CachedImageView: QvikImageView {
         }
 
         // Check if the image is present in in-memory cache
-        if let thumbImage = ImageCache.sharedInstance().getImage(url: md5, loadPolicy: .Memory) , enableThumbnailCaching {
-            completionCallback(thumbnail: thumbImage, async: false)
+        if let thumbImage = ImageCache.sharedInstance().getImage(url: md5, loadPolicy: .memory), enableThumbnailCaching {
+            completionCallback(thumbImage, false)
         }
 
         // Not in cache; load asynchronously
         runInBackground {
-            let thumbImage = jpegThumbnailDataToImage(data: fromData, maxSize: self.frame.size, thumbnailBlurRadius: self.thumbnailBlurRadius)
+            let thumbImage = jpegThumbnailDataToImage(fromData, maxSize: self.frame.size, thumbnailBlurRadius: self.thumbnailBlurRadius)
 
-            if let thumbImage = thumbImage , self.enableThumbnailCaching {
+            if let thumbImage = thumbImage, self.enableThumbnailCaching {
                 // Put into in-memory cache
                 ImageCache.sharedInstance().putImage(image: thumbImage, url: md5, storeOnDisk: false)
             }
 
             runOnMainThread {
-                completionCallback(thumbnail: thumbImage, async: true)
+                completionCallback(thumbImage, true)
             }
         }
     }
@@ -204,7 +204,7 @@ open class CachedImageView: QvikImageView {
                     placeholderImageView!.contentMode = self.contentMode
                     placeholderImageView!.image = placeholderImage
                     image = placeholderImageView!.image
-                    insertSubview(placeholderImageView!, atIndex: 0)
+                    insertSubview(placeholderImageView!, at: 0)
                 }
             } else if let thumbnailData = thumbnailData {
                 if placeholderImageView == nil {
@@ -231,14 +231,14 @@ open class CachedImageView: QvikImageView {
                         }
                     }
 
-                    insertSubview(placeholderImageView!, atIndex: 0)
+                    insertSubview(placeholderImageView!, at: 0)
                 }
-            } else if let fadeInColor = fadeInColor , placeholderImageView == nil {
+            } else if let fadeInColor = fadeInColor, placeholderImageView == nil {
                 if fadeInView == nil {
                     // No thumbnail data set; show a colored fade-in view
                     fadeInView = UIView(frame: self.bounds)
                     fadeInView!.backgroundColor = fadeInColor
-                    insertSubview(fadeInView!, atIndex: 0)
+                    insertSubview(fadeInView!, at: 0)
                 }
             }
         }

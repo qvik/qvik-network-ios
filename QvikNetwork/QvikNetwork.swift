@@ -34,7 +34,7 @@ open class QvikNetwork {
     
     fileprivate static func createLogger() -> XCGLogger {
         let logger = XCGLogger(identifier: "QvikNetwork")
-        logger.setup(.Info, showLogLevel: true, showFileNames: true, showLineNumbers: true, writeToFile: nil, fileLogLevel: nil)
+        logger.setup(level: .info, showLevel: true, showFileNames: true, showLineNumbers: true, writeToFile: nil, fileLevel: nil)
         
         return logger
     }
@@ -48,18 +48,18 @@ open class QvikNetwork {
     
     open static var logLevel = QvikNetwork.LogLevel.info {
         didSet {
-            let level: XCGLogger.LogLevel
+            let level: XCGLogger.Level
             
             switch logLevel {
             case .info:
-                level = .Info
+                level = .info
             case .debug:
-                level = .Debug
+                level = .debug
             case .verbose:
-                level = .Verbose
+                level = .verbose
             }
             
-            log.setup(level, showLogLevel: true, showFileNames: true, showLineNumbers: true, writeToFile: nil, fileLogLevel: nil)
+            log.setup(level: level, showLevel: true, showFileNames: true, showLineNumbers: true, writeToFile: nil, fileLevel: nil)
         }
     }
 }

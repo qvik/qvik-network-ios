@@ -27,21 +27,18 @@ import XCTest
  a reasonable network connection is required.
  */
 class DownloadManagerTests: XCTestCase {
-    var manager: DownloadManager!
+    private let baseUrl = "https://raw.githubusercontent.com/qvik/qvik-network-ios/swift3/QvikNetworkTests/TestData"
+    private let manager = DownloadManager()
 
     override func setUp() {
         super.setUp()
 
         QvikNetwork.logLevel = .verbose
-
-        manager = DownloadManager()
     }
 
     override func tearDown() {
         // Put teardown code here. This method is called after the invocation of each test method in the class.
         super.tearDown()
-
-        manager = nil
     }
 
     func testSingleDownload() {
@@ -49,7 +46,7 @@ class DownloadManagerTests: XCTestCase {
         let completionExpectation = expectation(description: "completionBlockCalled")
 
         var download: Download?
-        let url = "http://www.google.com" // This url should always exist
+        let url = "\(baseUrl)/animated.gif"
 
         download = manager.download(url: url, progressCallback: { bytesDownloaded, totalBytes in
             log.debug("Download progress: \(bytesDownloaded) / \(totalBytes)")
@@ -66,4 +63,44 @@ class DownloadManagerTests: XCTestCase {
 
         waitForExpectations(timeout: 10.0, handler: nil)
     }
+
+    func testDownloadGroup() {
+        let urls = [
+            "\(baseUrl)/mountain.jpg",
+            "\(baseUrl)/animated.gif",
+            "\(baseUrl)/bunny_landscape.png"
+        ]
+
+        let groupCompletedExpectation = expectation(description: "group completed")
+        let allDownloadsCompletedExpectation = expectation(description: "all downloads completed")
+
+        var numCompleted = 0
+        let group = manager.createGroup()
+        group.completionCallback = { numErrors in
+            XCTAssert(Thread.isMainThread)
+            XCTAssert(numErrors == 0)
+            groupCompletedExpectation.fulfill()
+        }
+
+        urls.forEach {
+            let download = group.download($0)
+            download.completionCallback = { error, response in
+                XCTAssert(Thread.isMainThread)
+                XCTAssert(error == nil)
+                XCTAssert(response != nil)
+
+                if let contentType = download.contentType {
+                    XCTAssert(contentType.length > 0)
+                } else {
+                    XCTAssert(false, "Content-Type not set!")
+                }
+                numCompleted += 1
+                if numCompleted == urls.count {
+                    allDownloadsCompletedExpectation.fulfill()
+                }
+            }
+        }
+
+        waitForExpectations(timeout: 10.0, handler: nil)
+   }
 }

@@ -28,18 +28,22 @@ public typealias DownloadProgressCallback = (_ totalBytesRead: UInt64, _ totalBy
 public typealias DownloadCompletionCallback = (_ error: Error?, _ response: DataResponse<Data>?) -> ()
 
 /**
-High level HTTP download manager that supports grouping several downloads
-for easier state/progress tracking and completion handling. 
+ High level HTTP download manager that supports grouping several downloads
+ for easier state/progress tracking and completion handling.
+ 
+ All callbacks are called on the main (UI) thread (main queue).
 
-Internally the implementation uses AlamoFire the de facto HTTP library.
+ Internally the implementation uses AlamoFire the de facto HTTP library.
 
-All the methods in this class are thread safe.
-*/
+ All the methods in this class are thread safe.
+ */
 open class DownloadManager {
     open static let errorDomain = "DownloadManager"
-    
-    fileprivate static let staticInstance = DownloadManager()
-    
+
+    /// Default singleton instance
+    open static let `default` = DownloadManager()
+
+    /// Alamofire session manager used to handle downloads
     fileprivate let manager: SessionManager
     
     /// Currently pending downloads
@@ -47,11 +51,6 @@ open class DownloadManager {
     
     // Read/write lock for synchornizing access to pending downloads array
     fileprivate let lock = ReadWriteLock()
-
-    /// Returns the shared instance
-    open class func sharedInstance() -> DownloadManager {
-        return staticInstance
-    }
 
     /// Checks whether there is a pending download for a given URL.
     open func hasPendingDownload(_ url: String) -> Bool {
@@ -86,13 +85,14 @@ open class DownloadManager {
      - parameter completionCallback: download completion callback for this particular download
      */
     @discardableResult open func download(url: String, additionalHeaders: [String: String]? = nil, progressCallback: DownloadProgressCallback?, completionCallback: DownloadCompletionCallback?) -> Download {
-        log.debug("Starting download for url '\(url)'")
-        
+
         let download = Download(url: url)
         
         lock.withWriteLock {
             self.pendingDownloads.append(download)
         }
+
+        log.debug("Starting download for url '\(url)'")
 
         manager.request(url, method: .get, parameters: nil, encoding: URLEncoding.default, headers: additionalHeaders).downloadProgress { progress in
             log.debug("Download progress: url: \(url), \(progress.fractionCompleted * 100)%")
@@ -144,6 +144,8 @@ open class DownloadManager {
             if let completionCallback = completionCallback {
                 completionCallback(error, afResponse)
             }
+
+            log.verbose("Download completed, callbacks called.")
         }
         
         return download

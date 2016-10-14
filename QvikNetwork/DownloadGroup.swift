@@ -27,14 +27,16 @@ public typealias DownloadGroupProgressCallback = (_ totalBytesRead: UInt64, _ pr
 public typealias GroupDownloadCompletionCallback = (_ numErrors: Int) -> ()
 
 /**
-A download group can be used to 'group' downloads together; ie, when batch-downloading
-a lot of data at the same time, this class can be used to track their common progress as 
-their completion instead of having to include that logic in the application side.
+ A download group can be used to 'group' downloads together; ie, when batch-downloading
+ a lot of data at the same time, this class can be used to track their common progress as
+ their completion instead of having to include that logic in the application side.
 
-Do not create DownloadGroup objects directly but instead through a DownloadManager instance.
+ Do not create DownloadGroup objects directly but instead through a DownloadManager instance.
 
-All the methods in this class are thread safe.
-*/
+ All callbacks are called on the main (UI) thread (main queue).
+
+ All the methods in this class are thread safe.
+ */
 open class DownloadGroup {    
     /// Download progress callback
     open var progressCallback: DownloadGroupProgressCallback?

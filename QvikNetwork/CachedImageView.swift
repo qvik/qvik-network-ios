@@ -81,7 +81,7 @@ open class CachedImageView: QvikImageView {
     }
 
     /// ImageCache instance to use. Default value is the shared instance.
-    open var imageCache = ImageCache.sharedInstance()
+    open var imageCache = ImageCache.default
     
     /// Callback to be called when the image changes.
     open var imageChangedCallback: ((Void) -> Void)?
@@ -125,7 +125,7 @@ open class CachedImageView: QvikImageView {
         }
 
         // Check if the image is present in in-memory cache
-        if let thumbImage = ImageCache.sharedInstance().getImage(url: md5, loadPolicy: .memory), enableThumbnailCaching {
+        if let thumbImage = ImageCache.default.getImage(url: md5, loadPolicy: .memory), enableThumbnailCaching {
             completionCallback(thumbImage, false)
         }
 
@@ -135,7 +135,7 @@ open class CachedImageView: QvikImageView {
 
             if let thumbImage = thumbImage, self.enableThumbnailCaching {
                 // Put into in-memory cache
-                ImageCache.sharedInstance().putImage(image: thumbImage, url: md5, storeOnDisk: false)
+                ImageCache.default.putImage(image: thumbImage, url: md5, storeOnDisk: false)
             }
 
             runOnMainThread {
@@ -160,7 +160,7 @@ open class CachedImageView: QvikImageView {
      */
     open func imageLoaded() {
         if let imageUrl = self.imageUrl {
-            if let image = ImageCache.sharedInstance().getImage(url: imageUrl, loadPolicy: .memory) {
+            if let image = ImageCache.default.getImage(url: imageUrl, loadPolicy: .memory) {
                 // Image loaded & found
                 self.image = image
                 

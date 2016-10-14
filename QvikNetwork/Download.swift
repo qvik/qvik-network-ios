@@ -27,12 +27,14 @@ public func == (lhs: Download, rhs: Download) -> Bool {
 }
 
 /**
-A single download handle.
+ A single download handle.
 
-Do not create Download objects directly but instead through a DownloadManager/DownloadGroup instances.
+ Do not create Download objects directly but instead through a DownloadManager/DownloadGroup instances.
 
-All the methods in this class are thread safe.
-*/
+ All callbacks are called on the main (UI) thread (main queue).
+
+ All the methods in this class are thread safe.
+ */
 open class Download: Equatable {
     public enum State {
         case notInitialized

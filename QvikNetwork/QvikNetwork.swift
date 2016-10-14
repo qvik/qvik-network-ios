@@ -39,13 +39,6 @@ open class QvikNetwork {
         return logger
     }
 
-    @available(*, deprecated, message: "use .logLevel instead")
-    open static var debugLogging = false {
-        didSet {
-            QvikNetwork.logLevel = debugLogging ? .debug : .info
-        }
-    }
-    
     open static var logLevel = QvikNetwork.LogLevel.info {
         didSet {
             let level: XCGLogger.Level

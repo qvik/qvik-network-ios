@@ -56,8 +56,9 @@ open class ImageCache: NSObject {
     open static let cacheImageLoadedNotification = "cacheImageLoadedNotification"
     open static let cacheImageLoadFailedNotification = "cacheImageLoadFailedNotification"
     open static let urlParam = "urlParam"
-    
-    fileprivate static let singletonInstance = ImageCache()
+
+    /// Default singleton instance
+    open static let `default` = ImageCache()
     
     /// Returns the absolute path of the image disk cache directory
     fileprivate(set) open var path: NSString
@@ -87,7 +88,10 @@ open class ImageCache: NSObject {
             assert(jpegQuality <= 1.0, "Allowed value range is 0..1")
         }
     }
-    
+
+    /// Set to false to disable disk caching (in-memory only). Default is true.
+    open var diskCacheEnabled = true
+
     /// The memory cache dictionary
     fileprivate var inMemoryCache = [String: UIImage]()
     
@@ -98,7 +102,7 @@ open class ImageCache: NSObject {
     fileprivate let diskOperationQueue: DispatchQueue
     
     fileprivate let fileManager = FileManager.default
-    fileprivate let downloadManager = DownloadManager.sharedInstance()
+    fileprivate let downloadManager = DownloadManager.default
     
     // MARK: Private methods
     
@@ -301,8 +305,10 @@ open class ImageCache: NSObject {
                     // Insert the image to the in-memory cache and notify about successful load
                     self.insertToMemoryCache(image: image!, url: url)
 
-                    // Asynchronously write the image to the disk cache
-                    self.writeResponseImageToDisk(image: image!, url: url, contentType: contentType, data: dataToWrite)
+                    if self.diskCacheEnabled {
+                        // Asynchronously write the image to the disk cache
+                        self.writeResponseImageToDisk(image: image!, url: url, contentType: contentType, data: dataToWrite)
+                    }
                 }
             }
         }
@@ -411,7 +417,7 @@ open class ImageCache: NSObject {
 
         insertToMemoryCache(image: imageToStore, url: url)
         
-        if storeOnDisk {
+        if storeOnDisk && diskCacheEnabled {
             encodeAndWriteImageToDisk(imageToStore, filePath: getFilePath(url))
         }
     }
@@ -425,6 +431,11 @@ open class ImageCache: NSObject {
      - parameter url: URL of the image
      */
     open func storeImage(imageData data: Data, url: String) {
+        if !diskCacheEnabled {
+            log.error("Disk caching is disabled!")
+            return
+        }
+
         diskOperationQueue.async {
             let filePath = self.getFilePath(url)
             
@@ -438,21 +449,6 @@ open class ImageCache: NSObject {
         }
     }
     
-    /**
-     Returns an image matching the given token from the cache. If not found, returns nil.
-     Only in-memory cache is accessed synchronously; if the image is loaded from disk or retrieved over the
-     internet, this is done asynchronously. When asynchronous load succeeds,
-     cacheImageLoadedNotification is sent with urlParam set.
-     
-     If asynchronous load fails, cacheImageLoadFailedNotification is sent, with urlParam set.
-     
-     - parameter fetch: if YES, treats the token as an URL and attempts to fetch the image over the internet.
-     */
-    @available(*, deprecated, message: "use the other overload instead. this will be removed in a (near) future release.")
-    open func getImage(url: String, fetch: Bool = true) -> UIImage? {
-        return getImage(url: url, loadPolicy: fetch ? .network : .disk)
-    }
-
     /// Where to look for an image being loaded from the cache.
     public enum CacheLoadPolicy {
         /// Look for the image only in the in-memory cache
@@ -474,7 +470,7 @@ open class ImageCache: NSObject {
      - parameter url: image URL to request
      - parameter loadPolicy: whether to look for the image only in in-memory cache, or also on disk and/or over network.
     */
-    open func getImage(url: String, loadPolicy: CacheLoadPolicy) -> UIImage? {
+    open func getImage(url: String, loadPolicy: CacheLoadPolicy = .network) -> UIImage? {
         log.verbose("getting image for url: \(url)")
         
         // Check if the image is found in the in-memory cache
@@ -496,16 +492,18 @@ open class ImageCache: NSObject {
             let filePath = self.getFilePath(url)
 
             var image: UIImage?
-            
-            if url.lowercased().hasSuffix(gifExtension) {
-                // GIFs are handled differently
-                log.verbose("Loading a GIF image")
-                if let gifData = try? Data(contentsOf: URL(fileURLWithPath: filePath)) {
-                    image = UIImage.animatedImage(gifData: gifData)
+
+            if self.diskCacheEnabled {
+                if url.lowercased().hasSuffix(gifExtension) {
+                    // GIFs are handled differently
+                    log.verbose("Loading a GIF image")
+                    if let gifData = try? Data(contentsOf: URL(fileURLWithPath: filePath)) {
+                        image = UIImage.animatedImage(gifData: gifData)
+                    }
+                } else {
+                    log.verbose("Loading a standard (JPEG/PNG) image")
+                    image = UIImage(contentsOfFile: filePath)
                 }
-            } else {
-                log.verbose("Loading a standard (JPEG/PNG) image")
-                image = UIImage(contentsOfFile: filePath)
             }
             
             if let image = image {
@@ -519,11 +517,11 @@ open class ImageCache: NSObject {
                 
                 self.insertToMemoryCache(image: image, url: url) // Will send loaded -notification
             } else {
-                log.verbose("Image not found on disk.")
                 if loadPolicy == .network {
                     if self.downloadManager.hasPendingDownload(url) {
                         log.verbose("Already fetching image from url \(url)")
                     } else {
+                        log.verbose("Fetching image over network: \(url)")
                         self.fetchImage(url)
                     }
                 }
@@ -540,11 +538,6 @@ open class ImageCache: NSObject {
         }
         
         return image != nil
-    }
-
-    /// Returns a shared, singleton instance
-    open class func sharedInstance() -> ImageCache {
-        return singletonInstance
     }
 
     deinit {

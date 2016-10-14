@@ -28,6 +28,7 @@
 		499359BB1DAFBC270029115F /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 499359BA1DAFBC270029115F /* Assets.xcassets */; };
 		499359BE1DAFBC270029115F /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 499359BC1DAFBC270029115F /* LaunchScreen.storyboard */; };
 		499359C71DB0D9AB0029115F /* ImageCacheTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 499359C61DB0D9AB0029115F /* ImageCacheTests.swift */; };
+		49935A0D1DB0FF3C0029115F /* BaseRemoteServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49935A0C1DB0FF3C0029115F /* BaseRemoteServiceTests.swift */; };
 		49B21C0E1BB7CD9D00C25FDE /* QvikNetwork.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 49B21C031BB7CD9D00C25FDE /* QvikNetwork.framework */; };
 		49B21C231BB7CE4000C25FDE /* CachedImageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49B21C1E1BB7CE4000C25FDE /* CachedImageView.swift */; };
 		49B21C241BB7CE4000C25FDE /* Download.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49B21C1F1BB7CE4000C25FDE /* Download.swift */; };
@@ -76,6 +77,7 @@
 		499359BF1DAFBC270029115F /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		499359C51DAFBC620029115F /* DownloadManagerTestApp.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = DownloadManagerTestApp.entitlements; sourceTree = "<group>"; };
 		499359C61DB0D9AB0029115F /* ImageCacheTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ImageCacheTests.swift; sourceTree = "<group>"; };
+		49935A0C1DB0FF3C0029115F /* BaseRemoteServiceTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BaseRemoteServiceTests.swift; sourceTree = "<group>"; };
 		49B21C031BB7CD9D00C25FDE /* QvikNetwork.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = QvikNetwork.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		49B21C081BB7CD9D00C25FDE /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		49B21C0D1BB7CD9D00C25FDE /* QvikNetworkTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = QvikNetworkTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -233,6 +235,7 @@
 			children = (
 				499359A61DAFAF650029115F /* DownloadManagerTests.swift */,
 				490CB4AD1CCA847300057994 /* MockRemoteServiceTests.swift */,
+				49935A0C1DB0FF3C0029115F /* BaseRemoteServiceTests.swift */,
 				499359C61DB0D9AB0029115F /* ImageCacheTests.swift */,
 				49B21C141BB7CD9D00C25FDE /* Info.plist */,
 			);
@@ -354,6 +357,7 @@
 					499359B01DAFBC270029115F = {
 						CreatedOnToolsVersion = 8.0;
 						DevelopmentTeam = 2RLYKMD3U8;
+						LastSwiftMigration = 0800;
 						ProvisioningStyle = Automatic;
 						SystemCapabilities = {
 							com.apple.Keychain = {
@@ -545,6 +549,7 @@
 			files = (
 				499359AB1DAFB2530029115F /* ImageCache.swift in Sources */,
 				499359A91DAFB24D0029115F /* Download.swift in Sources */,
+				49935A0D1DB0FF3C0029115F /* BaseRemoteServiceTests.swift in Sources */,
 				499359AA1DAFB2500029115F /* DownloadGroup.swift in Sources */,
 				499359C71DB0D9AB0029115F /* ImageCacheTests.swift in Sources */,
 				490CB4AC1CCA6E2500057994 /* BaseRemoteService.swift in Sources */,
@@ -812,6 +817,7 @@
 				499359C21DAFBC270029115F /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		49B21BFD1BB7CD9D00C25FDE /* Build configuration list for PBXProject "QvikNetwork" */ = {
 			isa = XCConfigurationList;

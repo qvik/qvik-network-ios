@@ -23,9 +23,10 @@
 import UIKit
 
 import QvikSwift
+import QvikUi
 
 /**
-An UIImageView that retrieves the image from ImageCache (default shared instance).
+ An UIImageView that retrieves the image from ImageCache (default shared instance).
 */
 @IBDesignable
 open class CachedImageView: QvikImageView {

@@ -8,6 +8,8 @@ def pods
   pod 'Alamofire', '~> 4.0'
   #  pod 'QvikSwift', '~> 3.0'
   pod 'QvikSwift', :path => '../qvik-swift-ios/'
+  #  pod 'QvikUi'
+  pod 'QvikUi', :path => '../qvik-ui-ios/'
   pod 'XCGLogger', '~> 4.0'
   pod 'CryptoSwift', '~> 0.6'
 end

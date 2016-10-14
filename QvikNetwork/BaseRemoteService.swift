@@ -162,12 +162,14 @@ open class BaseRemoteService {
     */
     open func createRemoteResponse(_ afResponse: DataResponse<Any>) -> RemoteResponse {
         // First handle network errors
-        if let _ = afResponse.result.error {
-            let remoteError = RemoteResponse.Errors.networkError
-            return RemoteResponse(remoteError: remoteError)
+        if let error = afResponse.result.error {
+            log.debug("Response contained an error: \(error)")
+            var remoteError = RemoteResponse.Errors.networkError
+            if (error as NSError).code == NSURLErrorTimedOut {
+                remoteError = .networkTimeout
+            }
 
-//            let remoteError = (error.code == NSURLErrorTimedOut) ? RemoteResponse.Errors.NetworkTimeout : RemoteResponse.Errors.NetworkError
-            //return RemoteResponse(nsError: error, remoteError: remoteError, json: nil)
+            return RemoteResponse(remoteError: remoteError)
         }
 
         let responseContent = afResponse.result.value
@@ -189,8 +191,6 @@ open class BaseRemoteService {
             }
 
             let remoteResponse = RemoteResponse(remoteError: remoteError, content: responseContent)
-//            let nsError = NSError(domain: remoteServiceErrorDomain, code: code, userInfo: nil)
-//            let remoteResponse = RemoteResponse(nsError: nsError, remoteError: remoteError, json: jsonResponse)
 
             return remoteResponse
         }
@@ -295,7 +295,7 @@ open class BaseRemoteService {
     - parameter additionalHeaders: optional map of additional (custom) HTTP headers
     - parameter timeout: HTTP response timeout in seconds
     */
-    public init(backgroundSessionId: String?, additionalHeaders: [String: AnyObject]? = nil, timeout: TimeInterval = 10) {
+    public init(backgroundSessionId: String? = nil, additionalHeaders: [String: AnyObject]? = nil, timeout: TimeInterval = 10) {
         // Set up AlamoFire instance
         var defaultHeaders = SessionManager.default.session.configuration.httpAdditionalHeaders ?? [:]
         if let additionalHeaders = additionalHeaders {

@@ -1,6 +1,6 @@
 # Qvik's network utility collection
 
-*This library contains Swift (3.0+) networking utilities for use in both Qvik's internal and customer projects. They are released with the MIT license.*
+*This library contains Swift3 networking utilities for use in both Qvik's internal and customer projects. They are released with the MIT license.*
 
 
 ## Changelog

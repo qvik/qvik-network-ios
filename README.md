@@ -7,6 +7,7 @@
 
 * 1.0.0
     * Swift3 / 1.0.0 release
+    * Dropped dependencies to SwiftKeychain / SwiftGif
 * 0.10.0 
     * Swift3 support
 * 0.9.2

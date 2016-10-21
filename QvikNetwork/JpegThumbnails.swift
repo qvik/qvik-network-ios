@@ -69,13 +69,13 @@ private var headerMap = [UInt8: Data]()
  - parameter dataType: data type value corresponding to the thumbnail data packets
  - parameter headerData: JPEG header to use for this data type value
  */
-public func registerJpegThumbnailHeader(_ dataType: UInt8, headerData: Data) {
+public func registerJpegThumbnailHeader(dataType: UInt8, headerData: Data) {
     headerMap[dataType] = headerData
 }
 
 /// Finds the (next) index of a give marker; returns index of the FF marker byte; the actual
 /// marker content (if any) begins at this index + 2 bytes.
-private func findMarker(_ marker: UInt8, startIndex: Int, data: UnsafePointer<UInt8>, dataLength: Int) -> Int? {
+private func find(marker: UInt8, startIndex: Int, data: UnsafePointer<UInt8>, dataLength: Int) -> Int? {
     var index = startIndex
     var previousByte: UInt8? = nil
     
@@ -97,10 +97,10 @@ private func findMarker(_ marker: UInt8, startIndex: Int, data: UnsafePointer<UI
 }
 
 /// Writes the given image dimensions into the JPEG header in the given data. Returns true if successful
-private func writeImageSize(_ jpegData: Data, imageWidth: UInt8, imageHeight: UInt8) -> Bool {
+private func writeImageSize(jpegData: Data, imageWidth: UInt8, imageHeight: UInt8) -> Bool {
     let bytes = UnsafeMutablePointer<UInt8>(mutating: (jpegData as NSData).bytes.bindMemory(to: UInt8.self, capacity: jpegData.count))
     
-    guard let sofIndex = findMarker(jpegSOF0Marker, startIndex: 0, data: bytes, dataLength: jpegData.count) else {
+    guard let sofIndex = find(marker: jpegSOF0Marker, startIndex: 0, data: bytes, dataLength: jpegData.count) else {
         log.error("Failed to locate SOF0 marker in JPEG data!")
         return false
     }
@@ -125,7 +125,7 @@ private func writeImageSize(_ jpegData: Data, imageWidth: UInt8, imageHeight: UI
  - parameter imageScale: value for result image's UIImage.scale. Specify 0.0 to match the scale of the device's screen.
  - returns: Scaled-up and blurred version of the thumbnail, if successful
 */
-public func jpegThumbnailDataToImage(_ data: Data, maxSize: CGSize, thumbnailBlurRadius: Double = 3.0, imageScale: CGFloat = 0.0) -> UIImage? {
+public func jpegThumbnailDataToImage(data: Data, maxSize: CGSize, thumbnailBlurRadius: Double = 3.0, imageScale: CGFloat = 0.0) -> UIImage? {
     let ptr = UnsafeMutablePointer<UInt8>(mutating: (data as NSData).bytes.bindMemory(to: UInt8.self, capacity: data.count))
     if ptr[thumbHeaderIndexVersion] != thumbHeaderPacketVersion {
         log.error("Version mismatch!")
@@ -154,7 +154,7 @@ public func jpegThumbnailDataToImage(_ data: Data, maxSize: CGSize, thumbnailBlu
     jpegData.append(UnsafePointer<UInt8>(jpegEOI), length: jpegEOI.count)
     
     // Patch in the thumbnail size into the copied header to get an result image of the correct size
-    if !writeImageSize(jpegData as Data, imageWidth: thumbWidth, imageHeight: thumbHeight) {
+    if !writeImageSize(jpegData: jpegData as Data, imageWidth: thumbWidth, imageHeight: thumbHeight) {
         log.error("Failed to write thumbnail dimensions to JPEG header!")
         return nil
     }

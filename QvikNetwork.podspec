@@ -93,8 +93,9 @@ Pod::Spec.new do |s|
   #
 
   s.framework = "UIKit"
-  s.dependency 'Alamofire', '~> 4.0'
   s.dependency 'QvikSwift', '~> 3.0'
+  s.dependency 'QvikUi', '~> 1.0'
+  s.dependency 'Alamofire', '~> 4.0'
   s.dependency 'XCGLogger', '~> 4.0'
   s.dependency 'CryptoSwift', '~> 0.6'
 

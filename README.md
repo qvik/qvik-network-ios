@@ -5,6 +5,8 @@
 
 ## Changelog
 
+* 0.9.5
+	* Fixed a bug causing thumbnail images to persist on CachedImageView
 * 0.9.2
 	* Added MockRemoteService
 	* Added Double.clamp() and CGFloat.clamp()

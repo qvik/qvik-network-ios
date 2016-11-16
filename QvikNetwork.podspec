@@ -109,7 +109,7 @@ Pod::Spec.new do |s|
   s.dependency 'Alamofire', '~> 3.0'
   s.dependency 'QvikSwift', '~> 2.0.0'
   s.dependency 'XCGLogger', '~> 3.0'
-  s.dependency 'CryptoSwift', '~> 0.2'
+  s.dependency 'CryptoSwift', '~> 0.5.1'
   s.dependency 'SwiftKeychain', '~> 0.1'
   s.dependency 'SwiftGifOrigin', '~> 1.5.0'
 

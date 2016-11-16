@@ -5,9 +5,7 @@
 
 ## Changelog
 
-* 0.9.6
-	* Changed SwiftGif version definition to avoid getting Swift 3 version
-* 0.9.5
+* 0.9.7
 	* Fixed a bug causing thumbnail images to persist on CachedImageView
 * 0.9.2
 	* Added MockRemoteService

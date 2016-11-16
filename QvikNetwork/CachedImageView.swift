@@ -218,7 +218,6 @@ public class CachedImageView: QvikImageView {
 
                     loadThumbnail(fromData: thumbnailData) { (thumbnailImage, async) in
                         self.placeholderImageView?.image = thumbnailImage
-                        self.image = thumbnailImage
 
                         if async {
                             // Fade in the thumbnail 

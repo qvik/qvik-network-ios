@@ -5,6 +5,8 @@
 
 ## Changelog
 
+* 0.9.6
+	* Changed SwiftGif version definition to avoid getting Swift 3 version
 * 0.9.5
 	* Fixed a bug causing thumbnail images to persist on CachedImageView
 * 0.9.2

@@ -11,7 +11,7 @@ def pods
   pod 'XCGLogger', '~> 3.0'
   pod 'CryptoSwift', '~> 0.5.1'
   pod 'SwiftKeychain', '~> 0.1'
-  pod 'SwiftGifOrigin', '~> 1.5'
+  pod 'SwiftGifOrigin', '~> 1.5.0'
 end
 
 target 'QvikNetwork' do

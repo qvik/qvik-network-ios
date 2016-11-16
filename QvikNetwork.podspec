@@ -111,7 +111,7 @@ Pod::Spec.new do |s|
   s.dependency 'XCGLogger', '~> 3.0'
   s.dependency 'CryptoSwift', '~> 0.2'
   s.dependency 'SwiftKeychain', '~> 0.1'
-  s.dependency 'SwiftGifOrigin', '~> 1.5'
+  s.dependency 'SwiftGifOrigin', '~> 1.5.0'
 
   # s.frameworks = "SomeFramework", "AnotherFramework"
 

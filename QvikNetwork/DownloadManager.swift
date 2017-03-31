@@ -1,6 +1,6 @@
 // The MIT License (MIT)
 //
-// Copyright (c) 2015-2016 Qvik (www.qvik.fi)
+// Copyright (c) 2015-2017 Qvik (www.qvik.fi)
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -38,10 +38,12 @@ public typealias DownloadCompletionCallback = (_ error: Error?, _ response: Data
  All the methods in this class are thread safe.
  */
 open class DownloadManager {
+    // This is deprecated as it is no longer in use
+    @available(*, deprecated: 1.1.0, message: "Not used any more")
     open static let errorDomain = "DownloadManager"
 
     /// Default singleton instance
-    open static let `default` = DownloadManager()
+    open static let `default` = DownloadManager(withBackgroundIdentifier: UUID().uuidString)
 
     /// Alamofire session manager used to handle downloads
     fileprivate let manager: SessionManager
@@ -154,11 +156,29 @@ open class DownloadManager {
         return download
     }
 
+    /**
+     Intended initializer for this class.
+     */
+    public init(withBackgroundIdentifier bgSessionId: String) {
+        // Set up AlamoFire instance
+        let defaultHeaders = SessionManager.default.session.configuration.httpAdditionalHeaders ?? [:]
+
+        let configuration = URLSessionConfiguration.background(withIdentifier: bgSessionId)
+        configuration.httpAdditionalHeaders = defaultHeaders
+        configuration.timeoutIntervalForResource = 30
+
+        log.debug("Constructing SessionManager with defaultHeaders: \(defaultHeaders)")
+
+        manager = SessionManager(configuration: configuration)
+    }
+
+    // This is deprecated to force user always supplying a non-default background identifier
+    @available(*, deprecated: 1.1.0, message: "Use the initializer init(withBackgroundIdentifier:)")
     public init(bgSessionId: String? = nil) {
         // Set up AlamoFire instance
         let defaultHeaders = SessionManager.default.session.configuration.httpAdditionalHeaders ?? [:]
 
-        let bgSessionId = bgSessionId ?? "com.qvik.downloadManager"
+        let bgSessionId = bgSessionId ?? UUID().uuidString
         let configuration = URLSessionConfiguration.background(withIdentifier: bgSessionId)
         configuration.httpAdditionalHeaders = defaultHeaders
         configuration.timeoutIntervalForResource = 30

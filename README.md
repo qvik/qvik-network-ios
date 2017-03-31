@@ -5,6 +5,9 @@
 
 ## Changelog
 
+* 1.1.0
+    * Deprecated old default initializer for DownloadManager to prevent bugs with several instances
+      sharing the same background session id
 * 1.0.3
     * Fixed Xcode 8.3 / Swift 3.1 warnings
 * 1.0.0
@@ -100,7 +103,7 @@ Example usage:
 
 ```swift
 let downloadUrls = ["http://example.com/1", "http://example.com/2", "http://example.com/3"]
-let downloadManager = DownloadManager.sharedInstance()
+let downloadManager = DownloadManager.default
 let downloadGroup = downloadManager.createGroup()
 
 downloadGroup.progressCallback = { [weak self] totalBytesRead, progress in
@@ -363,7 +366,7 @@ As a contributor you do not need to do this; we'll update the pod whenever neede
 * Commit all your changes, merge all pending accepted *Merge ('pull') Requests*
 * Create a new tag following [Semantic Versioning](http://semver.org/); eg. `git tag -a 1.2.0 -m "Your tag comment"`
 * `git push --tags`
-* `pod repo push qvik-podspecs QvikNetwork.podspec`
+* `pod repo push qvik-podspecs QvikNetwork.podspec`j
 
 Unless already set up, you might do the following steps to set up the pod repo:
 

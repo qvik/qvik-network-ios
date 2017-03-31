@@ -35,7 +35,8 @@ class DownloadManagerTests: XCTestCase {
 
         // Use the test case name as the background id
         log.debug("Setting up with bg id \(String(describing: self.name))")
-        manager = DownloadManager(bgSessionId: self.name)
+        XCTAssert(self.name != nil)
+        manager = DownloadManager(withBackgroundIdentifier: self.name!)
         QvikNetwork.logLevel = .verbose
     }
 

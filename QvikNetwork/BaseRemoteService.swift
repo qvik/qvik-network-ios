@@ -174,7 +174,7 @@ open class BaseRemoteService {
 
         let responseContent = afResponse.result.value
         let statusCode = afResponse.response?.statusCode
-        log.verbose("HTTP Status code: \(statusCode)")
+        log.verbose("HTTP Status code: \(String(describing: statusCode))")
         
         if let code = statusCode, code < 200 || code >= 300 {
             log.debug("Got non-success HTTP response: \(code)")
@@ -199,7 +199,7 @@ open class BaseRemoteService {
             log.verbose("Received a valid response.")
             return RemoteResponse(content: responseContent)
         } else {
-            log.debug("Received invalid or empty JSON response: \(afResponse.result.value)")
+            log.debug("Received invalid or empty JSON response: \(String(describing: afResponse.result.value))")
             return RemoteResponse(remoteError: RemoteResponse.Errors.badResponse)
         }
     }
@@ -227,7 +227,7 @@ open class BaseRemoteService {
             }
 
             if enableRequestResponseDebug {
-                log.debug("Request headers are: \(urlRequest.allHTTPHeaderFields)")
+                log.debug("Request headers are: \(String(describing: urlRequest.allHTTPHeaderFields))")
             }
 
             encodedURLRequest = try encoding.encode(urlRequest, with: parameters)
@@ -238,14 +238,14 @@ open class BaseRemoteService {
         }
 
         manager.request(encodedURLRequest).responseJSON { afResponse in
-            log.verbose("Request completed, URL: \(afResponse.request?.url), response: \(afResponse), status code = \(afResponse.response?.statusCode)")
+            log.verbose("Request completed, URL: \(String(describing: afResponse.request?.url)), response: \(afResponse), status code = \(String(describing: afResponse.response?.statusCode))")
 
             //TODO remove
             debugPrint(afResponse)
 
             if self.enableRequestResponseDebug {
                 if let request = afResponse.request, let response = afResponse.response {
-                    log.debug("Response headers are: \(response.allHeaderFields) -- for request URL: \(request.url)")
+                    log.debug("Response headers are: \(response.allHeaderFields) -- for request URL: \(String(describing: request.url))")
                 }
             }
 

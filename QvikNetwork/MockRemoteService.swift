@@ -171,7 +171,7 @@ open class MockRemoteService: BaseRemoteService {
         }
 
         runOnMainThreadAfter(delay: requestDuration) {
-            log.verbose("Request path: \(requestUrl.path), parameters: \(parameters)")
+            log.verbose("Request path: \(requestUrl.path), parameters: \(String(describing: parameters))")
 
             // Check if the path has a registered OperationMapping and use it the handle the request if so
             if let mapping = self.operationMappingsByPath[requestUrl.path] {

@@ -5,6 +5,8 @@
 
 ## Changelog
 
+* 1.0.3
+    * Fixed Xcode 8.3 / Swift 3.1 warnings
 * 1.0.0
     * Swift3 / 1.0.0 release
     * Dropped dependencies to SwiftKeychain / SwiftGif

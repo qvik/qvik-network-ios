@@ -111,7 +111,7 @@ open class DownloadManager {
             let contentType = afResponse.response?.allHeaderFields["Content-Type"] as? String
             download.contentType = contentType
 
-            log.debug("Request completed: url: \(url), response = \(afResponse), http response: \(afResponse.response), contentType = \(contentType)")
+            log.debug("Request completed: url: \(url), response = \(afResponse), http response: \(String(describing: afResponse.response)), contentType = \(String(describing: contentType))")
 
             var error = afResponse.result.error
 

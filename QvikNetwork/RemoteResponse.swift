@@ -73,6 +73,6 @@ open class RemoteResponse {
 
 extension RemoteResponse: CustomStringConvertible {
     public var description: String {
-        return "RemoteResponse: remoteError: \(remoteError), content: \(content)"
+        return "RemoteResponse: remoteError: \(String(describing: remoteError)), content: \(String(describing: content))"
     }
 }

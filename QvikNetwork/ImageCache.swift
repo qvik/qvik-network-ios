@@ -177,7 +177,7 @@ open class ImageCache: NSObject {
                         }
                     }
                 } else {
-                    log.error("Failed to read attributes of file at path \(filePath), error: \(error)")
+                    log.error("Failed to read attributes of file at path \(filePath), error: \(String(describing: error))")
                 }
             }
         }

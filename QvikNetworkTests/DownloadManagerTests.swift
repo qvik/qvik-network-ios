@@ -1,6 +1,6 @@
 // The MIT License (MIT)
 //
-// Copyright (c) 2016 Qvik (www.qvik.fi)
+// Copyright (c) 2016-2017 Qvik (www.qvik.fi)
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -27,18 +27,22 @@ import XCTest
  a reasonable network connection is required.
  */
 class DownloadManagerTests: XCTestCase {
-    private let baseUrl = "https://raw.githubusercontent.com/qvik/qvik-network-ios/swift3/QvikNetworkTests/TestData"
-    private let manager = DownloadManager()
+    private let baseUrl = "https://raw.githubusercontent.com/qvik/qvik-network-ios/develop/QvikNetworkTests/TestData"
+    private var manager: DownloadManager!
 
     override func setUp() {
         super.setUp()
 
+        // Use the test case name as the background id
+        log.debug("Setting up with bg id \(String(describing: self.name))")
+        manager = DownloadManager(bgSessionId: self.name)
         QvikNetwork.logLevel = .verbose
     }
 
     override func tearDown() {
         // Put teardown code here. This method is called after the invocation of each test method in the class.
         super.tearDown()
+        manager = nil
     }
 
     func testSingleDownload() {
@@ -47,12 +51,15 @@ class DownloadManagerTests: XCTestCase {
 
         var download: Download?
         let url = "\(baseUrl)/animated.gif"
+        log.debug("Downloading: \(url)")
 
         download = manager.download(url: url, progressCallback: { bytesDownloaded, totalBytes in
             log.debug("Download progress: \(bytesDownloaded) / \(totalBytes)")
             progressExpectation.fulfill()
             }, completionCallback: { error, response in
+                XCTAssert(error == nil)
                 XCTAssert(download != nil)
+
                 if let contentType = download?.contentType {
                     XCTAssert(contentType.length > 0)
                 } else {

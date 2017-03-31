@@ -64,6 +64,10 @@ open class MockRemoteService: BaseRemoteService {
             return true
         }
 
+        if let boolA = valueA as? Bool, let boolB = valueB as? Bool, boolA == boolB {
+            return true
+        }
+
         if let strA = valueA as? String, let strB = valueB as? String, strA == strB {
             return true
         }

@@ -609,7 +609,7 @@
 				CODE_SIGN_ENTITLEMENTS = DownloadManagerTestApp/DownloadManagerTestApp.entitlements;
 				DEVELOPMENT_TEAM = 2RLYKMD3U8;
 				INFOPLIST_FILE = DownloadManagerTestApp/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 9;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = fi.qvik.DownloadManagerTestApp;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -628,7 +628,7 @@
 				CODE_SIGN_ENTITLEMENTS = DownloadManagerTestApp/DownloadManagerTestApp.entitlements;
 				DEVELOPMENT_TEAM = 2RLYKMD3U8;
 				INFOPLIST_FILE = DownloadManagerTestApp/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 9;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = fi.qvik.DownloadManagerTestApp;
 				PRODUCT_NAME = "$(TARGET_NAME)";

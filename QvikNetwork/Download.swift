@@ -84,3 +84,15 @@ open class Download: Equatable {
         self.bytesDownloaded = 0
     }
 }
+
+extension Download: CustomDebugStringConvertible {
+    public var debugDescription: String {
+        return "Download(url: \(self.url), state: \(state))"
+    }
+}
+
+extension Download: CustomStringConvertible {
+    public var description: String {
+        return "Download(url: \(self.url), state: \(state))"
+    }
+}

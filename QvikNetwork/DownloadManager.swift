@@ -87,12 +87,14 @@ open class DownloadManager {
     @discardableResult open func download(url: String, additionalHeaders: [String: String]? = nil, progressCallback: DownloadProgressCallback?, completionCallback: DownloadCompletionCallback?) -> Download {
 
         let download = Download(url: url)
+
+        log.debug("Starting download for url '\(url)'")
+        download.state = .starting
         
         lock.withWriteLock {
             self.pendingDownloads.append(download)
+            log.verbose("Added download to pending list: \(download)")
         }
-
-        log.debug("Starting download for url '\(url)'")
 
         manager.request(url, method: .get, parameters: nil, encoding: URLEncoding.default, headers: additionalHeaders).downloadProgress { progress in
             log.debug("Download progress: url: \(url), \(progress.fractionCompleted * 100)%")
@@ -134,6 +136,7 @@ open class DownloadManager {
             self.lock.withWriteLock {
                 if let index = self.pendingDownloads.index(of: download) {
                     self.pendingDownloads.remove(at: index)
+                    log.verbose("Removed download from pending list: \(download)")
                 }
             }
             

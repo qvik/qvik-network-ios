@@ -366,7 +366,7 @@ As a contributor you do not need to do this; we'll update the pod whenever neede
 * Commit all your changes, merge all pending accepted *Merge ('pull') Requests*
 * Create a new tag following [Semantic Versioning](http://semver.org/); eg. `git tag -a 1.2.0 -m "Your tag comment"`
 * `git push --tags`
-* `pod repo push qvik-podspecs QvikNetwork.podspec`j
+* `pod repo push qvik-podspecs QvikNetwork.podspec`
 
 Unless already set up, you might do the following steps to set up the pod repo:
 

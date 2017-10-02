@@ -24,8 +24,8 @@ import Foundation
 import Alamofire
 import QvikSwift
 
-public typealias DownloadProgressCallback = (_ totalBytesRead: UInt64, _ totalBytesExpectedToRead: UInt64) -> ()
-public typealias DownloadCompletionCallback = (_ error: Error?, _ response: DataResponse<Data>?) -> ()
+public typealias DownloadProgressCallback = (_ totalBytesRead: UInt64, _ totalBytesExpectedToRead: UInt64) -> Void
+public typealias DownloadCompletionCallback = (_ error: Error?, _ response: DataResponse<Data>?) -> Void
 
 /**
  High level HTTP download manager that supports grouping several downloads
@@ -57,10 +57,8 @@ open class DownloadManager {
     /// Checks whether there is a pending download for a given URL.
     open func hasPendingDownload(_ url: String) -> Bool {
         return lock.withReadLock {
-            for download in self.pendingDownloads {
-                if download.url == url {
-                    return true
-                }
+            for download in self.pendingDownloads where download.url == url {
+                return true
             }
             return false
         }

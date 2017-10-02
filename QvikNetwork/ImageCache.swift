@@ -260,7 +260,7 @@ open class ImageCache: NSObject {
     fileprivate func fetchImage(_ url: String) {
         log.verbose("Fetching image from URL: \(url)")
         
-        self.downloadManager.download(url: url, additionalHeaders: nil, progressCallback: nil) { (error, response) -> () in
+        self.downloadManager.download(url: url, additionalHeaders: nil, progressCallback: nil) { (error, response) -> Void in
             if let error = error {
                 log.warning("Image download failed for URL: \(url), error: \(error)")
                 NotificationCenter.default.post(name: Notification.Name(rawValue: ImageCache.cacheImageLoadFailedNotification), object: self, userInfo: [ImageCache.urlParam: url])

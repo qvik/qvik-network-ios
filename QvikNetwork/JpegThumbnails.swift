@@ -32,7 +32,6 @@ import QvikSwift
 // Also check out facebook's post about the very same thing
 // - https://code.facebook.com/posts/991252547593574
 
-
 // The following format is used for the thumbnail data: 
 //
 //  Offset | Length (bytes) | Content

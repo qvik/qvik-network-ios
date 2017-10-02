@@ -45,7 +45,7 @@ import QvikUi
 */
 open class CachedImageView: QvikImageView {
     /// Placeholder image view; used to display a temporary image (smaller or thumbnail) while actual image loads
-    fileprivate var placeholderImageView: UIImageView? = nil
+    fileprivate var placeholderImageView: UIImageView?
 
     /// Duration for fading in the loaded image, in case it is asynchronously loaded.
     open var imageFadeInDuration: TimeInterval = 0.3
@@ -59,7 +59,7 @@ open class CachedImageView: QvikImageView {
     }
 
     /// Dominant color of the image (and thumbnail). If set, will be displayed while thumbnail image is loaded.
-    open var thumbnailDominantColor: UIColor? = nil
+    open var thumbnailDominantColor: UIColor?
 
     /// Preview thumbnail blur radius (size of the convolution kernel)
     open var thumbnailBlurRadius = 7.0
@@ -95,7 +95,7 @@ open class CachedImageView: QvikImageView {
     open var imageCache = ImageCache.default
     
     /// Callback to be called when the image changes.
-    open var imageChangedCallback: ((Void) -> Void)?
+    open var imageChangedCallback: (() -> Void)?
     
     /// Whether to automaticallty respond to image load notification
     open var ignoreLoadNotification = false
@@ -182,7 +182,7 @@ open class CachedImageView: QvikImageView {
                 // Fade out the thumbnail view
                 UIView.animate(withDuration: imageFadeInDuration, animations: {
                     self.placeholderImageView?.alpha = 0.0
-                    }, completion: { finished in
+                    }, completion: { _ in
                         // Remove placeholder views to save memory
                         self.reset()
                 })
@@ -236,7 +236,7 @@ open class CachedImageView: QvikImageView {
                             self.placeholderImageView?.alpha = 0
                             UIView.animate(withDuration: self.thumbnailFadeInDuration, animations: {
                                 self.placeholderImageView?.alpha = 1
-                                }, completion: { finished in
+                                }, completion: { _ in
 
                             })
                         }

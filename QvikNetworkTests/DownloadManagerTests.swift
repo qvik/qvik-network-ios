@@ -57,7 +57,7 @@ class DownloadManagerTests: XCTestCase {
         download = manager.download(url: url, progressCallback: { bytesDownloaded, totalBytes in
             log.debug("Download progress: \(bytesDownloaded) / \(totalBytes)")
             progressExpectation.fulfill()
-            }, completionCallback: { error, response in
+            }, completionCallback: { error, _ in
                 XCTAssert(error == nil)
                 XCTAssert(download != nil)
 

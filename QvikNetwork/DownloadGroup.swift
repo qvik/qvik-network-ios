@@ -23,8 +23,8 @@
 import Foundation
 import QvikSwift
 
-public typealias DownloadGroupProgressCallback = (_ totalBytesRead: UInt64, _ progress: Double) -> ()
-public typealias GroupDownloadCompletionCallback = (_ numErrors: Int) -> ()
+public typealias DownloadGroupProgressCallback = (_ totalBytesRead: UInt64, _ progress: Double) -> Void
+public typealias GroupDownloadCompletionCallback = (_ numErrors: Int) -> Void
 
 /**
  A download group can be used to 'group' downloads together; ie, when batch-downloading
@@ -108,10 +108,8 @@ open class DownloadGroup {
     /// Indicates whether all the downloads in the group have completed
     open var completed: Bool {
         return lock.withReadLock {
-            for download in self.downloads {
-                if download.state != .completed {
-                    return false
-                }
+            for download in self.downloads where download.state != .completed {
+                return false
             }
             return true
         }
@@ -121,9 +119,9 @@ open class DownloadGroup {
      Starts a new download within the download group.
     */
     open func download(_ url: String, additionalHeaders: [String: String]? = nil) -> Download {
-        let download = manager.download(url: url, additionalHeaders: additionalHeaders, progressCallback: { [weak self] (totalBytesRead, totalBytesExpectedToRead) -> ()  in
+        let download = manager.download(url: url, additionalHeaders: additionalHeaders, progressCallback: { [weak self] (_, _) -> Void  in
             self?.notifyProgress()
-        }) { [weak self] (error, response) -> () in
+        }) { [weak self] (_, _) -> Void in
             self?.notifyProgress()
         }
         

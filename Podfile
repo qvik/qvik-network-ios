@@ -6,12 +6,12 @@ source 'https://github.com/qvik/qvik-podspecs.git'
 
 def all_pods
   pod 'Alamofire', '~> 4.0'
-  pod 'QvikSwift', '~> 3'
+  pod 'QvikSwift', '~> 4'
   #pod 'QvikSwift', :path => '../qvik-swift-ios/'
-  pod 'QvikUi', '~> 1'
+  pod 'QvikUi', '~> 4'
   #pod 'QvikUi', :path => '../qvik-ui-ios/'
-  pod 'XCGLogger', '~> 4.0'
-  pod 'CryptoSwift', '~> 0.6'
+  pod 'XCGLogger', '~> 6.0'
+  pod 'CryptoSwift', '~> 0.7'
 end
 
 target 'QvikNetwork' do
@@ -25,7 +25,7 @@ end
 post_install do |installer|
     installer.pods_project.targets.each do |target|
         target.build_configurations.each do |config|
-            config.build_settings['SWIFT_VERSION'] = '3.0'
+            config.build_settings['SWIFT_VERSION'] = '4.0'
         end
     end
 end

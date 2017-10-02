@@ -133,7 +133,7 @@ open class ImageCache: NSObject {
     }
     
     /// Responds to memory warning; clears the memory cache
-    func memoryWarningNotification(_ notification: Notification) {
+    @objc func memoryWarningNotification(_ notification: Notification) {
         log.info("Memory warning received; dumping cache contents.")
         
         lock.withWriteLock {

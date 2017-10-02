@@ -190,7 +190,7 @@ open class CachedImageView: QvikImageView {
         }
     }
     
-    func imageLoadedNotification(_ notification: Notification) {
+    @objc func imageLoadedNotification(_ notification: Notification) {
         assert(Thread.isMainThread, "Must be called on main thread!")
         
         if ignoreLoadNotification {

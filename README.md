@@ -5,6 +5,8 @@
 
 ## Changelog
 
+* 4.0.0
+   * Swift4 version
 * 1.1.0
     * Deprecated old default initializer for DownloadManager to prevent bugs with several instances
       sharing the same background session id

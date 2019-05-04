@@ -12,7 +12,7 @@ def all_pods
   pod 'QvikUi', '~> 6.0'
   #pod 'QvikUi', :path => '../qvik-ui-ios/'
   pod 'XCGLogger', '~> 7.0'
-  pod 'CryptoSwift' #, '~> 0.7'
+  pod 'CryptoSwift' , '~> 1.0.0'
 end
 
 target 'QvikNetwork' do

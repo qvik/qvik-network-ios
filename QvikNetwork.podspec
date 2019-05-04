@@ -17,7 +17,7 @@ Pod::Spec.new do |s|
   #
 
   s.name         = "QvikNetwork"
-  s.version      = "6.0.0"
+  s.version      = "6.0.1"
   s.summary      = "QvikNetwork is a set of networking utilities for Swift5."
   s.homepage     = "https://github.com/qvik/qvik-network-ios"
 
@@ -93,11 +93,11 @@ Pod::Spec.new do |s|
   #
 
   s.framework = "UIKit"
-  s.dependency 'QvikSwift', '~> 4'
-  s.dependency 'QvikUi', '~> 4'
+  s.dependency 'QvikSwift', '~> 6.0'
+  s.dependency 'QvikUi', '~> 6.0'
   s.dependency 'Alamofire', '~> 4.0'
-  s.dependency 'XCGLogger', '~> 6.0'
-  s.dependency 'CryptoSwift', '~> 0.7'
+  s.dependency 'XCGLogger', '~> 7.0'
+  s.dependency 'CryptoSwift', '~> 1.0.0'
 
   # ――― Project Settings ――――――――――――――――――――――――――――――――――――――――――――――――――――――――― #
   #

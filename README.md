@@ -5,6 +5,8 @@
 
 ## Changelog
 
+* 6.0.0
+   * Swift 5 compatibility
 * 4.0.0
    * Swift4 version
 * 1.1.0

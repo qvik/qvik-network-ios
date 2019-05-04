@@ -50,7 +50,7 @@ class ImageCacheTests: XCTestCase {
         let noImage = imageCache.getImage(url: url)
         XCTAssert(noImage == nil)
 
-        let observer = NotificationCenter.default.addObserver(forName: NSNotification.Name(rawValue: ImageCache.cacheImageLoadedNotification), object: nil, queue: nil) { notification in
+        _ = NotificationCenter.default.addObserver(forName: NSNotification.Name(rawValue: ImageCache.cacheImageLoadedNotification), object: nil, queue: nil) { notification in
             XCTAssert(Thread.isMainThread)
 
             if let urlParam = notification.userInfo?[ImageCache.urlParam] as? String {

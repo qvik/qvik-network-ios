@@ -37,6 +37,7 @@
 		49B21C271BB7CE4000C25FDE /* ImageCache.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49B21C221BB7CE4000C25FDE /* ImageCache.swift */; };
 		49B21C2C1BB7DCC700C25FDE /* QvikNetwork.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49B21C2B1BB7DCC700C25FDE /* QvikNetwork.swift */; };
 		49B6918F1C7F18F50076F680 /* JpegThumbnails.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4962C22F1C1D5C4F00D1E289 /* JpegThumbnails.swift */; };
+		49B8FF44227DAE32003CCBB0 /* LICENSE.md in Resources */ = {isa = PBXBuildFile; fileRef = 49B8FF43227DAE32003CCBB0 /* LICENSE.md */; };
 		94D319AA628394D7FC6755CA /* Pods_QvikNetwork.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EC572D3083FDB77580729F38 /* Pods_QvikNetwork.framework */; };
 		AB9743DC3A3332EA0A271A31 /* Pods_QvikNetworkTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FB0A95684B14AA181F2D0437 /* Pods_QvikNetworkTests.framework */; };
 /* End PBXBuildFile section */
@@ -91,6 +92,7 @@
 		49B21C291BB7CF0700C25FDE /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		49B21C2A1BB7CF9700C25FDE /* QvikNetwork.podspec */ = {isa = PBXFileReference; lastKnownFileType = text; path = QvikNetwork.podspec; sourceTree = "<group>"; };
 		49B21C2B1BB7DCC700C25FDE /* QvikNetwork.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = QvikNetwork.swift; sourceTree = "<group>"; };
+		49B8FF43227DAE32003CCBB0 /* LICENSE.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = LICENSE.md; sourceTree = "<group>"; };
 		7BA235D0FD554244194F2361 /* Pods.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		E44C3E07970F94248B415E7F /* Pods-QvikNetworkTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-QvikNetworkTests.debug.xcconfig"; path = "Pods/Target Support Files/Pods-QvikNetworkTests/Pods-QvikNetworkTests.debug.xcconfig"; sourceTree = "<group>"; };
 		EC572D3083FDB77580729F38 /* Pods_QvikNetwork.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_QvikNetwork.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -195,8 +197,9 @@
 			isa = PBXGroup;
 			children = (
 				49B21C281BB7CF0700C25FDE /* Podfile */,
-				49B21C2A1BB7CF9700C25FDE /* QvikNetwork.podspec */,
+				49B8FF43227DAE32003CCBB0 /* LICENSE.md */,
 				49B21C291BB7CF0700C25FDE /* README.md */,
+				49B21C2A1BB7CF9700C25FDE /* QvikNetwork.podspec */,
 				49B21C051BB7CD9D00C25FDE /* QvikNetwork */,
 				49B21C111BB7CD9D00C25FDE /* QvikNetworkTests */,
 				499359B21DAFBC270029115F /* DownloadManagerTestApp */,
@@ -311,7 +314,6 @@
 				49B21BFF1BB7CD9D00C25FDE /* Frameworks */,
 				49B21C001BB7CD9D00C25FDE /* Headers */,
 				49B21C011BB7CD9D00C25FDE /* Resources */,
-				78DAD180445365630849A646 /* [CP] Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -331,7 +333,6 @@
 				49B21C0A1BB7CD9D00C25FDE /* Frameworks */,
 				49B21C0B1BB7CD9D00C25FDE /* Resources */,
 				BAB5FED641EFB132F9BC7C2F /* [CP] Embed Pods Frameworks */,
-				B9C8B896CF3FD2AEF24FCEC0 /* [CP] Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -351,7 +352,7 @@
 			isa = PBXProject;
 			attributes = {
 				LastSwiftUpdateCheck = 0800;
-				LastUpgradeCheck = 0900;
+				LastUpgradeCheck = 1020;
 				ORGANIZATIONNAME = Qvik;
 				TargetAttributes = {
 					499359B01DAFBC270029115F = {
@@ -379,7 +380,7 @@
 			};
 			buildConfigurationList = 49B21BFD1BB7CD9D00C25FDE /* Build configuration list for PBXProject "QvikNetwork" */;
 			compatibilityVersion = "Xcode 3.2";
-			developmentRegion = English;
+			developmentRegion = en;
 			hasScannedForEncodings = 0;
 			knownRegions = (
 				en,
@@ -412,6 +413,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				49B8FF44227DAE32003CCBB0 /* LICENSE.md in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -457,21 +459,6 @@
 			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
 			showEnvVarsInLog = 0;
 		};
-		78DAD180445365630849A646 /* [CP] Copy Pods Resources */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-			);
-			name = "[CP] Copy Pods Resources";
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-QvikNetwork/Pods-QvikNetwork-resources.sh\"\n";
-			showEnvVarsInLog = 0;
-		};
 		8B4E94374B7ECEF3718B69EE /* [CP] Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
@@ -490,28 +477,13 @@
 			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
 			showEnvVarsInLog = 0;
 		};
-		B9C8B896CF3FD2AEF24FCEC0 /* [CP] Copy Pods Resources */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-			);
-			name = "[CP] Copy Pods Resources";
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-QvikNetworkTests/Pods-QvikNetworkTests-resources.sh\"\n";
-			showEnvVarsInLog = 0;
-		};
 		BAB5FED641EFB132F9BC7C2F /* [CP] Embed Pods Frameworks */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 			);
 			inputPaths = (
-				"${SRCROOT}/Pods/Target Support Files/Pods-QvikNetworkTests/Pods-QvikNetworkTests-frameworks.sh",
+				"${PODS_ROOT}/Target Support Files/Pods-QvikNetworkTests/Pods-QvikNetworkTests-frameworks.sh",
 				"${BUILT_PRODUCTS_DIR}/Alamofire/Alamofire.framework",
 				"${BUILT_PRODUCTS_DIR}/CryptoSwift/CryptoSwift.framework",
 				"${BUILT_PRODUCTS_DIR}/ObjcExceptionBridging/ObjcExceptionBridging.framework",
@@ -530,7 +502,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-QvikNetworkTests/Pods-QvikNetworkTests-frameworks.sh\"\n";
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-QvikNetworkTests/Pods-QvikNetworkTests-frameworks.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
 /* End PBXShellScriptBuildPhase section */
@@ -633,7 +605,6 @@
 				PRODUCT_BUNDLE_IDENTIFIER = fi.qvik.DownloadManagerTestApp;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
-				SWIFT_VERSION = 3.0;
 			};
 			name = Debug;
 		};
@@ -651,7 +622,6 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = fi.qvik.DownloadManagerTestApp;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_VERSION = 3.0;
 			};
 			name = Release;
 		};
@@ -659,6 +629,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
 				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_ENABLE_MODULES = YES;
@@ -667,12 +638,14 @@
 				CLANG_WARN_BOOL_CONVERSION = YES;
 				CLANG_WARN_COMMA = YES;
 				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
 				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
 				CLANG_WARN_EMPTY_BODY = YES;
 				CLANG_WARN_ENUM_CONVERSION = YES;
 				CLANG_WARN_INFINITE_RECURSION = YES;
 				CLANG_WARN_INT_CONVERSION = YES;
 				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
 				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
 				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
@@ -705,6 +678,7 @@
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = iphoneos;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				VERSIONING_SYSTEM = "apple-generic";
 				VERSION_INFO_PREFIX = "";
@@ -715,6 +689,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
 				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_ENABLE_MODULES = YES;
@@ -723,12 +698,14 @@
 				CLANG_WARN_BOOL_CONVERSION = YES;
 				CLANG_WARN_COMMA = YES;
 				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
 				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
 				CLANG_WARN_EMPTY_BODY = YES;
 				CLANG_WARN_ENUM_CONVERSION = YES;
 				CLANG_WARN_INFINITE_RECURSION = YES;
 				CLANG_WARN_INT_CONVERSION = YES;
 				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
 				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
 				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
@@ -754,6 +731,7 @@
 				MTL_ENABLE_DEBUG_INFO = NO;
 				SDKROOT = iphoneos;
 				SWIFT_OPTIMIZATION_LEVEL = "-Owholemodule";
+				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				VALIDATE_PRODUCT = YES;
 				VERSIONING_SYSTEM = "apple-generic";
@@ -779,7 +757,6 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
-				SWIFT_VERSION = 3.0;
 			};
 			name = Debug;
 		};
@@ -800,7 +777,6 @@
 				PRODUCT_BUNDLE_IDENTIFIER = fi.qvik.QvikNetwork;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
-				SWIFT_VERSION = 3.0;
 			};
 			name = Release;
 		};
@@ -815,7 +791,6 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = fi.qvik.QvikNetworkTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_VERSION = 3.0;
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/DownloadManagerTestApp.app/DownloadManagerTestApp";
 			};
 			name = Debug;
@@ -831,7 +806,6 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = fi.qvik.QvikNetworkTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_VERSION = 3.0;
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/DownloadManagerTestApp.app/DownloadManagerTestApp";
 			};
 			name = Release;

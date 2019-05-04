@@ -76,7 +76,7 @@ public func registerJpegThumbnailHeader(dataType: UInt8, headerData: Data) {
 /// marker content (if any) begins at this index + 2 bytes.
 private func find(marker: UInt8, startIndex: Int, data: UnsafePointer<UInt8>, dataLength: Int) -> Int? {
     var index = startIndex
-    var previousByte: UInt8? = nil
+    var previousByte: UInt8?
     
     while index < dataLength {
         let currentByte = data[index]

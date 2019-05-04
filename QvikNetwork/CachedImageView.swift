@@ -114,7 +114,7 @@ open class CachedImageView: QvikImageView {
             reset()
             setNeedsLayout()
             
-            if let imageUrl = imageUrl, imageUrl.length > 0 {
+            if let imageUrl = imageUrl, !imageUrl.isEmpty {
                 if imageUrl == oldValue {
                     // No need to do anything
                     return
@@ -129,7 +129,7 @@ open class CachedImageView: QvikImageView {
 
     /// Load the thumbnail image from either in-memory cache or from the JPEG data.
     fileprivate func loadThumbnail(fromData: Data, completionCallback: @escaping ((_ thumbnail: UIImage?, _ async: Bool) -> Void)) {
-        var md5: String? = nil
+        var md5: String?
 
         if enableThumbnailCaching {
             md5 = self.thumbnailData?.md5().toHexString()

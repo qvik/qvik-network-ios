@@ -121,10 +121,10 @@ open class DownloadGroup {
     open func download(_ url: String, additionalHeaders: [String: String]? = nil) -> Download {
         let download = manager.download(url: url, additionalHeaders: additionalHeaders, progressCallback: { [weak self] (_, _) -> Void  in
             self?.notifyProgress()
-        }) { [weak self] (_, _) -> Void in
+        }, completionCallback: { [weak self] (_, _) -> Void in
             self?.notifyProgress()
-        }
-        
+        })
+
         download.group = self        
 
         lock.withWriteLock {

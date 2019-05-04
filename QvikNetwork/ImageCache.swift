@@ -53,12 +53,12 @@ open class ImageCache: NSObject {
         case png = "image/png"
     }
     
-    open static let cacheImageLoadedNotification = "cacheImageLoadedNotification"
-    open static let cacheImageLoadFailedNotification = "cacheImageLoadFailedNotification"
-    open static let urlParam = "urlParam"
+    public static let cacheImageLoadedNotification = "cacheImageLoadedNotification"
+    public static let cacheImageLoadFailedNotification = "cacheImageLoadFailedNotification"
+    public static let urlParam = "urlParam"
 
     /// Default singleton instance
-    open static let `default` = ImageCache()
+    public static let `default` = ImageCache()
     
     /// Returns the absolute path of the image disk cache directory
     fileprivate(set) open var path: NSString
@@ -204,15 +204,28 @@ open class ImageCache: NSObject {
         diskOperationQueue.async {
             autoreleasepool {
                 let fileFormat = self.fileFormat ?? .png
+                let fileUrl = URL(fileURLWithPath: filePath)
                 
                 if fileFormat == .jpeg {
-                    if !((try? UIImageJPEGRepresentation(image, self.jpegQuality)!.write(to: URL(fileURLWithPath: filePath), options: [.atomic])) != nil) {
+                    guard let jpegData = image.jpegData(compressionQuality: self.jpegQuality) else {
+                        log.error("Failed to encode image to JPEG")
+                        return
+                    }
+
+                    //TODO check that this try? mess is properly working
+                    if !((try? jpegData.write(to: fileUrl, options: [.atomic])) != nil) {
                         log.verbose("Failed to write JPEG file \(filePath)")
                     } else {
                         log.verbose("JPEG image written to path \(filePath)")
                     }
                 } else {
-                    if !((try? UIImagePNGRepresentation(image)!.write(to: URL(fileURLWithPath: filePath), options: [.atomic])) != nil) {
+                    guard let pngData = image.pngData() else {
+                        log.error("Failed to encode image to PNG")
+                        return
+                    }
+
+                    //TODO check that this try? mess is properly working
+                    if !((try? pngData.write(to: fileUrl, options: [.atomic])) != nil) {
                         log.verbose("Failed to write PNG file \(filePath)")
                     } else {
                         log.verbose("PNG image written to path \(filePath)")
@@ -564,7 +577,7 @@ open class ImageCache: NSObject {
         
         checkCacheDirExists()
         
-        NotificationCenter.default.addObserver(self, selector: #selector(ImageCache.memoryWarningNotification(_:)), name: NSNotification.Name.UIApplicationDidReceiveMemoryWarning, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(ImageCache.memoryWarningNotification(_:)), name: UIApplication.didReceiveMemoryWarningNotification, object: nil)
         
         reapDiskCache()
     }

@@ -39,7 +39,7 @@ open class QvikNetwork {
         return logger
     }
 
-    open static var logLevel = QvikNetwork.LogLevel.info {
+    public static var logLevel = QvikNetwork.LogLevel.info {
         didSet {
             let level: XCGLogger.Level
             

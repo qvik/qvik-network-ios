@@ -35,8 +35,7 @@ class DownloadManagerTests: XCTestCase {
 
         // Use the test case name as the background id
         log.debug("Setting up with bg id \(String(describing: self.name))")
-        XCTAssert(self.name != nil)
-        manager = DownloadManager(withBackgroundIdentifier: self.name!)
+        manager = DownloadManager(withBackgroundIdentifier: self.name)
         QvikNetwork.logLevel = .verbose
     }
 
@@ -62,7 +61,7 @@ class DownloadManagerTests: XCTestCase {
                 XCTAssert(download != nil)
 
                 if let contentType = download?.contentType {
-                    XCTAssert(contentType.length > 0)
+                    XCTAssert(!contentType.isEmpty)
                 } else {
                     XCTAssert(false, "Content-Type not set!")
                 }
@@ -98,7 +97,7 @@ class DownloadManagerTests: XCTestCase {
                 XCTAssert(response != nil)
 
                 if let contentType = download.contentType {
-                    XCTAssert(contentType.length > 0)
+                    XCTAssert(!contentType.isEmpty)
                 } else {
                     XCTAssert(false, "Content-Type not set!")
                 }

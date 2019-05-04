@@ -39,11 +39,11 @@ public typealias DownloadCompletionCallback = (_ error: Error?, _ response: Data
  */
 open class DownloadManager {
     // This is deprecated as it is no longer in use
-    @available(*, deprecated: 1.1.0, message: "Not used any more")
-    open static let errorDomain = "DownloadManager"
+    @available(*, deprecated, message: "Not used any more")
+    public static let errorDomain = "DownloadManager"
 
     /// Default singleton instance
-    open static let `default` = DownloadManager(withBackgroundIdentifier: UUID().uuidString)
+    public static let `default` = DownloadManager(withBackgroundIdentifier: UUID().uuidString)
 
     /// Alamofire session manager used to handle downloads
     fileprivate let manager: SessionManager
@@ -134,7 +134,7 @@ open class DownloadManager {
 
             // Download completed, remove it from the pending -array
             self.lock.withWriteLock {
-                if let index = self.pendingDownloads.index(of: download) {
+                if let index = self.pendingDownloads.firstIndex(of: download) {
                     self.pendingDownloads.remove(at: index)
                     log.verbose("Removed download from pending list: \(download)")
                 }
@@ -171,7 +171,7 @@ open class DownloadManager {
     }
 
     // This is deprecated to force user always supplying a non-default background identifier
-    @available(*, deprecated: 1.1.0, message: "Use the initializer init(withBackgroundIdentifier:)")
+    @available(*, deprecated, message: "Use the initializer init(withBackgroundIdentifier:)")
     public init(bgSessionId: String? = nil) {
         // Set up AlamoFire instance
         let defaultHeaders = SessionManager.default.session.configuration.httpAdditionalHeaders ?? [:]

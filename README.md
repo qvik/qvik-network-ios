@@ -75,6 +75,13 @@ And the following to your source:
 import QvikNetwork
 ```
 
+## Versions
+
+Use the following library versions for the corresponding Swift language versions:
+
+* 6.x - Swift 5
+* 5.x - Swift 4.2
+
 ## Dependencies
 
 The library has dependencies to the following external modules:

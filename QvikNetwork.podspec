@@ -42,7 +42,8 @@ Pod::Spec.new do |s|
   #  profile URL.
   #
 
-  s.authors            = { "Matti Dahlbom" => "matti.dahlbom@qvik.fi" }
+  s.authors            = { "Matti Dahlbom" => "matti.dahlbom@qvik.fi",
+                           "Kosti Jokinen" => "kosti.jokinen@qvik.fi" }
 
   # ――― Platform Specifics ――――――――――――――――――――――――――――――――――――――――――――――――――――――― #
   #

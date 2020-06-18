@@ -1,10 +1,12 @@
 # Qvik's network utility collection
 
-*This library contains Swift3 networking utilities for use in both Qvik's internal and customer projects. They are released with the MIT license.*
+*This library contains Swift5 networking utilities for use in both Qvik's internal and customer projects. They are released with the MIT license.*
 
 
 ## Changelog
 
+* 6.1.0
+   * AlamoFire 5 compatibility
 * 6.0.0
    * Swift 5 compatibility
 * 4.0.0

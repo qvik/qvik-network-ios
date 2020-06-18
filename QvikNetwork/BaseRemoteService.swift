@@ -145,7 +145,7 @@ class RemoteService: BaseRemoteService {
 */
 open class BaseRemoteService {
     /// Alamofire facade
-    fileprivate let manager: SessionManager
+    fileprivate let manager: Session
 
     /// Defines the mechanism for wrapping a single header name to a (auth) token value.
     public typealias AuthenticationMapping = (headerName: String, authToken: String)
@@ -159,48 +159,50 @@ open class BaseRemoteService {
      
      - parameter afResponse: Response object from AlamoFire
      - returns: Our response object.
-    */
-    open func createRemoteResponse(_ afResponse: DataResponse<Any>) -> RemoteResponse {
+     */
+    open func createRemoteResponse(_ afResponse: AFDataResponse<Any>) -> RemoteResponse {
         // First handle network errors
-        if let error = afResponse.result.error {
+        switch afResponse.result {
+        case .failure(let error):
             log.debug("Response contained an error: \(error)")
             var remoteError = RemoteResponse.Errors.networkError
             if (error as NSError).code == NSURLErrorTimedOut {
                 remoteError = .networkTimeout
             }
-
+            
             return RemoteResponse(remoteError: remoteError)
-        }
-
-        let responseContent = afResponse.result.value
-        let statusCode = afResponse.response?.statusCode
-        log.verbose("HTTP Status code: \(String(describing: statusCode))")
-        
-        if let code = statusCode, code < 200 || code >= 300 {
-            log.debug("Got non-success HTTP response: \(code)")
             
-            var remoteError = RemoteResponse.Errors.serverError
+        case .success:
+            let responseContent = afResponse.value
+            let statusCode = afResponse.response?.statusCode
+            log.verbose("HTTP Status code: \(String(describing: statusCode))")
             
-            switch code {
-            case 401:
-                remoteError = .badCredentials
-            case 404:
-                remoteError = .notFound
-            default:
-                remoteError = .serverError
+            if let code = statusCode, code < 200 || code >= 300 {
+                log.debug("Got non-success HTTP response: \(code)")
+                
+                var remoteError = RemoteResponse.Errors.serverError
+                
+                switch code {
+                case 401:
+                    remoteError = .badCredentials
+                case 404:
+                    remoteError = .notFound
+                default:
+                    remoteError = .serverError
+                }
+                
+                let remoteResponse = RemoteResponse(remoteError: remoteError, content: responseContent)
+                
+                return remoteResponse
             }
-
-            let remoteResponse = RemoteResponse(remoteError: remoteError, content: responseContent)
-
-            return remoteResponse
-        }
-        
-        if let responseContent = responseContent {
-            log.verbose("Received a valid response.")
-            return RemoteResponse(content: responseContent)
-        } else {
-            log.debug("Received invalid or empty JSON response: \(String(describing: afResponse.result.value))")
-            return RemoteResponse(remoteError: RemoteResponse.Errors.badResponse)
+            
+            if let responseContent = responseContent {
+                log.verbose("Received a valid response.")
+                return RemoteResponse(content: responseContent)
+            } else {
+                log.debug("Received invalid or empty JSON response: \(String(describing: afResponse.value))")
+                return RemoteResponse(remoteError: RemoteResponse.Errors.badResponse)
+            }
         }
     }
     
@@ -297,7 +299,7 @@ open class BaseRemoteService {
     */
     public init(backgroundSessionId: String? = nil, additionalHeaders: [String: AnyObject]? = nil, timeout: TimeInterval = 10) {
         // Set up AlamoFire instance
-        var defaultHeaders = SessionManager.default.session.configuration.httpAdditionalHeaders ?? [:]
+        var defaultHeaders = Session.default.session.configuration.httpAdditionalHeaders ?? [:]
         if let additionalHeaders = additionalHeaders {
             for (key, value) in additionalHeaders {
                 defaultHeaders[key] = value
@@ -316,6 +318,6 @@ open class BaseRemoteService {
         configuration.timeoutIntervalForResource = timeout
         log.verbose("Using default headers: \(defaultHeaders)")
         
-        manager = SessionManager(configuration: configuration)
+        manager = Session(configuration: configuration)
     }
 }

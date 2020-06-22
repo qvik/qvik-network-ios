@@ -25,7 +25,7 @@ import Alamofire
 import QvikSwift
 
 public typealias DownloadProgressCallback = (_ totalBytesRead: UInt64, _ totalBytesExpectedToRead: UInt64) -> Void
-public typealias DownloadCompletionCallback = (_ error: Error?, _ response: DataResponse<Data>?) -> Void
+public typealias DownloadCompletionCallback = (_ error: Error?, _ response: AFDataResponse<Data>?) -> Void
 
 /**
  High level HTTP download manager that supports grouping several downloads
@@ -46,7 +46,7 @@ open class DownloadManager {
     public static let `default` = DownloadManager(withBackgroundIdentifier: UUID().uuidString)
 
     /// Alamofire session manager used to handle downloads
-    fileprivate let manager: SessionManager
+    fileprivate let manager: Session
     
     /// Currently pending downloads
     fileprivate(set) open var pendingDownloads = [Download]()
@@ -96,7 +96,7 @@ open class DownloadManager {
             log.verbose("Added download to pending list: \(download)")
         }
 
-        manager.request(url, method: .get, parameters: nil, encoding: URLEncoding.default, headers: additionalHeaders).downloadProgress { progress in
+        manager.request(url, method: .get, parameters: nil, encoding: URLEncoding.default, headers: HTTPHeaders(additionalHeaders ?? [:])).downloadProgress { progress in
             log.debug("Download progress: url: \(url), \(progress.fractionCompleted * 100)%")
 
             download.bytesDownloaded = UInt64(progress.completedUnitCount)
@@ -115,8 +115,11 @@ open class DownloadManager {
 
             log.debug("Request completed: url: \(url), response = \(afResponse), http response: \(String(describing: afResponse.response)), contentType = \(String(describing: contentType))")
 
-            var error = afResponse.result.error
-
+            var error: Error?
+            if case .failure(let responseError) = afResponse.result {
+                error = responseError
+            }
+            
             if let error = error {
                 download.state = .failed
                 download.error = error
@@ -159,30 +162,30 @@ open class DownloadManager {
      */
     public init(withBackgroundIdentifier bgSessionId: String) {
         // Set up AlamoFire instance
-        let defaultHeaders = SessionManager.default.session.configuration.httpAdditionalHeaders ?? [:]
+        let defaultHeaders = Session.default.session.configuration.httpAdditionalHeaders ?? [:]
 
         let configuration = URLSessionConfiguration.background(withIdentifier: bgSessionId)
         configuration.httpAdditionalHeaders = defaultHeaders
         configuration.timeoutIntervalForResource = 30
 
-        log.debug("Constructing SessionManager with defaultHeaders: \(defaultHeaders)")
+        log.debug("Constructing Session with defaultHeaders: \(defaultHeaders)")
 
-        manager = SessionManager(configuration: configuration)
+        manager = Session(configuration: configuration)
     }
 
     // This is deprecated to force user always supplying a non-default background identifier
     @available(*, deprecated, message: "Use the initializer init(withBackgroundIdentifier:)")
     public init(bgSessionId: String? = nil) {
         // Set up AlamoFire instance
-        let defaultHeaders = SessionManager.default.session.configuration.httpAdditionalHeaders ?? [:]
+        let defaultHeaders = Session.default.session.configuration.httpAdditionalHeaders ?? [:]
 
         let bgSessionId = bgSessionId ?? UUID().uuidString
         let configuration = URLSessionConfiguration.background(withIdentifier: bgSessionId)
         configuration.httpAdditionalHeaders = defaultHeaders
         configuration.timeoutIntervalForResource = 30
 
-        log.debug("Constructing SessionManager with defaultHeaders: \(defaultHeaders)")
+        log.debug("Constructing Session with defaultHeaders: \(defaultHeaders)")
         
-        manager = SessionManager(configuration: configuration)
+        manager = Session(configuration: configuration)
     }
 }

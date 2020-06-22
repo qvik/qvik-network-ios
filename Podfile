@@ -1,12 +1,12 @@
 # coding: utf-8
-platform :ios, '9.0'
+platform :ios, '10.0'
 use_frameworks!
 
 source 'https://github.com/CocoaPods/Specs.git'
 source 'https://github.com/qvik/qvik-podspecs.git'
 
 def all_pods
-  pod 'Alamofire', '~> 4.0'
+  pod 'Alamofire', '~> 5.0'
   pod 'QvikSwift', '~> 6.0'
   #pod 'QvikSwift', :path => '../qvik-swift-ios/'
   pod 'QvikUi', '~> 6.0'

@@ -17,7 +17,7 @@ Pod::Spec.new do |s|
   #
 
   s.name          = "QvikNetwork"
-  s.version       = "6.0.2"
+  s.version       = "6.1.0"
   s.swift_version = "5.0"
   s.summary       = "QvikNetwork is a set of networking utilities for Swift5."
   s.homepage      = "https://github.com/qvik/qvik-network-ios"
@@ -52,7 +52,7 @@ Pod::Spec.new do |s|
   #
 
   s.platform     = :ios
-  s.ios.deployment_target = '9.0'
+  s.ios.deployment_target = '10.0'
   s.requires_arc = true
 
   # ――― Source Location ―――――――――――――――――――――――――――――――――――――――――――――――――――――――――― #

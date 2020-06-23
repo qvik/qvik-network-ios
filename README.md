@@ -5,8 +5,10 @@
 
 ## Changelog
 
+* 6.1.1
+   * Alamofire fatal error workaround
 * 6.1.0
-   * AlamoFire 5 compatibility
+   * Alamofire 5 compatibility
 * 6.0.0
    * Swift 5 compatibility
 * 4.0.0

@@ -164,7 +164,9 @@ open class DownloadManager {
         // Set up AlamoFire instance
         let defaultHeaders = Session.default.session.configuration.httpAdditionalHeaders ?? [:]
 
-        let configuration = URLSessionConfiguration.background(withIdentifier: bgSessionId)
+        // TODO use a background process once Alamofire has proper support
+//        let configuration = URLSessionConfiguration.background(withIdentifier: bgSessionId)
+        let configuration = URLSessionConfiguration.default
         configuration.httpAdditionalHeaders = defaultHeaders
         configuration.timeoutIntervalForResource = 30
 
